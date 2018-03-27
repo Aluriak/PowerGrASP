@@ -1,0 +1,4 @@
+pyasp>=1.4.2
+clyngor==0.3.0
+networkx>=1.10
+bubbletools>=0.4.0

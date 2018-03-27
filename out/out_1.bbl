@@ -1,0 +1,39 @@
+EDGE	m	n	1.0
+EDGE	f1	g	1.0
+EDGE	n	m2	1.0
+EDGE	c	b1	1.0
+SET	PWRN-1-2	1.0
+SET	PWRN-3-2	1.0
+SET	PWRN-2-2	1.0
+SET	PWRN-3-1	1.0
+SET	PWRN-1-1	1.0
+SET	PWRN-2-1	1.0
+IN	d	cc	1.0
+IN	PWRN-3-1	PWRN-c-c	1.0
+IN	b2	cc	1.0
+IN	o	cc	1.0
+IN	n	cc	1.0
+IN	g	cc	1.0
+IN	PWRN-1-2	PWRN-c-c	1.0
+IN	f2	cc	1.0
+IN	l	cc	1.0
+IN	PWRN-3-2	PWRN-c-c	1.0
+IN	PWRN-1-1	PWRN-c-c	1.0
+IN	b1	cc	1.0
+IN	m2	cc	1.0
+IN	i	cc	1.0
+IN	h	cc	1.0
+IN	PWRN-2-2	PWRN-c-c	1.0
+IN	e	cc	1.0
+IN	c	cc	1.0
+IN	q	cc	1.0
+IN	p	cc	1.0
+IN	d2	cc	1.0
+IN	a	cc	1.0
+IN	f1	cc	1.0
+IN	PWRN-2-1	PWRN-c-c	1.0
+IN	j	cc	1.0
+IN	m	cc	1.0
+EDGE	PWRN-3-1	PWRN-3-2	1.0
+EDGE	PWRN-1-1	PWRN-1-2	1.0
+EDGE	PWRN-2-1	PWRN-2-2	1.0

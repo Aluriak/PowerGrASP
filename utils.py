@@ -1,0 +1,50 @@
+
+import math
+
+
+def maximal_clique_size(nb_edge:int):
+    """Maximal number of nodes implied in a clique when there is given
+    number of edges between neighbors of a node.
+
+    nb_edge -- number of edges between neighbors of a node n
+    return -- maximal number of node implied in a clique implying node n
+
+    The number of edges covered by a clique of n nodes is given by function k:
+    k(n) = n(n-1) / 2
+
+    The contraposition of k, giving the number of nodes n in a clique of k(n) edges is:
+    n = (1 + √(1+8*k(n))) / 2
+
+    Proof: function k may be expressed as:
+    n^2 - n - 2k(n) = 0
+    The discriminant Δ = (-1)^2 - 4 * 1 * (-2k(n)) = 1 + 8k(n)
+    Roots are (1±√Δ)/2, only the positive one is relevant (unless dark matter is involved),
+    therefore root of k is (1 + √(1+8*k(n))) / 2               □
+
+    For any node n of a graph with v edges between the neighbors of n,
+    the maximal clique MC implying node n is constitued of n
+    and its neighbors having a link between them.
+    An upperbound of that number of node is given by
+    considering that neighbors link are optimally placed to create a clique.
+
+    There is therefore, in the best case, NMC(n) nodes in the maximal
+    clique implying n:
+    NMC(n) = 1 + ⌊ (1 + √(1+8*k(n))) / 2 ⌋
+
+    NMC(n) may then be used to compute the upperbound of clique search,
+    by taking the maximal NMC(n) for all n of the graph in which a clique
+    is searched.
+
+    >>> maximal_clique_size(2)  # when 2 edges between neighbors of n, the maximal clique imply two neighbors and n
+    3
+    >>> maximal_clique_size(3)
+    4
+    >>> maximal_clique_size(4)
+    4
+    >>> maximal_clique_size(5)
+    4
+    >>> maximal_clique_size(6)
+    5
+
+    """
+    return 1 + int((1 + math.sqrt(1 + 8 * nb_edge)) / 2)

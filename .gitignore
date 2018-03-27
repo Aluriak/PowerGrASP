@@ -1,0 +1,5 @@
+Session.vim
+__pycache__/
+venv/
+.cache/
+.pytest_cache/
