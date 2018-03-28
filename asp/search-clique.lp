@@ -12,8 +12,8 @@
 %       - edge(X,Y): there exist an edge linking X and Y in cc. (X<Y)
 %       - membercc(Y): Y is a member of cc.
 % Output:
-%       - newconcept(cc,k,1,X): X is the member of the clique cc at step k.
-%       - clique(cc,k): concept is a clique.
+%       - newconcept(1,X): X is the member of the clique cc at step k.
+%       - clique: motif is a clique.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -28,21 +28,18 @@ inter(X,Y):- inter(Y,X).
 clique3:- inter(X,Y); inter(Y,Z); inter(X,Z).
 
 % Choice of a  clique of at least 3 elements
-3 {newconcept(cc,k,1,X): membercc(X)}:- clique3.
+3 {newconcept(1,X): membercc(X)}:- clique3.
+newconcept(1,(a;b;c;d)).
 
 % Consistency of the clique
-:- newconcept(cc,k,1,X); newconcept(cc,k,1,Y); X<Y; not inter(X,Y).
+:- newconcept(1,X); newconcept(1,Y) ; X<Y ; not inter(X,Y).
 
 % Maximality of the clique
-:- clique3 ; membercc(X); not newconcept(cc,k,1,X) ;
-   inter(X,Y): newconcept(cc,k,1,Y).
-
-% Compatibility with postprocessing: newconcept(cc,k,2,X) exists
-newconcept(cc,k,2,X):- newconcept(cc,k,1,X).
+% :- clique3 ; membercc(X) ; not newconcept(1,X) ; inter(X,Y): newconcept(1,Y).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% CONCEPT PROPERTIES %%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% The found concept is a clique.
-clique(cc,k).
+% The found motif is a clique.
+clique.

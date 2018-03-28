@@ -1,32 +1,25 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Perform scoring of the postprocessed data at each steps.
+% Perform scoring of the processed motif.
 %  The score equals to the edge cover of the concept.
-%
-% The scoring consists of rules allowing the generation of score(N),
-%  providing the score of the produced concept.
-%  its not a stand alone program, but a set of rules that needs to be grounded with
-%  findbestmotif and postprocessing programs
 %
 % initial version:  09/07/2014   L. Bourneuf
 % revised version:  26/03/2018   J. Nicolas
+% revised version:  27/03/2018   L. Bourneuf
 %
 % Constants:
-%       - cc: treated connected component. (cc/1 gives existing cc)
-%       -  k: current step of treatment (first step is 1)
+%       - k: current step of treatment (first step is 1)
 %       - lowerbound: the minimal score
 %       - upperbound: the maximal score
 %
 % Input (from findbestclique or findbestbiclique and postprocessing):
-%       - newconcept(cc,k,T,X): X is the member of the set T in the concept cc at step k.
-%       - clique(cc,k): concept is a clique.
-%       - star(cc,k,T): set T of concept is the singleton of a star.
+%       - newconcept(T,X): X is the member of the set T in the concept cc at step k.
+%       - clique: concept is a clique.
+%       - biclique: motif is a biclique.
+%       - star(T): motif is a biclique and a star, with set T as the hub.
 % Output:
-%       - score(S): concept cc at step k is a motif of score S.
+%       - score(S): motif has score S.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-% Are covered all edges of concept that link two nodes of different sets.
-covered(cc,k,X,Y):- newconcept(cc,k,T,X) ; newconcept(cc,k,3-T,Y) ; X<=Y ; T=1..2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%% EDGE COVER %%%%%%%%%%%
@@ -38,33 +31,22 @@ covered(cc,k,X,Y):- newconcept(cc,k,T,X) ; newconcept(cc,k,3-T,Y) ; X<=Y ; T=1..
 
 % Node count in each set of the biclique is given by summing weights of all nodes.
 % Edge cover is the number of node covered by the set.
-edgecover(cc,k,T,N):- T=1..2 ; not clique(cc,k); N={newconcept(cc,k,T,X)}.
-edgecover(cc,k,1,N):-  clique(cc,k); N={newconcept(cc,k,1,X)}.
-%edgecover(cc,k,T,N):- newconcept(cc,k,T,_) ; N=#sum{W,X:weight(X,W), newconcept(cc,k,T,X)}.
+edgecover(T,N):- biclique ; T=1..2 ; N={newconcept(T,X)}.
+edgecover(1,N):- clique   ; N={newconcept(1,X)}.
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% SCORE OPTIMIZATION %%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Concept score, equal to maximal score - edge cover.
-score(N):- N<=upperbound; N>=lowerbound; star(cc,k,T); edgecover(cc,k,3-T,N).
-score(N):- N=((N1*(N1-1))/2); N<=upperbound; N>=lowerbound; clique(cc,k);
-           edgecover(cc,k,1,N1).
-score(N):- N=N1*N2; N<=upperbound; N>=lowerbound; not clique(cc,k); not star(cc,k,1); not star(cc,k,2);
-           edgecover(cc,k,1,N1) ; edgecover(cc,k,2,N2).
-%score(N):- N=upperbound-(N1*N2); N>=0   ; not clique(cc,k)    ;
-%           edgecover(cc,k,1,N1) ; edgecover(cc,k,2,N2).
-%score(N):- N=upperbound-((N1*(N1-1))/2) ; N>=0 ; clique(cc,k) ;
-%           edgecover(cc,k,1,N1).
-%score(N):- N=upperbound-((N1*(N1-1))/2) ; N>=0 ; clique(cc,k) ;
-%           N1={newconcept(cc,k,1,X)}.
+score(N):- N=((N1*(N1-1))/2) ; N<=upperbound ; N>=lowerbound ; clique ; edgecover(1,N1).
+score(N):- N<=upperbound; N>=lowerbound; star(T) ; edgecover(3-T,N).
+score(N):- N=N1*N2; N<=upperbound; N>=lowerbound; biclique ; not star(1); not star(2);
+           edgecover(1,N1) ; edgecover(2,N2).
 
 % Minimize score
-%%#minimize{S@1,S:score(S)}.
 #minimize{(upperbound-S)@1,S:score(S)}.
-
-% Exclusion of concepts with not enough nodes.
-%  The lowerbound is equals to 1 at least,
-%  and determined by the scorebound ASP program.
-%  The upperbound is the min between the number of remaining edges
-%  in the connected component and the size of the previous concept.
-%%:- score(S) ; S>upperbound-lowerbound.
 
 % Discard cases when no score is generated
 :- not score(_).
+#show score/1.  % Warning, Python will use this and consider that the edge cover is the score.
