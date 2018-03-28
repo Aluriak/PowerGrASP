@@ -10,7 +10,6 @@
 %
 % Input:
 %       - edge(X,Y): there exist an edge linking X and Y in cc. (X<Y)
-%       - membercc(Y): Y is a member of cc.
 % Output:
 %       - newconcept(1,X): X is the member of the clique cc at step k.
 %       - clique: motif is a clique.
@@ -28,7 +27,7 @@ inter(X,Y):- inter(Y,X).
 clique3:- inter(X,Y); inter(Y,Z); inter(X,Z).
 
 % Choice of a  clique of at least 3 elements
-3 {newconcept(1,X): membercc(X)}:- clique3.
+3 {newconcept(1,X): inter(X,_)}:- clique3.
 newconcept(1,(a;b;c;d)).
 
 % Consistency of the clique

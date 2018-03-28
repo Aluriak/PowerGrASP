@@ -13,7 +13,6 @@
 % Input:
 %       - inter(X,Y): there exist an edge linking X and Y in cc.
 %       - edge(X,Y): there exist a edge linking X and Y in cc (X<Y).
-%       - membercc(Y): Y is a member of cc.
 % Output:
 %       - newconcept(T,X): X is a member of the set T of currently processed motif.
 %       - star(T): motif is a star, set T is the hub.
@@ -32,7 +31,7 @@ inter(X,Y):- inter(Y,X).
 linked2(X,Y):- inter(X,Z) ; inter(Y,Z) ; X<Y.
 
 % Choice of the minimum of the concept
-1{minobj(X): membercc(X)}1.
+1{minobj(X): inter(X,_)}1.
 
 % Choice of elements in set 1
 newconcept(1,X):- minobj(X).

@@ -59,14 +59,6 @@ powernode_integrated(k,T,X):- newconcept(T,X) ; not perfectfit(T,_,_) ; not star
 %%%%%%%%%%  HIERARCHY  %%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Management of blocks at step k
-% nodes covered by a powernode are set in the associated block
-% block(k,T,X):- newconcept(T,X) ; not star(T).
-
-% keep nodes not covered by new concept in their block
-% block(k,P,X):- membercc(X) ; not newconcept(T,X): T=1..2 ; block(k-1,P,X).
-% block(k,P,X):- newconcept(T,X) ; star(T) ; block(k-1,P,X) ; T=1..2.
-
 % B is a parent block of P if it contains it and no other block contained in B contains P.
 parent_block(KP,TP,T):- block_contains_newconcept(KP,TP,T) ; not perfectfit(T,KP,TP) ;
                         not {include_block(k-1,KP,TP,KZ,TZ) ; block_contains_newconcept(KZ,TZ,T)}.
