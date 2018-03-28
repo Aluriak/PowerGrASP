@@ -1,5 +1,6 @@
+*.bbl
+.cache/
+.pytest_cache/
 Session.vim
 __pycache__/
 venv/
-.cache/
-.pytest_cache/
