@@ -8,7 +8,10 @@ if __name__ == "__main__":
     # graphs = Graph.ccs_from_file('data/ddiam.lp')
     # graphs = Graph.ccs_from_file('data/one_edge.lp')
     # graphs = Graph.ccs_from_file('data/clique.lp')
-    graphs = Graph.ccs_from_file('data/perfectfit.lp')
+    # graphs = Graph.ccs_from_file('data/perfectfit.lp')
+    # graphs = Graph.ccs_from_file('data/abnormal.lp')
+    # graphs = Graph.ccs_from_file('data/n8_d0.7.lp')
+    graphs = Graph.ccs_from_file('data/hanging-bio-notree-cc0.lp')
     for idx, graph in enumerate(graphs, start=1):
 
         searchers = (CliqueSearcher(graph), BicliqueSearcher(graph))
