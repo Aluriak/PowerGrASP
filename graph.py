@@ -47,8 +47,6 @@ class Graph:
         assert (step-1) >= 0, step
         for source, target in self.__edges:
             yield 'edge({},{}).'.format(source, target)
-        for node in self.__nodes:
-            yield 'membercc({}).'.format(node)
         for (stepa, seta), nodes in self.__powernodes.items():
             for node in nodes:
                 yield 'block({},{},{},{}).'.format(step-1, stepa, seta, node)
