@@ -25,7 +25,15 @@ class Graph:
         self._nxgraph = nxgraph
 
         # internal graph representation
-        self.__edges = set(map(frozenset, nxgraph.edges))
+        self.__edges = map(frozenset, nxgraph.edges)
+        if TEST_INTEGRITY:
+            self.__edges = tuple(self.__edges)
+            for args in self.__edges:
+                if len(args) == 1:
+                    print('INFO   : node {} has a self loop. It will be filtered.'.format(next(iter(args))))
+                elif len(args) != 2:
+                    print('WARNING: Weird edge: {}. It will be filtered.'.format(args))
+        self.__edges = set(edge for edge in self.__edges if len(edge) == 2)
         self.__nodes = set(nxgraph.nodes)
         self.__hierarchy = set()  # inclusions between powernodes
         self.__powernodes = defaultdict(set)  # (step, set) -> {node in powernode}
