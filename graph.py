@@ -1,6 +1,8 @@
 import phasme
 import networkx
 from collections import defaultdict
+from pprint import pprint
+from constants import TEST_INTEGRITY, SHOW_STORY
 
 from motif import Motif
 
@@ -25,7 +27,7 @@ class Graph:
         # internal graph representation
         self.__edges = set(map(frozenset, nxgraph.edges))
         self.__nodes = set(nxgraph.nodes)
-        self.__hierarchy = {('cc', n) for n in nxgraph.nodes}
+        self.__hierarchy = set()  # inclusions between powernodes
         self.__powernodes = defaultdict(set)  # (step, set) -> {node in powernode}
         self.__poweredges = defaultdict(set)  # (step, set) -> (step, set)
 
@@ -41,35 +43,71 @@ class Graph:
         powerobjects -- also include powernodes and poweredges
 
         """
+        assert step > 0, step
+        assert (step-1) >= 0, step
         for source, target in self.__edges:
             yield 'edge({},{}).'.format(source, target)
         for node in self.__nodes:
             yield 'membercc({}).'.format(node)
-        for container, contained in self.__hierarchy:
-            if isinstance(contained, str):
-                yield 'block({},p(cc,{},{}),{}).'.format(step-1, *container, contained)
-            else:
-                yield 'include_block({},p(cc,{},{}),p(cc,{},{})).'.format(step-1, *container, *contained)
+        for (stepa, seta), nodes in self.__powernodes.items():
+            for node in nodes:
+                yield 'block({},{},{},{}).'.format(step-1, stepa, seta, node)
+        for stepa, seta, stepb, setb in self.__hierarchy:
+            yield 'include_block({},{},{},{},{}).'.format(step-1, stepa, seta, stepb, setb)
         if powerobjects:
             raise NotImplementedError()
 
 
     def compress(self, motif:Motif):
-        # for upper, lower in motif.hierachy_added:
-            # self.__hierarchy.add(upper, lower)
-        # for upper, lower in motif.hierachy_removed:
-            # self.__hierarchy.remove(upper, lower)
         print('COMPRESS…')
-        for upper, lower in motif.include_blocks:
-            # print('\tINC BLOCK', upper, lower)
-            self.__hierarchy.add((upper, lower))
-
-        for numset, node in motif.new_powernode:
-            # print('\tP-NODE', numset, node)
+        pprint(dict(self.__powernodes))
+        # handle the simple values: new powernodes, poweredges.
+        for numset, node in motif.new_powernodes:
+            print('\tP-NODE', numset, node)
             self.__powernodes[motif.uid, numset].add(node)
         for source, target in motif.new_poweredge:
+            print('\tP-EDGE', source, target)
             self.__poweredges[source].add(target)
-        self.__edges -= set(motif.edges_covered)
+
+        # graph edges reduction and monitoring
+        covered = frozenset(motif.edges_covered)
+        nb_edges = len(self.__edges)
+        self.__edges -= covered
+        if nb_edges - len(covered) != len(self.__edges):
+            diff = covered - self.__edges
+            raise ValueError("{} edges yielded by {} searcher were not in the graph: {}"
+                             "".format(len(diff), motif.name, ', '.join(map(str, diff))))
+        print('\tCOVER', len(covered))
+
+        # Now the big part: hierarchy. ASP send patch to apply on it.
+        for args in motif.hierachy_added:
+            print('\tADD HIERARCHY', args)
+            self.__hierarchy.add(args)
+            step_parent, num_parent, step_son, num_son = args
+            # nodes in the parent block must be moved to the new block.
+            # without that, the node would be at the same time in two powernodes.
+            nodes = self.__powernodes[step_parent, num_parent] & self.__powernodes[step_son, num_son]
+            if nodes:
+                self.__powernodes[step_parent, num_parent] -= nodes
+                self.__powernodes[step_son, num_son] |= nodes
+                print('\tMOVE NODES: {} FROM {} TO {}'.format(nodes, (step_parent, num_parent), (step_son, num_son)))
+
+        for args in motif.hierachy_removed:
+            print('\tDEL HIERARCHY', args)
+            self.__hierarchy.remove(args)
+
+        # Checking that the total number of nodes didn't change,
+        #  i.e. there is no node placed in two powernodes,
+        #  would be a great idea, but there is no way to do that since there is
+        #  no way to know how many nodes are on ground (not in any powernode)
+        #  without using the self.__powernodes attribute.
+        # import itertools
+        # nb_nodes_in_pnodes = sum(1 for _ in itertools.chain.from_iterable(self.__powernodes.values()))
+        # nb_nodes_in_ground = ...
+        # assert nb_nodes_in_pnodes == self.nb_node, (nb_nodes_in_pnodes, self.nb_node)
+        print('PNODES:')
+        pprint(dict(self.__powernodes))
+
 
 
     @property
@@ -106,19 +144,40 @@ class Graph:
 
 
     def output(self, filename:str):
-        def yield_lines():
-            for source, target in self.__edges:
-                yield 'EDGE\t{}\t{}\t1.0\n'.format(source, target)
-            for uid in self.__powernodes:
-                yield 'SET\t{}\t1.0\n'.format(format_name(uid))
-            for container, contained in self.__hierarchy:
-                yield 'IN\t{}\t{}\t1.0\n'.format(format_name(contained), format_name(container))  # contained first
-            for source, targets in self.__poweredges.items():
-                for target in targets:
-                    yield 'EDGE\t{}\t{}\t1.0\n'.format(format_name(source), format_name(target))
+        """Write in given filename the bubble representation of the graph"""
+        print('\n\n###########################\n')
+        print('PNODES:')
+        pprint(dict(self.__powernodes))
+        print('HIERAC:')
+        pprint(self.__hierarchy)
+        print('PEDGES:')
+        pprint(dict(self.__poweredges))
+        print(' EDGES:')
+        pprint(self.__edges)
+
+
         with open(filename, 'w') as fd:
-            for line in yield_lines():
-                fd.write(line)
+            for line in self.bubble_repr():
+                fd.write(line + '\n')
+
+
+    def bubble_repr(self) -> iter:
+        """Yield lines of bubble representation"""
+        for uid in self.__powernodes:
+            yield 'SET\t{}\t1.0'.format(format_name(uid))
+        for stepa, seta, stepb, setb in self.__hierarchy:
+            if stepa == 0 and seta == 0:  # base level
+                continue  # ignore it
+            yield 'IN\t{}\t{}'.format(format_name((stepb, setb)), format_name((stepa, seta)))  # contained first
+        for (step, numset), nodes in self.__powernodes.items():
+            for node in nodes:
+                yield 'IN\t{}\t{}'.format(format_name(node), format_name((step, numset)))
+        for source, targets in self.__poweredges.items():
+            for target in targets:
+                yield 'EDGE\t{}\t{}\t1.0'.format(format_name(source), format_name(target))
+        for source, target in self.__edges:
+            yield 'EDGE\t{}\t{}\t0.5'.format(source, target)
+
 
 def format_name(name):
     """Return string representation of powernode of given step and set nb.
