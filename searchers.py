@@ -129,8 +129,9 @@ class CliqueSearcher(MotifSearcher):
             clique_size = utils.maximal_clique_size(nb_edge)
             # if upperbound > len(neighbors):  # TODO: test and prove useful that optimization
                 # break  # we can't found better since it's sorted
-            upperbound = max(upperbound, upperbound)
-        return upperbound
+            upperbound = max(clique_size, upperbound)
+        # return the number of edges, not the number of node
+        return int(upperbound * (upperbound - 1) / 2)
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
         graph = ''.join(graph.as_asp(step))
