@@ -111,9 +111,9 @@ class BicliqueSearcher(MotifSearcher):
         if SHOW_STORY:
             print('IDGVSP:', dict(pnodes))
         if TEST_INTEGRITY:
-            combinations = tuple(itertools.combinations(*pnodes.values()))
+            combinations = tuple(itertools.product(*pnodes.values()))
             assert motif.score == len(combinations), (motif.score, combinations)
-        yield from map(frozenset, itertools.combinations(*pnodes.values()))
+        yield from map(frozenset, itertools.product(*pnodes.values()))
 
 
 class CliqueSearcher(MotifSearcher):
