@@ -1,16 +1,27 @@
-import itertools
-from collections import defaultdict
+
+from constants import TEST_INTEGRITY, SHOW_STORY, COVERED_EDGES_FROM_ASP
+
 
 class Motif:
-    """A motif found by a motif searcher."""
-    def __init__(self, typename:str, atoms:dict, maximal:bool, step:int):
+    """A motif found by a motif searcher.
+
+    The motif is a proxy to the ASP model, with a large set of properties
+    that Graph and Searchers will use to determine the Motif effect
+    on the Graph.
+
+    """
+    def __init__(self, typename:str, atoms:dict, maximal:bool, step:int, covered_edges_function:callable):
         self.typename, self.atoms, self.ismaximal, self.step = str(typename), atoms, bool(maximal), int(step)
-        print('MXVUFU:', self.atoms)
+        self._covered_edges_function = covered_edges_function
+        if SHOW_STORY:
+            from pprint import pprint
+            print('ATOMS FOR MOTIF {}:'.format(typename))
+            pprint(self.atoms)
         self._score = None
 
 
     @property
-    def name(self) -> str:  return self.name
+    def name(self) -> str:  return self.typename
     @property
     def uid(self) -> int:  return self.step
 
@@ -38,49 +49,41 @@ class Motif:
         if not isinstance(score, int):
             raise ASPModelError("Atom `score` got a non-int argument of type {}: {}".format(type(score), score))
         assert isinstance(score, int)
-        print('SCORE', score)
         return score
 
 
     @property
-    def new_powernode(self) -> iter:
-        yield from ((set, node) for _cc, _step, set, node in self.atoms.get('powernode', ()))
+    def new_powernodes(self) -> iter:
+        yield from self.atoms.get('new_powernode', ())
+    @property
+    def powernodes(self) -> iter:
+        yield from self.atoms.get('powernode', ())
+    @property
+    def stars(self) -> iter:
+        yield from (args[0] for args in self.atoms.get('star', ()))
     @property
     def new_poweredge(self) -> iter:
         for args in self.atoms.get('poweredge', ()):
-            if len(args) == 5:
-                cc, step_a, set_a, step_b, set_b = args
+            if len(args) == 4:
+                step_a, set_a, step_b, set_b = args
                 yield (step_a, set_a), (step_b, set_b)
-            elif len(args) == 4:
-                cc, step, set, node = args
+            elif len(args) == 3:
+                step_a, set_a, node = args
                 yield (step_a, set_a), node
     @property
     def edges_covered(self) -> iter:
-        pnodes = defaultdict(set)
-        for numset, node in self.new_powernode:
-            pnodes[numset].add(node)
-        yield from map(frozenset, itertools.product(*pnodes.values()))
+        """Note that the computation of edges covered by the motif is delegated
+        to the searcher object, in order to avoid a costly output from ASP.
+        This may or may not be useful.
+
+        """
+        if COVERED_EDGES_FROM_ASP:
+            yield from map(frozenset, self.atoms.get('covered_edge', ()))
+        else:
+            yield from frozenset(self._covered_edges_function(self))
     @property
-    def blocks(self) -> iter:
-        for args in self.atoms.get('block', ()):
-            if len(args) == 3:
-                _, step_a, set_a, node = args
-                yield (step_a, set_a), node
-            elif len(args) == 4:
-                _, cc, node = args
-                yield (0, 0), node
+    def hierachy_added(self) -> iter:
+        yield from self.atoms.get('hierarchy_add', ())
     @property
-    def include_blocks(self) -> iter:
-        for args in self.atoms.get('include_block', ()):
-            if len(args) == 5:
-                _, step_a, set_a, step_b, set_b = args
-                yield (step_a, set_a), (step_b, set_b)
-            elif len(args) == 4:
-                _, cc, step, set = args
-                yield (0, 0), (step, set)
-    # @property
-    # def hierachy_added(self) -> iter:
-        # yield from self.atoms.get('hierarchy_add', ())
-    # @property
-    # def hierachy_removed(self) -> iter:
-        # yield from self.atoms.get('hierarchy_remove', ())
+    def hierachy_removed(self) -> iter:
+        yield from self.atoms.get('hierarchy_remove', ())
