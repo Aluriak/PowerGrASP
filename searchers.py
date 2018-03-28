@@ -1,9 +1,12 @@
 
+import itertools
+from collections import defaultdict
+
 import asp
 import utils
-
 from motif import Motif
 from graph import Graph
+from constants import TEST_INTEGRITY, SHOW_STORY
 
 
 class MotifSearcher:
@@ -17,6 +20,7 @@ class MotifSearcher:
     - init_for_graph: called on the graph on which the search will take place.
     - search: called to search a motif in the graph.
     - on_new_compressed_motif: called when a new motif is compressed. Information on that motif is given, notably its score.
+    - covered_edges: function giving the edges covered by a given motif
     - name: the name of the motif, human-readable, making it different from the others.
 
     And the following methods to be overwritten (if no default) by subclasses:
@@ -63,10 +67,16 @@ class MotifSearcher:
         assert isinstance(lowerbound, int)
         atoms = self._search(step, self.graph, lowerbound, self.upperbound)
         if atoms is None:  return None
-        return Motif(self.name, atoms, maximal=True, step=step)
+        return Motif(self.name, atoms, maximal=True, step=step, covered_edges_function=self.covered_edges)
 
     def _search(self, graph:Graph, lowerbound:int, upperbound:int) -> Motif:
         raise NotImplementedError()
+
+
+    def covered_edges(self, motif:Motif) -> iter:
+        """Yield edges covered by given motif."""
+        raise NotImplementedError()
+
 
     @property
     def name(self) -> str:
@@ -86,8 +96,24 @@ class BicliqueSearcher(MotifSearcher):
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
         graph = ''.join(graph.as_asp(step))
+        if SHOW_STORY:
+            print('UHJGMR: GRAPH:', graph)
         files = ('asp/search-biclique.lp', 'asp/process-motif.lp', 'asp/scoring_powergraph.lp')
         return asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
+
+    def covered_edges(self, motif:Motif) -> iter:
+        assert motif.name == self.name
+        pnodes = defaultdict(set)
+        for step, numset, node in motif.powernodes:
+            pnodes[step, numset].add(node)
+        for node in motif.stars:
+            pnodes['star'].add(node)
+        if SHOW_STORY:
+            print('IDGVSP:', dict(pnodes))
+        if TEST_INTEGRITY:
+            combinations = tuple(itertools.combinations(*pnodes.values()))
+            assert motif.score == len(combinations), (motif.score, combinations)
+        yield from map(frozenset, itertools.combinations(*pnodes.values()))
 
 
 class CliqueSearcher(MotifSearcher):
@@ -110,3 +136,12 @@ class CliqueSearcher(MotifSearcher):
         graph = ''.join(graph.as_asp(step))
         files = ('asp/search-clique.lp', 'asp/process-motif.lp', 'asp/scoring_powergraph.lp')
         return asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
+
+    def covered_edges(self, motif:Motif) -> iter:
+        """Return the edges that are covered by given motif"""
+        assert motif.name == self.name
+        if TEST_INTEGRITY:
+            for numset, node in motif.new_powernodes:
+                assert numset == 1
+        nodes = frozenset(node for _, node in motif.new_powernodes)
+        yield from map(frozenset, itertools.combinations(nodes, r=2))
