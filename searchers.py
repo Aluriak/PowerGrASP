@@ -37,8 +37,14 @@ class MotifSearcher:
         self.init_for_graph(graph)
 
     def init_for_graph(self, graph:Graph):
-        self.upperbound = self.compute_initial_upperbound(graph)
-        self.lowerbound = self.compute_initial_lowerbound(graph)
+        self._upperbound = self.compute_initial_upperbound(graph)
+        self._lowerbound = self.compute_initial_lowerbound(graph)
+        assert self.lowerbound <= self.upperbound, (self.lowerbound, self.upperbound)
+
+    @property
+    def lowerbound(self) -> int:  return self._lowerbound
+    @property
+    def upperbound(self) -> int:  return self._upperbound
 
     def compute_initial_upperbound(self, graph:Graph) -> int:
         return graph.nb_edge
@@ -46,8 +52,9 @@ class MotifSearcher:
         return 2
     def on_new_compressed_motif(self, motif:Motif):
         """How to react when a motif is compressed ?"""
-        if motif.ismaximal:
-            self.upperbound = motif.score
+        if motif.ismaximal and motif.name == self.name:
+            self._upperbound = motif.score
+        self._lowerbound = 2  # now the optimization is not valid
 
 
     def search(self, step:int, score_to_beat:int=0) -> Motif:
@@ -69,7 +76,7 @@ class MotifSearcher:
 
 
 class BicliqueSearcher(MotifSearcher):
-    """Searcher for bicliques."""
+    """Searcher for Bicliques."""
 
     def _name(self) -> str: return 'biclique'
 
