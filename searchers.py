@@ -43,7 +43,7 @@ class MotifSearcher:
     def init_for_graph(self, graph:Graph):
         self._upperbound = self.compute_initial_upperbound(graph)
         self._lowerbound = self.compute_initial_lowerbound(graph)
-        assert self.lowerbound <= self.upperbound, (self.lowerbound, self.upperbound)
+        assert self.lowerbound <= self.upperbound, (self.lowerbound, self.upperbound, self.name)
 
     @property
     def lowerbound(self) -> int:  return self._lowerbound
