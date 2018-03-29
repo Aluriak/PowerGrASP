@@ -158,6 +158,23 @@ class Graph:
             print('PNODES:')
             pprint(dict(self.__powernodes))
 
+        if TEST_INTEGRITY:
+            inclusions = defaultdict(set)
+            for stp, nsp, sts, nss in self.__hierarchy:
+                inclusions[stp, nsp].add((sts, nss))
+            # reversed:
+            parents = defaultdict(set)
+            for parent, sons in inclusions.items():
+                for son in sons:
+                    parents[son].add(parent)
+            # detect son with multiple parents
+            multiple_parents = {son for son, parents in parents.items() if len(parents) > 1}
+            if multiple_parents:
+                print('ERROR MULTIPLE PARENT:', len(multiple_parents))
+                pprint(multiple_parents)
+                exit(1)
+
+
 
     @property
     def uid(self) -> str:
