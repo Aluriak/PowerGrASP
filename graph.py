@@ -11,19 +11,16 @@ class Graph:
 
     Note that a data is computed during its first access.
 
+    Note the uid parameter for constructor
+
     """
-    def __init__(self, graph:str or networkx.Graph):
+    def __init__(self, graph:str or networkx.Graph, uid:str=''):
         if isinstance(graph, networkx.Graph):
             nxgraph = networkx.Graph(graph)
         elif isinstance(graph, str):
             nxgraph = phasme.build_graph.graph_from_file(graph)
         else:
             raise ValueError("Unexpected {}".format(graph))
-        # data
-        self.__nb_node = nxgraph.order()
-        self.__nb_cc = networkx.number_connected_components(nxgraph)
-        self._nxgraph = nxgraph
-
         # internal graph representation
         self.__edges = map(frozenset, nxgraph.edges)
         if TEST_INTEGRITY:
@@ -34,7 +31,15 @@ class Graph:
                 elif len(args) != 2:
                     print('WARNING: Weird edge: {}. It will be filtered.'.format(args))
         self.__edges = set(edge for edge in self.__edges if len(edge) == 2)
+
+        # data
+        self.__uid = str(uid)
         self.__nodes = set(nxgraph.nodes)
+        self.__nb_node = len(self.__nodes)
+        self.__nb_cc = networkx.number_connected_components(nxgraph)
+        self._nxgraph = nxgraph
+        self._nxgraph.remove_edges_from(self._nxgraph.selfloop_edges())
+
         self.__hierarchy = set()  # inclusions between powernodes
         self.__powernodes = defaultdict(set)  # (step, set) -> {node in powernode}
         self.__poweredges = defaultdict(set)  # (step, set) -> (step, set)
@@ -43,7 +48,8 @@ class Graph:
     def ccs_from_file(filename:str) -> iter:
         """Yield graphs found in given filename. Each graph is a connected component."""
         nxgraph = phasme.build_graph.graph_from_file(filename)
-        yield from (Graph(nxgraph.subgraph(cc)) for cc in networkx.connected_components(nxgraph))
+        yield from (Graph(nxgraph.subgraph(cc), uid=idx) for idx, cc in
+                    enumerate(networkx.connected_components(nxgraph), start=1))
 
     def as_asp(self, step:int, powerobjects:bool=False) -> [str]:
         """Yield atoms of graph's ASP string representation, in edges and hierarchy.
@@ -115,7 +121,9 @@ class Graph:
         pprint(dict(self.__powernodes))
 
 
-
+    @property
+    def uid(self) -> str:
+        return self.__uid
     @property
     def nb_edge(self) -> int:
         return len(self.__edges)
@@ -169,29 +177,30 @@ class Graph:
 
     def bubble_repr(self) -> iter:
         """Yield lines of bubble representation"""
+        _format_name = lambda x: format_name(self.uid, x)
         for uid in self.__powernodes:
-            yield 'SET\t{}\t1.0'.format(format_name(uid))
+            yield 'SET\t{}\t1.0'.format(_format_name(uid))
         for stepa, seta, stepb, setb in self.__hierarchy:
             if stepa == 0 and seta == 0:  # base level
                 continue  # ignore it
-            yield 'IN\t{}\t{}'.format(format_name((stepb, setb)), format_name((stepa, seta)))  # contained first
+            yield 'IN\t{}\t{}'.format(_format_name((stepb, setb)), _format_name((stepa, seta)))  # contained first
         for (step, numset), nodes in self.__powernodes.items():
             for node in nodes:
-                yield 'IN\t{}\t{}'.format(format_name(node), format_name((step, numset)))
+                yield 'IN\t{}\t{}'.format(_format_name(node), _format_name((step, numset)))
         for source, targets in self.__poweredges.items():
             for target in targets:
-                yield 'EDGE\t{}\t{}\t1.0'.format(format_name(source), format_name(target))
+                yield 'EDGE\t{}\t{}\t1.0'.format(_format_name(source), _format_name(target))
         for source, target in self.__edges:
             yield 'EDGE\t{}\t{}\t0.5'.format(source, target)
 
 
-def format_name(name):
+def format_name(cc:str, name):
     """Return string representation of powernode of given step and set nb.
 
     This string representation is not ASP valid,
      but can be used as name in most file formats :
 
-        PWRN-<step>-<num_set>
+        PWRN-<cc>-<step>-<num_set>
 
     >>> format_name('cc')
     'cc'
@@ -201,6 +210,6 @@ def format_name(name):
     'PWRN-cc-4'
 
     """
-    if isinstance(name, str):
-        return name
-    return 'PWRN-{}-{}'.format(*name)
+    if isinstance(name, (str, int)):
+        return str(name)
+    return 'PWRN-{}-{}-{}'.format(cc, *name)
