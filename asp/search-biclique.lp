@@ -11,7 +11,6 @@
 %       - upperbound: the maximal reachable cover.
 %       - max_set_size: the maximal reachable size of a set.
 % Input:
-%       - inter(X,Y): there exist an edge linking X and Y in cc.
 %       - edge(X,Y): there exist a edge linking X and Y in cc (X<Y).
 % Output:
 %       - newconcept(T,X): X is a member of the set T of currently processed motif.
