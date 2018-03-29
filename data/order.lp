@@ -8,4 +8,4 @@ edge(10,5).
 edge(10,6).
 
 edge(a,10).
-edge("a",a).
+edge("b",a).

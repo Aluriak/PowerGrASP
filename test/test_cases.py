@@ -320,14 +320,14 @@ EDGE\tPWRN-a-2-2\tPWRN-a-3-1\t1.0
 
 cases['variable-name.gml'] = """
 NODE\tA
+NODE\tB
 NODE\tC
 NODE\tD
-NODE\t_c34_B_c34_
 SET\tPWRN-A-1-2\t1.0
 IN\tC\tPWRN-A-1-2
-IN\t_c34_B_c34_\tPWRN-A-1-2
+IN\tB\tPWRN-A-1-2
 EDGE\tA\tPWRN-A-1-2\t1.0
-EDGE\tD\t_c34_B_c34_\t1.0
+EDGE\tB\tD\t1.0
 """
 
 cases['test.gml'] = """
@@ -391,19 +391,29 @@ EDGE\tPWRN-a-2-1\tPWRN-a-2-1\t1.0
 """
 
 cases['order.lp'] = """
-NODE\t_c34_a_c34_
+NODE\tb
 NODE\t10
 NODE\t4
 NODE\t5
 NODE\t6
 NODE\ta
-IN\t4\tPWRN-_c34_a_c34_-1-1
-IN\ta\tPWRN-_c34_a_c34_-1-1
-IN\t6\tPWRN-_c34_a_c34_-1-1
-IN\t5\tPWRN-_c34_a_c34_-1-1
-SET\tPWRN-_c34_a_c34_-1-1\t1.0
-EDGE\t_c34_a_c34_\ta\t1.0
-EDGE\t10\tPWRN-_c34_a_c34_-1-1\t1.0
+IN\t4\tPWRN-a-1-1
+IN\ta\tPWRN-a-1-1
+IN\t6\tPWRN-a-1-1
+IN\t5\tPWRN-a-1-1
+SET\tPWRN-a-1-1\t1.0
+EDGE\ta\tb\t1.0
+EDGE\t10\tPWRN-a-1-1\t1.0
+"""
+
+cases['quoting.lp'] = """
+NODE\ta
+NODE\tb
+NODE\tc
+IN\tc\tPWRN-a-1-2
+IN\tb\tPWRN-a-1-2
+SET\tPWRN-a-1-2\t1.0
+EDGE\tPWRN-a-1-2\ta\t1.0
 """
 
 cases['test.graphml'] = """
@@ -460,16 +470,16 @@ EDGE\tPWRN-b-3-2\tl\t1.0
 """
 
 cases['horrible_data.lp'] = """
-NODE\t_c34__c92__c34_echo_c32_coucou_c92__c34__c34_
-NODE\t_c34__c91_a_c93__c34_
-NODE\t_c34__c39_echo_c32_coucou_c39__c34_
-SET\tPWRN-_c34__c39_echo_c32_coucou_c39__c34_-1-1\t1.0
-IN\t_c34__c92__c34_echo_c32_coucou_c92__c34__c34_\tPWRN-_c34__c39_echo_c32_coucou_c39__c34_-1-1
-IN\t_c34__c39_echo_c32_coucou_c39__c34_\tPWRN-_c34__c39_echo_c32_coucou_c39__c34_-1-1
-EDGE\tPWRN-_c34__c39_echo_c32_coucou_c39__c34_-1-1\t_c34__c91_a_c93__c34_\t1.0
-NODE\t_c34__c91_a_c44_b_c93__c34_
-NODE\t_c34__c36_PYTHONPATH_c34_
-EDGE\t_c34__c36_PYTHONPATH_c34_\t_c34__c91_a_c44_b_c93__c34_\t1.0
+NODE\t_c92__c34_echo_c32_coucou_c92__c34_
+NODE\t_c91_a_c93_
+NODE\t_c39_echo_c32_coucou_c39_
+SET\tPWRN-_c39_echo_c32_coucou_c39_-1-1\t1.0
+IN\t_c92__c34_echo_c32_coucou_c92__c34_\tPWRN-_c39_echo_c32_coucou_c39_-1-1
+IN\t_c39_echo_c32_coucou_c39_\tPWRN-_c39_echo_c32_coucou_c39_-1-1
+EDGE\tPWRN-_c39_echo_c32_coucou_c39_-1-1\t_c91_a_c93_\t1.0
+NODE\t_c91_a_c44_b_c93_
+NODE\t_c36_PYTHONPATH
+EDGE\t_c36_PYTHONPATH\t_c91_a_c44_b_c93_\t1.0
 """
 
 cases['inclusions.lp'] = """
