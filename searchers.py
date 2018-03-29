@@ -133,14 +133,14 @@ class CliqueSearcher(MotifSearcher):
     def compute_initial_upperbound(self, graph:Graph) -> int:
         """Use utils.maximal_clique_size function on all nodes of graph to
         compute the biggest clique possible theoretically."""
-        upperbound = 0
-        for node, neighbors, nb_edge in graph.neighbors(increasing_degree=True, nb_edges_between_neighbors=True):
-            clique_size = utils.maximal_clique_size(nb_edge)
-            # if upperbound > len(neighbors):  # TODO: test and prove useful that optimization
+        clique_size = 0
+        for node, _, nb_edge in graph.neighbors(increasing_degree=True, nb_edges_between_neighbors=True):
+            node_clique_size = utils.maximal_clique_size(nb_edge)
+            clique_size = max(clique_size, node_clique_size)
+            # if clique_size > len(neighbors):  # TODO: test and prove useful that optimization
                 # break  # we can't found better since it's sorted
-            upperbound = max(clique_size, upperbound)
         # return the number of edges, not the number of node
-        return int(upperbound * (upperbound - 1) / 2)
+        return int(clique_size * (clique_size - 1) / 2)
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
         graph = ''.join(graph.as_asp(step))
