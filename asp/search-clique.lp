@@ -28,7 +28,6 @@ clique3:- inter(X,Y); inter(Y,Z); inter(X,Z).
 
 % Choice of a  clique of at least 3 elements
 3 {newconcept(1,X): inter(X,_)}:- clique3.
-newconcept(1,(a;b;c;d)).
 
 % Consistency of the clique
 :- newconcept(1,X); newconcept(1,Y) ; X<Y ; not inter(X,Y).
