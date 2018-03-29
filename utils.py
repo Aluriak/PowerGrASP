@@ -1,6 +1,7 @@
 
 import re
 import math
+import phasme
 
 
 def maximal_clique_size(nb_edge:int):
@@ -68,3 +69,36 @@ def quoted(string:str) -> str:
     """
     # space is here to allow the regex to match for the first char
     return '"' + re.sub(r'([^\\])"', r'\1\\"', ' ' + string)[1:] + '"'
+
+
+def unquoted(string:str) -> str:
+    """Return the given string, unquoted.
+
+    >>> unquoted('a')
+    'a'
+    >>> unquoted('"a"')
+    'a'
+    >>> unquoted('"a')
+    '"a'
+
+    """
+    if string[0] == '"' and string[-1] == '"':
+        return string[1:-1]
+    return string
+
+
+def normalized_name(string:str) -> str:
+    """Return the normalized string, that consist of a quoted string
+    with special characters replaced by their ord number.
+
+    >>> normalized_name('a')
+    '"a"'
+    >>> normalized_name('A')
+    '"A"'
+    >>> normalized_name('"a"')
+    '"a"'
+    >>> normalized_name('"a')
+    '"_c34_a"'
+
+    """
+    return quoted(phasme.commons.fixed_name(unquoted(string)))
