@@ -2,6 +2,7 @@ import phasme
 import networkx
 from collections import defaultdict
 from pprint import pprint
+import constants
 from constants import TEST_INTEGRITY, SHOW_STORY
 
 from motif import Motif
@@ -35,7 +36,7 @@ class Graph:
     Note the uid parameter for constructor
 
     """
-    def __init__(self, graph:str or networkx.Graph, uid:str=''):
+    def __init__(self, graph:str or networkx.Graph):
         if isinstance(graph, networkx.Graph):
             nxgraph = proper_nx_graph(networkx.Graph(graph))
         elif isinstance(graph, str):
@@ -43,19 +44,20 @@ class Graph:
         else:
             raise ValueError("Unexpected {}".format(graph))
         # internal graph representation
+
         self.__edges = map(frozenset, nxgraph.edges)
         if TEST_INTEGRITY:
             self.__edges = tuple(self.__edges)
             for args in self.__edges:
-                if len(args) == 1:
-                    print('INFO   : node {} has a self loop. It will be filtered.'.format(next(iter(args))))
-                elif len(args) != 2:
+                if len(args) > 2:
                     print('WARNING: Weird edge: {}. It will be filtered.'.format(args))
+                else:
+                    assert len(args) == 2, args
         self.__edges = set(edge for edge in self.__edges if len(edge) == 2)
 
         # data
-        self.__uid = str(uid)
         self.__nodes = set(nxgraph.nodes)
+        self.__uid = str(min(self.__nodes, key=str))
         self.__nb_node = len(self.__nodes)
         self.__nb_cc = networkx.number_connected_components(nxgraph)
         self._nxgraph = networkx.freeze(nxgraph)
@@ -68,8 +70,8 @@ class Graph:
     def ccs_from_file(filename:str) -> iter:
         """Yield graphs found in given filename. Each graph is a connected component."""
         nxgraph = phasme.build_graph.graph_from_file(filename)
-        yield from (Graph(nxgraph.subgraph(cc), uid=idx) for idx, cc in
-                    enumerate(networkx.connected_components(nxgraph), start=1))
+        yield from (Graph(nxgraph.subgraph(cc))
+                    for cc in networkx.connected_components(nxgraph))
 
     def as_asp(self, step:int, powerobjects:bool=False) -> [str]:
         """Yield atoms of graph's ASP string representation, in edges and hierarchy.
