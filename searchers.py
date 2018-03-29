@@ -153,5 +153,5 @@ class CliqueSearcher(MotifSearcher):
         if TEST_INTEGRITY:
             for numset, node in motif.new_powernodes:
                 assert numset == 1
-        nodes = frozenset(node for _, node in motif.new_powernodes)
+        nodes = frozenset(node for step, numset, node in motif.powernodes)
         yield from map(frozenset, itertools.combinations(nodes, r=2))
