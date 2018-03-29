@@ -30,7 +30,8 @@ def compress_by_cc(fname:str) -> [str]:
     """Yield bubble lines from compression of each cc found in given filename"""
     graphs = Graph.ccs_from_file(fname)
     for idx, graph in enumerate(graphs, start=1):
-        yield '\n# CONNECTED COMPONENT {}'.format(idx)
+        yield ''
+        yield '# CONNECTED COMPONENT {}'.format(idx)
         yield from compress(graph)
 
 
@@ -43,7 +44,12 @@ if __name__ == "__main__":
     # graphfile = 'data/n8_d0.7.lp'
     # graphfile = 'data/hanging-bio-notree-cc0.lp'
     # graphfile = 'data/partition.lp'
-    graphfile = 'data/cliques.lp'
+    # graphfile = 'data/cliques.lp'
+    # graphfile = 'data/pnode-to-clique.lp'
+    # graphfile = 'data/concomp.lp'
+    # graphfile = 'data/perfectfit.lp'
+    graphfile = 'data/double_biclique_unambiguous.lp'
+    # graphfile = 'data/variable-name.gml'
 
     with open('out/out.bbl', 'w') as fd:
         for line in compress_by_cc(graphfile):
