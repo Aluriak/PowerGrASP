@@ -42,14 +42,17 @@ if __name__ == "__main__":
     # graphfile = 'data/perfectfit.lp'
     # graphfile = 'data/abnormal.lp'
     # graphfile = 'data/n8_d0.7.lp'
-    # graphfile = 'data/hanging-bio-notree-cc0.lp'
     # graphfile = 'data/partition.lp'
     # graphfile = 'data/cliques.lp'
     # graphfile = 'data/pnode-to-clique.lp'
     # graphfile = 'data/concomp.lp'
     # graphfile = 'data/perfectfit.lp'
-    graphfile = 'data/double_biclique_unambiguous.lp'
     # graphfile = 'data/variable-name.gml'
+    # graphfile = 'data/hanging-bio-notree-cc0.lp'
+    # graphfile = 'data/hanging-study.lp'
+    # graphfile = 'data/inclusions.lp'
+    # graphfile = 'data/horrible_data.lp'
+    graphfile = 'data/double_biclique_unambiguous.lp'
 
     with open('out/out.bbl', 'w') as fd:
         for line in compress_by_cc(graphfile):
