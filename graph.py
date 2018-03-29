@@ -20,11 +20,11 @@ def proper_nx_graph(graph:networkx.Graph) -> networkx.Graph:
             return int(node)
         elif isinstance(node, int):
             return node
-        # print('NODE REPR:', node, utils.quoted(phasme.commons.fixed_name(node)))
-        return utils.quoted(phasme.commons.fixed_name(node))  # needed to avoid collisions with constants, variable,…
+        # print('NODE REPR:', node, utils.normalized_name(node))
+        return utils.normalized_name(node)  # needed to avoid collisions with constants, variable,…
     proper = type(graph)()
-    proper.add_edges_from(tuple(map(node_repr, edge)) for edge in graph.edges
-                          if len(frozenset(edge)) > 1)  # filter self loops
+    repr_edges = (frozenset(map(node_repr, edge)) for edge in graph.edges)  # apply node representation
+    proper.add_edges_from(edge for edge in repr_edges if len(edge) == 2)  # filter self loops
     return proper
 
 
@@ -38,13 +38,12 @@ class Graph:
     """
     def __init__(self, graph:str or networkx.Graph):
         if isinstance(graph, networkx.Graph):
-            nxgraph = proper_nx_graph(networkx.Graph(graph))
+            nxgraph = networkx.Graph(graph)
         elif isinstance(graph, str):
             nxgraph = phasme.build_graph.graph_from_file(graph)
         else:
             raise ValueError("Unexpected {}".format(graph))
         # internal graph representation
-
         self.__edges = map(frozenset, nxgraph.edges)
         if TEST_INTEGRITY:
             self.__edges = tuple(self.__edges)
@@ -69,7 +68,7 @@ class Graph:
     @staticmethod
     def ccs_from_file(filename:str) -> iter:
         """Yield graphs found in given filename. Each graph is a connected component."""
-        nxgraph = phasme.build_graph.graph_from_file(filename)
+        nxgraph = proper_nx_graph(phasme.build_graph.graph_from_file(filename))
         yield from (Graph(nxgraph.subgraph(cc))
                     for cc in networkx.connected_components(nxgraph))
 
