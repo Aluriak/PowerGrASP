@@ -6,6 +6,27 @@ from constants import TEST_INTEGRITY, SHOW_STORY
 
 from motif import Motif
 
+
+def proper_nx_graph(graph:networkx.Graph) -> networkx.Graph:
+    """Return the same graph, but with properly formatted node names."""
+    def node_repr(node:str or int or float) -> str or int or float:
+        """Ensure that nodes in graph are well encoded, ie that integer
+        nodes are integer in graph, because ASP will understand
+        and handle them as integer.
+        """
+        if isinstance(node, str) and node.isnumeric():
+            return int(node)
+        elif isinstance(node, int):
+            return node
+        elif isinstance(node, str) and node[0].isupper():
+            return '"' + node + '"'
+        return node
+    proper = type(graph)()
+    proper.add_edges_from(tuple(map(node_repr, edge)) for edge in graph.edges
+                          if len(frozenset(edge)) > 1)  # filter self loops
+    return proper
+
+
 class Graph:
     """A graph object, exposing some data on it.
 
@@ -16,7 +37,7 @@ class Graph:
     """
     def __init__(self, graph:str or networkx.Graph, uid:str=''):
         if isinstance(graph, networkx.Graph):
-            nxgraph = networkx.Graph(graph)
+            nxgraph = proper_nx_graph(networkx.Graph(graph))
         elif isinstance(graph, str):
             nxgraph = phasme.build_graph.graph_from_file(graph)
         else:
@@ -37,8 +58,7 @@ class Graph:
         self.__nodes = set(nxgraph.nodes)
         self.__nb_node = len(self.__nodes)
         self.__nb_cc = networkx.number_connected_components(nxgraph)
-        self._nxgraph = nxgraph
-        self._nxgraph.remove_edges_from(self._nxgraph.selfloop_edges())
+        self._nxgraph = networkx.freeze(nxgraph)
 
         self.__hierarchy = set()  # inclusions between powernodes
         self.__powernodes = defaultdict(set)  # (step, set) -> {node in powernode}
