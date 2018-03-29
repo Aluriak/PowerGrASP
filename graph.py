@@ -202,12 +202,12 @@ def format_name(cc:str, name):
 
         PWRN-<cc>-<step>-<num_set>
 
-    >>> format_name('cc')
+    >>> format_name(1, 'cc')
     'cc'
-    >>> format_name((1, 4))
-    'PWRN-1-4'
-    >>> format_name(('cc', 4))
-    'PWRN-cc-4'
+    >>> format_name(42, (1, 4))
+    'PWRN-42-1-4'
+    >>> format_name(23, ('cc', 4))
+    'PWRN-23-cc-4'
 
     """
     if isinstance(name, (str, int)):
