@@ -319,15 +319,15 @@ EDGE\tPWRN-a-2-2\tPWRN-a-3-1\t1.0
 """
 
 cases['variable-name.gml'] = """
-NODE\t"A"
-NODE\t"B"
-NODE\t"C"
-NODE\t"D"
-IN\t"B"\tPWRN-"A"-1-2
-IN\t"C"\tPWRN-"A"-1-2
-SET\tPWRN-"A"-1-2\t1.0
-EDGE\t"A"\tPWRN-"A"-1-2\t1.0
-EDGE\t"B"\t"D"\t1.0
+NODE\tA
+NODE\tC
+NODE\tD
+NODE\t_c34_B_c34_
+SET\tPWRN-A-1-2\t1.0
+IN\tC\tPWRN-A-1-2
+IN\t_c34_B_c34_\tPWRN-A-1-2
+EDGE\tA\tPWRN-A-1-2\t1.0
+EDGE\tD\t_c34_B_c34_\t1.0
 """
 
 cases['test.gml'] = """
@@ -391,19 +391,19 @@ EDGE\tPWRN-a-2-1\tPWRN-a-2-1\t1.0
 """
 
 cases['order.lp'] = """
-NODE\t"a"
+NODE\t_c34_a_c34_
 NODE\t10
 NODE\t4
 NODE\t5
 NODE\t6
 NODE\ta
-IN\t4\tPWRN-"a"-1-1
-IN\ta\tPWRN-"a"-1-1
-IN\t6\tPWRN-"a"-1-1
-IN\t5\tPWRN-"a"-1-1
-SET\tPWRN-"a"-1-1\t1.0
-EDGE\t"a"\ta\t1.0
-EDGE\t10\tPWRN-"a"-1-1\t1.0
+IN\t4\tPWRN-_c34_a_c34_-1-1
+IN\ta\tPWRN-_c34_a_c34_-1-1
+IN\t6\tPWRN-_c34_a_c34_-1-1
+IN\t5\tPWRN-_c34_a_c34_-1-1
+SET\tPWRN-_c34_a_c34_-1-1\t1.0
+EDGE\t_c34_a_c34_\ta\t1.0
+EDGE\t10\tPWRN-_c34_a_c34_-1-1\t1.0
 """
 
 cases['test.graphml'] = """
@@ -460,14 +460,104 @@ EDGE\tPWRN-b-3-2\tl\t1.0
 """
 
 cases['horrible_data.lp'] = """
-NODE\t"'echo coucou'"
-NODE\t"\\"echo coucou\\""
-NODE\t"$PYTHONPATH"
-NODE\t"[a,b]"
-NODE\t"[a]"
-IN\t"'echo coucou'"\tPWRN-"\'echo coucou\'"-1-1
-IN\t"\\"echo coucou\\""\tPWRN-"\'echo coucou\'"-1-1
-SET\tPWRN-"\'echo coucou\'"-1-1\t1.0
-EDGE\t"$PYTHONPATH"\t"[a,b]"\t1.0
-EDGE\t"[a]"\tPWRN-"'echo coucou'"-1-1\t1.0
+NODE\t_c34__c92__c34_echo_c32_coucou_c92__c34__c34_
+NODE\t_c34__c91_a_c93__c34_
+NODE\t_c34__c39_echo_c32_coucou_c39__c34_
+SET\tPWRN-_c34__c39_echo_c32_coucou_c39__c34_-1-1\t1.0
+IN\t_c34__c92__c34_echo_c32_coucou_c92__c34__c34_\tPWRN-_c34__c39_echo_c32_coucou_c39__c34_-1-1
+IN\t_c34__c39_echo_c32_coucou_c39__c34_\tPWRN-_c34__c39_echo_c32_coucou_c39__c34_-1-1
+EDGE\tPWRN-_c34__c39_echo_c32_coucou_c39__c34_-1-1\t_c34__c91_a_c93__c34_\t1.0
+NODE\t_c34__c91_a_c44_b_c93__c34_
+NODE\t_c34__c36_PYTHONPATH_c34_
+EDGE\t_c34__c36_PYTHONPATH_c34_\t_c34__c91_a_c44_b_c93__c34_\t1.0
+"""
+
+cases['inclusions.lp'] = """
+NODE\t1
+NODE\t2
+NODE\t3
+NODE\t5
+NODE\t6
+NODE\t7
+NODE\t8
+NODE\t9
+NODE\t10
+NODE\ta
+NODE\tb
+NODE\tc
+NODE\td
+NODE\te
+NODE\tf
+NODE\tg
+NODE\th
+NODE\ti
+NODE\tj
+NODE\tk
+NODE\tl
+NODE\tm
+NODE\tn
+NODE\to
+NODE\tp
+NODE\tq
+NODE\tr
+NODE\tv
+NODE\tw
+SET\tPWRN-a-5-2\t1.0
+SET\tPWRN-a-5-1\t1.0
+SET\tPWRN-a-6-2\t1.0
+SET\tPWRN-a-4-2\t1.0
+SET\tPWRN-a-6-1\t1.0
+SET\tPWRN-a-3-1\t1.0
+SET\tPWRN-a-4-1\t1.0
+SET\tPWRN-a-1-1\t1.0
+SET\tPWRN-a-2-1\t1.0
+IN\tPWRN-a-5-2\tPWRN-a-2-1
+IN\tPWRN-a-5-1\tPWRN-a-4-1
+IN\tPWRN-a-6-1\tPWRN-a-5-1
+IN\tPWRN-a-4-1\tPWRN-a-1-1
+IN\tPWRN-a-4-2\tPWRN-a-3-1
+IN\tq\tPWRN-a-5-2
+IN\tr\tPWRN-a-5-2
+IN\te\tPWRN-a-5-1
+IN\tv\tPWRN-a-6-2
+IN\tw\tPWRN-a-6-2
+IN\tm\tPWRN-a-4-2
+IN\tn\tPWRN-a-4-2
+IN\tp\tPWRN-a-4-2
+IN\to\tPWRN-a-4-2
+IN\tg\tPWRN-a-6-1
+IN\tf\tPWRN-a-6-1
+IN\t5\tPWRN-a-2-1
+IN\t6\tPWRN-a-2-1
+IN\t7\tPWRN-a-2-1
+IN\t8\tPWRN-a-2-1
+IN\t9\tPWRN-a-2-1
+IN\t10\tPWRN-a-2-1
+IN\td\tPWRN-a-4-1
+IN\tb\tPWRN-a-1-1
+IN\tj\tPWRN-a-1-1
+IN\ti\tPWRN-a-1-1
+IN\tc\tPWRN-a-1-1
+IN\tl\tPWRN-a-1-1
+IN\tk\tPWRN-a-1-1
+IN\th\tPWRN-a-1-1
+IN\ta\tPWRN-a-1-1
+IN\t1\tPWRN-a-3-1
+IN\t2\tPWRN-a-3-1
+IN\t3\tPWRN-a-3-1
+SET\tPWRN-a-1-1\t1.0
+SET\tPWRN-a-2-1\t1.0
+SET\tPWRN-a-3-1\t1.0
+SET\tPWRN-a-4-1\t1.0
+SET\tPWRN-a-5-1\t1.0
+SET\tPWRN-a-6-1\t1.0
+SET\tPWRN-a-4-2\t1.0
+SET\tPWRN-a-5-2\t1.0
+SET\tPWRN-a-6-2\t1.0
+EDGE\tPWRN-a-1-1\tPWRN-a-1-1\t1.0
+EDGE\tPWRN-a-2-1\tPWRN-a-2-1\t1.0
+EDGE\tPWRN-a-3-1\tPWRN-a-3-1\t1.0
+EDGE\tPWRN-a-4-1\tPWRN-a-4-2\t1.0
+EDGE\tPWRN-a-5-1\tPWRN-a-5-2\t1.0
+EDGE\tPWRN-a-6-1\tPWRN-a-6-2\t1.0
 """

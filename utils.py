@@ -1,4 +1,5 @@
 
+import re
 import math
 
 
@@ -50,3 +51,20 @@ def maximal_clique_size(nb_edge:int):
 
     """
     return 1 + int((1 + math.sqrt(1 + 8 * nb_edge)) / 2)
+
+
+def quoted(string:str) -> str:
+    """Return the given string, quoted, and with internal quotes escaped.
+
+    Existing quotes will be escaped.
+
+    >>> quoted('a')
+    '"a"'
+    >>> quoted('"a"')
+    '"\\\\"a\\\\""'
+    >>> quoted('"a')
+    '"\\\\"a"'
+
+    """
+    # space is here to allow the regex to match for the first char
+    return '"' + re.sub(r'([^\\])"', r'\1\\"', ' ' + string)[1:] + '"'

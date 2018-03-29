@@ -2,6 +2,7 @@ import phasme
 import networkx
 from collections import defaultdict
 from pprint import pprint
+import utils
 import constants
 from constants import TEST_INTEGRITY, SHOW_STORY
 
@@ -19,9 +20,8 @@ def proper_nx_graph(graph:networkx.Graph) -> networkx.Graph:
             return int(node)
         elif isinstance(node, int):
             return node
-        elif isinstance(node, str) and node[0].isupper():
-            return '"' + node + '"'
-        return node
+        # print('NODE REPR:', node, utils.quoted(phasme.commons.fixed_name(node)))
+        return utils.quoted(phasme.commons.fixed_name(node))  # needed to avoid collisions with constants, variable,…
     proper = type(graph)()
     proper.add_edges_from(tuple(map(node_repr, edge)) for edge in graph.edges
                           if len(frozenset(edge)) > 1)  # filter self loops
@@ -199,10 +199,10 @@ class Graph:
 
     def bubble_repr(self) -> iter:
         """Yield lines of bubble representation"""
-        _format_name = lambda x: format_name(self.uid, x)
+        _format_name = lambda x: format_name(format_name(None, self.uid), x)
         if constants.BUBBLE_WITH_NODES:
             for node in self.__nodes:
-                yield 'NODE\t{}'.format(node)
+                yield 'NODE\t{}'.format(_format_name(node))
         if constants.BUBBLE_WITH_SETS:
             for uid in self.__powernodes:
                 yield 'SET\t{}\t1.0'.format(_format_name(uid))
@@ -233,18 +233,22 @@ def format_name(cc:str, name:str or tuple):
     >>> format_name(1, 'cc')
     'cc'
     >>> format_name(1, '"A"')
-    '"A"'
+    'A'
+    >>> format_name(1, 'A')
+    'A'
     >>> format_name(42, (1, 4))
     'PWRN-42-1-4'
     >>> format_name(23, ('cc', 4))
+    'PWRN-23-cc-4'
+    >>> format_name(23, ('"cc"', 4))
     'PWRN-23-cc-4'
 
     """
     if isinstance(name, int):
         return str(name)
     elif isinstance(name, str):
-        if constants.BUBBLE_SIMPLIFY_QUOTES and name[0] == '"' and name[-1] == '"' and name[1:-1].isidentifier():
+        if constants.BUBBLE_SIMPLIFY_QUOTES and name[0] == '"' and name[-1] == '"':
             return name[1:-1]
         else:
             return name
-    return 'PWRN-{}-{}-{}'.format(cc, *name)
+    return 'PWRN-{}-{}-{}'.format(cc, *map(lambda x: format_name(None, x), name))
