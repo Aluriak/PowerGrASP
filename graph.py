@@ -105,17 +105,31 @@ class Graph:
 
         # graph edges reduction and monitoring
         covered = frozenset(motif.edges_covered)
-        nb_edges = len(self.__edges)
+        if TEST_INTEGRITY:
+            edges = frozenset(self.__edges)
+            nb_edges = len(self.__edges)
+            print('IFBTVC GRAPH:', self.__edges)
+            print('ZEDRBM COVER:', covered)
         self.__edges -= covered
-        if nb_edges - len(covered) != len(self.__edges):
-            diff = covered - self.__edges
-            raise ValueError("{} edges yielded by {} searcher were not in the graph: {}"
-                             "".format(len(diff), motif.name, ', '.join(map(str, diff))))
-        print('\tCOVER', len(covered))
+        diff = nb_edges - len(covered) != len(self.__edges)
+        if TEST_INTEGRITY and diff:
+            diff_cov = covered - edges
+            diff_edg = edges - covered
+            raise ValueError("{} edges yielded by {} searcher were not in the graph: {}.\n\n"
+                             "{} edges in the graph were not in the {} searcher: {}."
+                             "".format(len(diff_cov), motif.name, ', '.join(map(str, diff_cov)),
+                                       len(diff_edg), motif.name, ', '.join(map(str, diff_edg))))
+        elif diff:
+            raise ValueError("Edges yielded by {} searcher were not in the graph."
+                             " Rerun with TEST_INTEGRITY to get the problem."
+                             "".format(motif.name))
+        if SHOW_STORY:
+            print('\tCOVER', len(covered))
 
         # Now the big part: hierarchy. ASP send patch to apply on it.
         for args in motif.hierachy_added:
-            print('\tADD HIERARCHY', args)
+            if SHOW_STORY:
+                print('\tADD HIERARCHY', args)
             self.__hierarchy.add(args)
             step_parent, num_parent, step_son, num_son = args
             # nodes in the parent block must be moved to the new block.
@@ -124,10 +138,12 @@ class Graph:
             if nodes:
                 self.__powernodes[step_parent, num_parent] -= nodes
                 self.__powernodes[step_son, num_son] |= nodes
-                print('\tMOVE NODES: {} FROM {} TO {}'.format(nodes, (step_parent, num_parent), (step_son, num_son)))
+                if SHOW_STORY:
+                    print('\tMOVE NODES: {} FROM {} TO {}'.format(nodes, (step_parent, num_parent), (step_son, num_son)))
 
         for args in motif.hierachy_removed:
-            print('\tDEL HIERARCHY', args)
+            if SHOW_STORY:
+                print('\tDEL HIERARCHY', args)
             self.__hierarchy.remove(args)
 
         # Checking that the total number of nodes didn't change,
@@ -139,8 +155,9 @@ class Graph:
         # nb_nodes_in_pnodes = sum(1 for _ in itertools.chain.from_iterable(self.__powernodes.values()))
         # nb_nodes_in_ground = ...
         # assert nb_nodes_in_pnodes == self.nb_node, (nb_nodes_in_pnodes, self.nb_node)
-        print('PNODES:')
-        pprint(dict(self.__powernodes))
+        if SHOW_STORY:
+            print('PNODES:')
+            pprint(dict(self.__powernodes))
 
 
     @property
