@@ -43,12 +43,16 @@ class MotifSearcher:
     def init_for_graph(self, graph:Graph):
         self._upperbound = self.compute_initial_upperbound(graph)
         self._lowerbound = self.compute_initial_lowerbound(graph)
-        assert self.lowerbound <= self.upperbound, (self.lowerbound, self.upperbound, self.name)
+        if SHOW_STORY and self.lowerbound > self.upperbound:
+            print("INFO Search for {} will not be functional, because bounds"
+                  " ({};{}) avoid any search.".format(self.name, *self.bounds))
 
     @property
     def lowerbound(self) -> int:  return self._lowerbound
     @property
     def upperbound(self) -> int:  return self._upperbound
+    @property
+    def bounds(self) -> (int, int):  return self.lowerbound, self.upperbound
 
     def compute_initial_upperbound(self, graph:Graph) -> int:
         return graph.nb_edge
@@ -64,10 +68,15 @@ class MotifSearcher:
     def search(self, step:int, score_to_beat:int=0) -> Motif:
         """Search for a motif, better than the one to beat."""
         lowerbound = max(self.lowerbound, score_to_beat)
-        assert isinstance(lowerbound, int)
+        if lowerbound > self.upperbound:
+            if SHOW_STORY:
+                print("INFO No {} search because of bounds ({};{})."
+                      "".format(self.name, *self.bounds))
+            return None  # impossible to find a motif in such conditions
         atoms = self._search(step, self.graph, lowerbound, self.upperbound)
         if atoms is None:  return None
-        return Motif(self.name, atoms, maximal=True, step=step, covered_edges_function=self.covered_edges)
+        return Motif(self.name, atoms, maximal=True, step=step,
+                     covered_edges_function=self.covered_edges)
 
     def _search(self, graph:Graph, lowerbound:int, upperbound:int) -> Motif:
         raise NotImplementedError()
