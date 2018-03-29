@@ -200,8 +200,12 @@ class Graph:
     def bubble_repr(self) -> iter:
         """Yield lines of bubble representation"""
         _format_name = lambda x: format_name(self.uid, x)
-        for uid in self.__powernodes:
-            yield 'SET\t{}\t1.0'.format(_format_name(uid))
+        if constants.BUBBLE_WITH_NODES:
+            for node in self.__nodes:
+                yield 'NODE\t{}'.format(node)
+        if constants.BUBBLE_WITH_SETS:
+            for uid in self.__powernodes:
+                yield 'SET\t{}\t1.0'.format(_format_name(uid))
         for stepa, seta, stepb, setb in self.__hierarchy:
             if stepa == 0 and seta == 0:  # base level
                 continue  # ignore it
@@ -211,12 +215,14 @@ class Graph:
                 yield 'IN\t{}\t{}'.format(_format_name(node), _format_name((step, numset)))
         for source, targets in self.__poweredges.items():
             for target in targets:
-                yield 'EDGE\t{}\t{}\t1.0'.format(_format_name(source), _format_name(target))
+                source, target = sorted(tuple(map(_format_name, (source, target))))
+                yield 'EDGE\t{}\t{}\t{}'.format(source, target, constants.BUBBLE_POWEREDGE_FACTOR)
         for source, target in self.__edges:
-            yield 'EDGE\t{}\t{}\t0.5'.format(source, target)
+            source, target = sorted(tuple(map(_format_name, (source, target))))
+            yield 'EDGE\t{}\t{}\t{}'.format(source, target, constants.BUBBLE_EDGE_FACTOR)
 
 
-def format_name(cc:str, name):
+def format_name(cc:str, name:str or tuple):
     """Return string representation of powernode of given step and set nb.
 
     This string representation is not ASP valid,
@@ -226,12 +232,19 @@ def format_name(cc:str, name):
 
     >>> format_name(1, 'cc')
     'cc'
+    >>> format_name(1, '"A"')
+    '"A"'
     >>> format_name(42, (1, 4))
     'PWRN-42-1-4'
     >>> format_name(23, ('cc', 4))
     'PWRN-23-cc-4'
 
     """
-    if isinstance(name, (str, int)):
+    if isinstance(name, int):
         return str(name)
+    elif isinstance(name, str):
+        if constants.BUBBLE_SIMPLIFY_QUOTES and name[0] == '"' and name[-1] == '"' and name[1:-1].isidentifier():
+            return name[1:-1]
+        else:
+            return name
     return 'PWRN-{}-{}-{}'.format(cc, *name)
