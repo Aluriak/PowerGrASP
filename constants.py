@@ -26,7 +26,7 @@ constants = {
     'BUBBLE_EDGE_FACTOR': '1.0',
 
     # When possible, delete the quotes around identifiers in the bubble. May lead to node name collision.
-    'BUBBLE_SIMPLIFY_QUOTES': False,
+    'BUBBLE_SIMPLIFY_QUOTES': True,
 
     # Change them according to config file
     'CONFIG_FILE': 'powergrasp.cfg',
@@ -40,6 +40,7 @@ try:
             field = field.upper().replace(' ', '_')
             if field in constants:
                 constants[field] = value
+        print('INFO: config file {} loaded.'.format(fd.name))
 except FileNotFoundError:
     print("INFO  no config file")
 
