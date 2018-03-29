@@ -35,6 +35,8 @@ def maximal_clique_size(nb_edge:int):
     by taking the maximal NMC(n) for all n of the graph in which a clique
     is searched.
 
+    >>> maximal_clique_size(0)  # when no edge between neighbors: the node and one neighbor make the clique
+    2
     >>> maximal_clique_size(2)  # when 2 edges between neighbors of n, the maximal clique imply two neighbors and n
     3
     >>> maximal_clique_size(3)
