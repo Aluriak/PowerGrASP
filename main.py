@@ -12,7 +12,7 @@ def compress(graph:Graph) -> [str]:
         step += 1
         score_to_beat = 0
         best_motif = None
-        for searcher in searchers:
+        for searcher in sorted(searchers, key=lambda s: s.upperbound, reverse=True):
             motif = searcher.search(step, score_to_beat)
             if motif and (best_motif is None or motif.score > best_motif.score):
                 best_motif = motif
@@ -47,11 +47,13 @@ if __name__ == "__main__":
     # graphfile = 'data/pnode-to-clique.lp'
     # graphfile = 'data/concomp.lp'
     # graphfile = 'data/perfectfit.lp'
+    # graphfile = 'data/quoting.lp'
     # graphfile = 'data/variable-name.gml'
     # graphfile = 'data/hanging-bio-notree-cc0.lp'
-    # graphfile = 'data/hanging-study.lp'
-    # graphfile = 'data/inclusions.lp'
     # graphfile = 'data/horrible_data.lp'
+    # graphfile = 'data/hanging-study.lp'
+    # graphfile = 'data/disjoint-subpnodes.lp'
+    # graphfile = 'data/inclusions.lp'
     graphfile = 'data/double_biclique_unambiguous.lp'
 
     with open('out/out.bbl', 'w') as fd:
