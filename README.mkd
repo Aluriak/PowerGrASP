@@ -3,6 +3,6 @@ Full reimplementation of PowerGrASP, taking advantage of ASP and Python
 lifting and simplifications.
 
 ## TODO
-- [ ] unit tests
+- [x] unit tests
 - [ ] CLI
 - [ ] run on big graph
