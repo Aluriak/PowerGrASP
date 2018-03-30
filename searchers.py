@@ -75,8 +75,7 @@ class MotifSearcher:
             return None  # impossible to find a motif in such conditions
         atoms = self._search(step, self.graph, lowerbound, self.upperbound)
         if atoms is None:  return None
-        return Motif(self.name, atoms, maximal=True, step=step,
-                     covered_edges_function=self.covered_edges)
+        return Motif(self.name, atoms, maximal=True, step=step, searcher=self)
 
     def _search(self, graph:Graph, lowerbound:int, upperbound:int) -> Motif:
         raise NotImplementedError()
@@ -110,19 +109,11 @@ class BicliqueSearcher(MotifSearcher):
         files = ('asp/search-biclique.lp', 'asp/process-motif.lp', 'asp/scoring_powergraph.lp')
         return asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
 
-    def covered_edges(self, motif:Motif) -> iter:
-        assert motif.name == self.name
-        pnodes = defaultdict(set)
-        for step, numset, node in motif.powernodes:
-            pnodes[step, numset].add(node)
-        for node in motif.stars:
-            pnodes['star'].add(node)
-        if SHOW_STORY:
-            print('IDGVSP:', dict(pnodes))
-        if TEST_INTEGRITY:
-            combinations = tuple(itertools.product(*pnodes.values()))
-            assert motif.score == len(combinations), (motif.score, combinations)
-        yield from map(frozenset, itertools.product(*pnodes.values()))
+    def covered_edges(self, sets:[frozenset]) -> iter:
+        """Return the edges that are covered by given sets"""
+        print('BQUDAP:', len(sets), sets)
+        assert len(sets) == 2
+        yield from map(frozenset, itertools.product(*sets))
 
 
 class CliqueSearcher(MotifSearcher):
@@ -147,11 +138,8 @@ class CliqueSearcher(MotifSearcher):
         files = ('asp/search-clique.lp', 'asp/process-motif.lp', 'asp/scoring_powergraph.lp')
         return asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
 
-    def covered_edges(self, motif:Motif) -> iter:
-        """Return the edges that are covered by given motif"""
-        assert motif.name == self.name
-        if TEST_INTEGRITY:
-            for numset, node in motif.new_powernodes:
-                assert numset == 1
-        nodes = frozenset(node for step, numset, node in motif.powernodes)
+    def covered_edges(self, sets:[frozenset]) -> iter:
+        """Return the edges that are covered by given sets"""
+        assert len(sets) == 1
+        nodes = frozenset(next(iter(sets)))
         yield from map(frozenset, itertools.combinations(nodes, r=2))

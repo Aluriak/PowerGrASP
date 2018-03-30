@@ -4,7 +4,7 @@ from collections import defaultdict
 from pprint import pprint
 import utils
 import constants
-from constants import TEST_INTEGRITY, SHOW_STORY
+from constants import TEST_INTEGRITY, SHOW_STORY, COVERED_EDGES_FROM_ASP
 
 from motif import Motif
 
@@ -94,21 +94,29 @@ class Graph:
     def compress(self, motif:Motif):
         print('COMPRESS…')
         pprint(dict(self.__powernodes))
-        # handle the simple values: new powernodes, poweredges.
-        for numset, node in motif.new_powernodes:
-            print('\tP-NODE', numset, node)
-            self.__powernodes[motif.uid, numset].add(node)
+        # Add the poweredges
         for source, target in motif.new_poweredge:
-            print('\tP-EDGE', source, target)
+            if SHOW_STORY: print('\tP-EDGE', source, target)
             self.__poweredges[source].add(target)
+        # Get the powernodes as set of nodes, and build the new ones.
+        if not COVERED_EDGES_FROM_ASP:
+            powernodes = set(motif.powernodes) | set(motif.stars)  # set of nodes
+        for numset, node in motif.new_powernodes:
+            if SHOW_STORY: print('\tP-NODE', numset, node)
+            uid = motif.uid, numset
+            self.__powernodes[uid].add(node)
+            if not COVERED_EDGES_FROM_ASP: powernodes.add(uid)
 
         # graph edges reduction and monitoring
-        covered = frozenset(motif.edges_covered)
+        if COVERED_EDGES_FROM_ASP:
+            covered = frozenset(motif.edges_covered())
+        else:
+            covered = frozenset(motif.edges_covered(self.__powernodes.get(uid, {uid}) for uid in powernodes))
         if TEST_INTEGRITY:
             edges = frozenset(self.__edges)
             nb_edges = len(self.__edges)
-            print('IFBTVC GRAPH:', self.__edges)
-            print('ZEDRBM COVER:', covered)
+            if SHOW_STORY: print('IFBTVC GRAPH:', self.__edges)
+            if SHOW_STORY: print('ZEDRBM COVER:', covered)
         self.__edges -= covered
         diff = nb_edges - len(covered) != len(self.__edges)
         if TEST_INTEGRITY and diff:

@@ -10,9 +10,9 @@ class Motif:
     on the Graph.
 
     """
-    def __init__(self, typename:str, atoms:dict, maximal:bool, step:int, covered_edges_function:callable):
+    def __init__(self, typename:str, atoms:dict, maximal:bool, step:int, searcher:object):
         self.typename, self.atoms, self.ismaximal, self.step = str(typename), atoms, bool(maximal), int(step)
-        self._covered_edges_function = covered_edges_function
+        self._searcher = searcher
         if SHOW_STORY:
             from pprint import pprint
             print('ATOMS FOR MOTIF {}:'.format(typename))
@@ -24,6 +24,8 @@ class Motif:
     def name(self) -> str:  return self.typename
     @property
     def uid(self) -> int:  return self.step
+    @property
+    def type(self):  return self._searcher
 
 
     @property
@@ -71,19 +73,21 @@ class Motif:
                 step_a, set_a, node = args
                 yield (step_a, set_a), node
     @property
-    def edges_covered(self) -> iter:
-        """Note that the computation of edges covered by the motif is delegated
-        to the searcher object, in order to avoid a costly output from ASP.
-        This may or may not be useful.
-
-        """
-        if COVERED_EDGES_FROM_ASP:
-            yield from map(frozenset, self.atoms.get('covered_edge', ()))
-        else:
-            yield from frozenset(self._covered_edges_function(self))
-    @property
     def hierachy_added(self) -> iter:
         yield from self.atoms.get('hierarchy_add', ())
     @property
     def hierachy_removed(self) -> iter:
         yield from self.atoms.get('hierarchy_remove', ())
+
+
+    def edges_covered(self, sets:[frozenset]=None) -> iter:
+        """If sets are given, the computation of edges covered by the motif
+        is delegated to the searcher object.
+
+        This allow to avoid a costly output from ASP.
+
+        """
+        if sets:  # give that to the searcher
+            yield from frozenset(self.type.covered_edges(tuple(sets)))
+        else:  # ASP provide us with the data
+            yield from map(frozenset, self.atoms.get('covered_edge', ()))

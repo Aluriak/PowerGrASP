@@ -48,8 +48,8 @@ powernode_integrated(L,U,X):- newconcept(T,X) ; perfectfit(L,U,T).
 powernode_integrated(k,T,X):- newconcept(T,X) ; not perfectfit(_,_,T) ; not star(T).
 
 % powernodes: those re-used, and those that didn't exist before.
-#show powernode(K,T,X): biclique ; powernode_integrated(K,T,X) ; not star(U) ; newconcept(U,X).
-#show powernode(K,T,X): clique   ; powernode_integrated(K,T,X).
+#show powernode(K,T): biclique ; powernode_integrated(K,T,X) ; not star(U) ; newconcept(U,X).
+#show powernode(K,T): clique   ; powernode_integrated(K,T,X).
 #show new_powernode(T,X): biclique ; powernode_integrated(k,T,X) ; not star(U) ; newconcept(U,X).
 #show new_powernode(1,X): clique   ; powernode_integrated(k,1,X).
 
