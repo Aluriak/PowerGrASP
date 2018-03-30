@@ -54,7 +54,8 @@ if __name__ == "__main__":
     # graphfile = 'data/hanging-study.lp'
     # graphfile = 'data/disjoint-subpnodes.lp'
     # graphfile = 'data/inclusions.lp'
-    graphfile = 'data/double_biclique_unambiguous.lp'
+    # graphfile = 'data/double_biclique_unambiguous.lp'
+    graphfile = 'data/bintree.lp'
 
     with open('out/out.bbl', 'w') as fd:
         for line in compress_by_cc(graphfile):
