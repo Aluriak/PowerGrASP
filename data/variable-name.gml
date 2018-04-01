@@ -13,6 +13,10 @@ graph [
   ]
   node [
     id 3
+    label "E"
+  ]
+  node [
+    id 4
     label "&#34;B&#34;"
   ]
   edge [
@@ -21,10 +25,14 @@ graph [
   ]
   edge [
     source 0
-    target 3
+    target 2
   ]
   edge [
-    source 2
-    target 3
+    source 0
+    target 4
+  ]
+  edge [
+    source 3
+    target 4
   ]
 ]

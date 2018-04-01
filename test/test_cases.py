@@ -323,11 +323,13 @@ NODE\tA
 NODE\tB
 NODE\tC
 NODE\tD
+NODE\tE
 SET\tPWRN-A-1-2\t1.0
 IN\tC\tPWRN-A-1-2
 IN\tB\tPWRN-A-1-2
+IN\tD\tPWRN-A-1-2
 EDGE\tA\tPWRN-A-1-2\t1.0
-EDGE\tB\tD\t1.0
+EDGE\tB\tE\t1.0
 """
 
 cases['test.gml'] = """
