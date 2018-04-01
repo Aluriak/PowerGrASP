@@ -6,7 +6,7 @@ import asp
 import utils
 from motif import Motif
 from graph import Graph
-from constants import TEST_INTEGRITY, SHOW_STORY
+from constants import TEST_INTEGRITY, SHOW_STORY, MULTISHOT_MOTIF_SEARCH
 
 
 class MotifSearcher:
@@ -65,17 +65,19 @@ class MotifSearcher:
         self._lowerbound = 2  # now the optimization is not valid
 
 
-    def search(self, step:int, score_to_beat:int=0) -> Motif:
-        """Search for a motif, better than the one to beat."""
+    def search(self, step:int, score_to_beat:int=0) -> [Motif]:
+        """Search for motifs, better than the one to beat."""
         lowerbound = max(self.lowerbound, score_to_beat)
         if lowerbound > self.upperbound:
             if SHOW_STORY:
                 print("INFO No {} search because of bounds ({};{})."
                       "".format(self.name, *self.bounds))
-            return None  # impossible to find a motif in such conditions
-        atoms = self._search(step, self.graph, lowerbound, self.upperbound)
-        if atoms is None:  return None
-        return Motif(self.name, atoms, maximal=True, step=step, searcher=self)
+            return  # impossible to find a motif in such conditions
+        models = self._search(step, self.graph, lowerbound, self.upperbound)
+        yield from (
+            Motif(self.name, model, maximal=True, step=step, searcher=self)
+            for model in models
+        )
 
     def _search(self, graph:Graph, lowerbound:int, upperbound:int) -> Motif:
         raise NotImplementedError()
@@ -107,7 +109,7 @@ class BicliqueSearcher(MotifSearcher):
         if SHOW_STORY:
             print('UHJGMR: GRAPH:', graph)
         files = ('asp/search-biclique.lp', 'asp/process-motif.lp', 'asp/scoring_powergraph.lp')
-        return asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
+        yield from asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
         """Return the edges that are covered by given sets"""
@@ -136,7 +138,7 @@ class CliqueSearcher(MotifSearcher):
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
         graph = ''.join(graph.as_asp(step))
         files = ('asp/search-clique.lp', 'asp/process-motif.lp', 'asp/scoring_powergraph.lp')
-        return asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
+        yield from asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
         """Return the edges that are covered by given sets"""
