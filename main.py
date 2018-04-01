@@ -13,12 +13,34 @@ def compress(graph:Graph) -> [str]:
         score_to_beat = 0
         best_motif = None
         for searcher in sorted(searchers, key=lambda s: s.upperbound, reverse=True):
-            motif = searcher.search(step, score_to_beat)
+            motif = next(searcher.search(step, score_to_beat), None)
             if motif and (best_motif is None or motif.score > best_motif.score):
                 best_motif = motif
                 score_to_beat = best_motif.score
         if best_motif:
             graph.compress(best_motif)
+            for searcher in searchers:
+                searcher.on_new_compressed_motif(best_motif)
+        else:
+            break  # nothing to compress
+    yield from graph.bubble_repr()
+
+
+def compress_multishot(graph:Graph) -> [str]:
+    """Yield bubble lines found in graph"""
+    searchers = (CliqueSearcher(graph), BicliqueSearcher(graph))
+    step = 0
+    while True:
+        step += 1
+        score_to_beat = 0
+        best_motifs, best_motifs_score = None, 0
+        for searcher in sorted(searchers, key=lambda s: s.upperbound, reverse=True):
+            score, motifs = searcher.search(step, score_to_beat)
+            if score and score > best_motifs_score:
+                best_motifs, best_motifs_score = motifs, score
+                score_to_beat = best_motifs_score
+        if best_motifs:
+            graph.compress_all(best_motifs)
             for searcher in searchers:
                 searcher.on_new_compressed_motif(best_motif)
         else:
