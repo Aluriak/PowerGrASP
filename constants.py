@@ -30,6 +30,9 @@ constants = {
 
     # Change them according to config file
     'CONFIG_FILE': 'powergrasp.cfg',
+
+    # Search for multiple motif in a single search
+    'MULTISHOT_MOTIF_SEARCH': True,
 }
 
 
