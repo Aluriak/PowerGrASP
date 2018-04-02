@@ -52,7 +52,7 @@ def compress_by_cc(fname:str) -> [str]:
     """Yield bubble lines from compression of each cc found in given filename"""
     graphs = Graph.ccs_from_file(fname)
     for idx, graph in enumerate(graphs, start=1):
-        yield ''
+        if idx > 1:  yield ''
         yield '# CONNECTED COMPONENT {}'.format(idx)
         yield from compress(graph)
 
