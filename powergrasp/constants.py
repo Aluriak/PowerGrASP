@@ -51,7 +51,8 @@ try:
                 constants[field] = value
         print('INFO: config file {} loaded.'.format(fd.name))
 except FileNotFoundError:
-    print("INFO  no config file")
+    if constants['SHOW_STORY'] or constants['SHOW_DEBUG']:
+        print("INFO no config file")
 
 
 # Put them in global access

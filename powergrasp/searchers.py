@@ -113,7 +113,6 @@ class BicliqueSearcher(MotifSearcher):
 
     def covered_edges(self, sets:[frozenset]) -> iter:
         """Return the edges that are covered by given sets"""
-        print('BQUDAP:', len(sets), sets)
         assert len(sets) == 2
         yield from map(frozenset, itertools.product(*sets))
 

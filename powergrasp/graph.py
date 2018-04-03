@@ -5,7 +5,8 @@ from pprint import pprint
 from powergrasp import utils
 from powergrasp import constants
 from powergrasp.motif import Motif
-from powergrasp.constants import TEST_INTEGRITY, SHOW_DEBUG, SHOW_MOTIF_HANDLING, COVERED_EDGES_FROM_ASP
+from powergrasp.constants import (TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG,
+                                  SHOW_MOTIF_HANDLING, COVERED_EDGES_FROM_ASP)
 
 
 def proper_nx_graph(graph:networkx.Graph) -> networkx.Graph:
@@ -91,8 +92,10 @@ class Graph:
 
 
     def compress(self, motif:Motif):
-        print('COMPRESS…')
-        pprint(dict(self.__powernodes))
+        if SHOW_STORY or SHOW_DEBUG:
+            print('COMPRESS…')
+        if SHOW_DEBUG:
+            pprint(dict(self.__powernodes))
         # Add the poweredges
         for source, target in motif.new_poweredge:
             if SHOW_MOTIF_HANDLING: print('\tP-EDGE', source, target)
