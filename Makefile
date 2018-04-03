@@ -2,16 +2,23 @@
 INFILE=double_biclique_unambiguous.lp
 
 
-
-
+## Usage and tests
 compress:
 	python -m powergrasp data/$(INFILE) -o out/out.bbl
 	python -m bubbletools validate out/out.bbl
 	cp out/out.bbl ~/packages/PowerGrASP/powergrasp/data
 
-
+test: t
 t:
 	pytest powergrasp test -vv --doctest-module
+
+
+## Packaging
+upload:
+	python setup.py sdist upload
+
+
+.PHONY: test t compress upload
 
 
 ## All test cases

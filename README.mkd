@@ -1,11 +1,52 @@
-# PowerGrASP reboot
-Full reimplementation of PowerGrASP, taking advantage of ASP and Python
-lifting and simplifications.
+# PowerGrASP
+Graph compression.
+
+Note that this is a full reimplementation of PowerGrASP,
+taking advantage of ASP and Python lifting and simplifications.
+For the version published in 2017, see [this repository](https://github.com/aluriak/PowerGrASP-1).
+
+
+## CLI
+
+    powergrasp mygraph.gml -o compressed.bbl
+
+### help !
+
+    powergrasp --help
+
+## API
+
+```python
+import powergrasp
+with open('compressed.bbl', 'w') as fd:
+    for line in powergrasp.compress_by_cc('mygraph.gml'):
+        fd.write(line + '\n')
+```
+
+### help !
+Sorry, no technical doc for the moment.
+
+
+## Configuration
+PowerGrASP have some [configuration values](powergrasp/constants.py),
+that can be overwritten by a `powergrasp.cfg` file in json format.
+
+Configuration allow user to define how much text will be provided by powergrasp,
+or some options for core compression and output data.
+
+
+## installation
+
+    pip install powergrasp
+
+On random error, try adding `--no-cache-dir` somewhere.
+
 
 ## TODO
 - [x] unit tests
-- [ ] CLI
+- [x] CLI
 - [x] run on big graph
+- [x] search multiple motif in the same run (speed up observed on bio graph)
+- [ ] technical documentation
 - [ ] search and specific compression of trees
 - [ ] search and specific compression of triangle-free graphs
-- [x] search multiple motif in the same run (speed up observed on bio graph)
