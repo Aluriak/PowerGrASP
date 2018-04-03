@@ -102,8 +102,8 @@ class Graph:
         if not COVERED_EDGES_FROM_ASP:
             powernodes = set(motif.powernodes) | set(motif.stars)  # set of nodes
         for numset, node in motif.new_powernodes:
-            if SHOW_STORY: print('\tP-NODE', numset, node)
             uid = motif.uid, numset
+            if SHOW_STORY: print('\tP-NODE', *uid, node)
             self.__powernodes[uid].add(node)
             if not COVERED_EDGES_FROM_ASP: powernodes.add(uid)
 
