@@ -183,6 +183,13 @@ class Graph:
                 exit(1)
 
 
+    def compress_all(self, motifs:iter) -> int:
+        """Compress all given motifs."""
+        for step_diff, motif in enumerate(motifs, start=0):
+            motif.increase_step(step_diff)
+            self.compress(motif)
+        return step_diff
+
 
     @property
     def uid(self) -> str:
