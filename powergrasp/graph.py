@@ -111,9 +111,9 @@ class Graph:
             covered = frozenset(motif.edges_covered())
         else:
             covered = frozenset(motif.edges_covered(self.__powernodes.get(uid, {uid}) for uid in powernodes))
+        nb_edges = len(self.__edges)
         if TEST_INTEGRITY:
             edges = frozenset(self.__edges)
-            nb_edges = len(self.__edges)
             if SHOW_DEBUG: print('IFBTVC GRAPH:', self.__edges)
             if SHOW_DEBUG: print('ZEDRBM COVER:', covered)
         self.__edges -= covered
