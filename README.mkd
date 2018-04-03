@@ -5,4 +5,7 @@ lifting and simplifications.
 ## TODO
 - [x] unit tests
 - [ ] CLI
-- [ ] run on big graph
+- [x] run on big graph
+- [ ] search and specific compression of trees
+- [ ] search and specific compression of triangle-free graphs
+- [ ] search multiple motif in the same run
