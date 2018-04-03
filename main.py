@@ -14,7 +14,7 @@ def compress(graph:Graph) -> [str]:
         score_to_beat = 0
         best_motif = None
         for searcher in sorted(searchers, key=lambda s: s.upperbound, reverse=True):
-            motif = next(searcher.search(step, score_to_beat), None)
+            motif = searcher.search(step, score_to_beat)
             if motif and (best_motif is None or motif.score > best_motif.score):
                 best_motif, score_to_beat = motif, motif.score
         if best_motif:

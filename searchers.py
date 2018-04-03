@@ -72,12 +72,17 @@ class MotifSearcher:
             if SHOW_STORY:
                 print("INFO No {} search because of bounds ({};{})."
                       "".format(self.name, *self.bounds))
-            return  # impossible to find a motif in such conditions
-        models = self._search(step, self.graph, lowerbound, self.upperbound)
-        yield from (
-            Motif(self.name, model, maximal=True, step=step, searcher=self)
-            for model in models
-        )
+            return ()  # impossible to find a motif in such conditions
+        models = self._search(step, self.graph, lowerbound, self.upperbound) or ()
+        if MULTISHOT_MOTIF_SEARCH:
+            assert iter(models)
+            return (
+                Motif(self.name, model, maximal=True, step=step, searcher=self)
+                for model in models
+            )
+        elif models:
+            assert isinstance(models, dict)  # it is a single model
+            return Motif(self.name, models, maximal=True, step=step, searcher=self)
 
     def _search(self, graph:Graph, lowerbound:int, upperbound:int) -> Motif:
         raise NotImplementedError()
@@ -104,12 +109,12 @@ class BicliqueSearcher(MotifSearcher):
         """Maximal lowerbound is the score of biggest star"""
         return max(len(neighbors) for _, neighbors in graph.neighbors())
 
-    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
+    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> tuple or dict:
         graph = ''.join(graph.as_asp(step))
         if SHOW_DEBUG:
             print('UHJGMR: GRAPH:', graph)
         files = ('asp/search-biclique.lp', 'asp/process-motif.lp', 'asp/scoring_powergraph.lp')
-        yield from asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
+        return asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
         """Return the edges that are covered by given sets"""
@@ -135,10 +140,10 @@ class CliqueSearcher(MotifSearcher):
         # return the number of edges, not the number of node
         return int(clique_size * (clique_size - 1) / 2)
 
-    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
+    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> tuple or dict:
         graph = ''.join(graph.as_asp(step))
         files = ('asp/search-clique.lp', 'asp/process-motif.lp', 'asp/scoring_powergraph.lp')
-        yield from asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
+        return asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
         """Return the edges that are covered by given sets"""

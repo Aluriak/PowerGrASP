@@ -20,17 +20,17 @@ def _build_solver(step:int, lowerbound:int, upperbound:int, files:iter, graph:st
     return models.by_predicate.careful_parsing
 
 
-def oneshot_motif_search(step:int, lowerbound:int, upperbound:int, files:iter, graph:str) -> iter:
+def oneshot_motif_search(step:int, lowerbound:int, upperbound:int, files:iter, graph:str) -> dict:
     """Return iterable over the generator of the one best model
     containing atoms found in best model"""
     model = None
     for model in _build_solver(step, lowerbound, upperbound, files, graph):
         pass  # get the last one
     if model:
-        yield model
+        return model
 
 
-def multishot_motif_search(step:int, lowerbound:int, upperbound:int, files:iter, graph:str) -> iter:
+def multishot_motif_search(step:int, lowerbound:int, upperbound:int, files:iter, graph:str) -> [dict]:
     """Yield atoms found in bests models"""
     all_models = _build_solver(step, lowerbound, upperbound, files, graph, options='--opt-mode=optN')
     best_opt, models = math.inf, []
@@ -41,7 +41,7 @@ def multishot_motif_search(step:int, lowerbound:int, upperbound:int, files:iter,
             best_opt, models = opt[0], []  # model will be given again as last model, so no need to include it twice
         else:
             models.append(model)
-    yield from models
+    return tuple(models)
 
 
 # define the default behavior
