@@ -8,11 +8,17 @@ import json
 
 # Default values
 constants = {
-    # run some integrity tests at some points. May slow the compression a lot.
+    # Run some integrity tests at some points. May slow the compression a lot.
     'TEST_INTEGRITY': True,
 
-    # show full trace of the compression. Useful for debugging.
+    # Show main steps of the compression.
     'SHOW_STORY': True,
+
+    # Show motifs transformation into powergraph.
+    'SHOW_MOTIF_HANDLING': True,
+
+    # Show full trace of the compression. Useful for debugging.
+    'SHOW_DEBUG': True,
 
     # Recover covered edges from ASP. If falsy, will ask motif searcher to compute the edges, which may be quicker.
     'COVERED_EDGES_FROM_ASP': False,
@@ -30,6 +36,9 @@ constants = {
 
     # Change them according to config file
     'CONFIG_FILE': 'powergrasp.cfg',
+
+    # Search for multiple motif in a single search. Accelerate the solving for graph with lots of equivalent motifs.
+    'MULTISHOT_MOTIF_SEARCH': False,
 }
 
 

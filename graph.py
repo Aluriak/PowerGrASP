@@ -4,7 +4,7 @@ from collections import defaultdict
 from pprint import pprint
 import utils
 import constants
-from constants import TEST_INTEGRITY, SHOW_STORY, COVERED_EDGES_FROM_ASP
+from constants import TEST_INTEGRITY, SHOW_DEBUG, SHOW_MOTIF_HANDLING, COVERED_EDGES_FROM_ASP
 
 from motif import Motif
 
@@ -96,14 +96,14 @@ class Graph:
         pprint(dict(self.__powernodes))
         # Add the poweredges
         for source, target in motif.new_poweredge:
-            if SHOW_STORY: print('\tP-EDGE', source, target)
+            if SHOW_MOTIF_HANDLING: print('\tP-EDGE', source, target)
             self.__poweredges[source].add(target)
         # Get the powernodes as set of nodes, and build the new ones.
         if not COVERED_EDGES_FROM_ASP:
             powernodes = set(motif.powernodes) | set(motif.stars)  # set of nodes
         for numset, node in motif.new_powernodes:
-            if SHOW_STORY: print('\tP-NODE', numset, node)
             uid = motif.uid, numset
+            if SHOW_MOTIF_HANDLING: print('\tP-NODE', *uid, node)
             self.__powernodes[uid].add(node)
             if not COVERED_EDGES_FROM_ASP: powernodes.add(uid)
 
@@ -115,8 +115,8 @@ class Graph:
         if TEST_INTEGRITY:
             edges = frozenset(self.__edges)
             nb_edges = len(self.__edges)
-            if SHOW_STORY: print('IFBTVC GRAPH:', self.__edges)
-            if SHOW_STORY: print('ZEDRBM COVER:', covered)
+            if SHOW_DEBUG: print('IFBTVC GRAPH:', self.__edges)
+            if SHOW_DEBUG: print('ZEDRBM COVER:', covered)
         self.__edges -= covered
         diff = nb_edges - len(covered) != len(self.__edges)
         if TEST_INTEGRITY and diff:
@@ -130,12 +130,12 @@ class Graph:
             raise ValueError("Edges yielded by {} searcher were not in the graph."
                              " Rerun with TEST_INTEGRITY to get the problem."
                              "".format(motif.name))
-        if SHOW_STORY:
+        if SHOW_MOTIF_HANDLING:
             print('\tCOVER', len(covered))
 
         # Now the big part: hierarchy. ASP send patch to apply on it.
         for args in motif.hierachy_added:
-            if SHOW_STORY:
+            if SHOW_MOTIF_HANDLING:
                 print('\tADD HIERARCHY', args)
             self.__hierarchy.add(args)
             step_parent, num_parent, step_son, num_son = args
@@ -145,11 +145,11 @@ class Graph:
             if nodes:
                 self.__powernodes[step_parent, num_parent] -= nodes
                 self.__powernodes[step_son, num_son] |= nodes
-                if SHOW_STORY:
+                if SHOW_MOTIF_HANDLING:
                     print('\tMOVE NODES: {} FROM {} TO {}'.format(nodes, (step_parent, num_parent), (step_son, num_son)))
 
         for args in motif.hierachy_removed:
-            if SHOW_STORY:
+            if SHOW_MOTIF_HANDLING:
                 print('\tDEL HIERARCHY', args)
             self.__hierarchy.remove(args)
 
@@ -162,7 +162,7 @@ class Graph:
         # nb_nodes_in_pnodes = sum(1 for _ in itertools.chain.from_iterable(self.__powernodes.values()))
         # nb_nodes_in_ground = ...
         # assert nb_nodes_in_pnodes == self.nb_node, (nb_nodes_in_pnodes, self.nb_node)
-        if SHOW_STORY:
+        if SHOW_DEBUG:
             print('PNODES:')
             pprint(dict(self.__powernodes))
 
@@ -182,6 +182,13 @@ class Graph:
                 pprint(multiple_parents)
                 exit(1)
 
+
+    def compress_all(self, motifs:iter) -> int:
+        """Compress all given motifs."""
+        for step_diff, motif in enumerate(motifs, start=0):
+            motif.increase_step(step_diff)
+            self.compress(motif)
+        return step_diff
 
 
     @property
@@ -222,15 +229,16 @@ class Graph:
 
     def output(self, filename:str):
         """Write in given filename the bubble representation of the graph"""
-        print('\n\n###########################\n')
-        print('PNODES:')
-        pprint(dict(self.__powernodes))
-        print('HIERAC:')
-        pprint(self.__hierarchy)
-        print('PEDGES:')
-        pprint(dict(self.__poweredges))
-        print(' EDGES:')
-        pprint(self.__edges)
+        if SHOW_DEBUG:
+            print('\n\n###########################\n')
+            print('PNODES:')
+            pprint(dict(self.__powernodes))
+            print('HIERAC:')
+            pprint(self.__hierarchy)
+            print('PEDGES:')
+            pprint(dict(self.__poweredges))
+            print(' EDGES:')
+            pprint(self.__edges)
 
 
         with open(filename, 'w') as fd:

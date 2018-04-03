@@ -8,4 +8,4 @@ lifting and simplifications.
 - [x] run on big graph
 - [ ] search and specific compression of trees
 - [ ] search and specific compression of triangle-free graphs
-- [ ] search multiple motif in the same run
+- [x] search multiple motif in the same run (speed up observed on bio graph)

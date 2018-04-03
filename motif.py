@@ -1,5 +1,5 @@
 
-from constants import TEST_INTEGRITY, SHOW_STORY, COVERED_EDGES_FROM_ASP
+from constants import TEST_INTEGRITY, SHOW_DEBUG, COVERED_EDGES_FROM_ASP
 
 
 class Motif:
@@ -11,9 +11,10 @@ class Motif:
 
     """
     def __init__(self, typename:str, atoms:dict, maximal:bool, step:int, searcher:object):
-        self.typename, self.atoms, self.ismaximal, self.step = str(typename), atoms, bool(maximal), int(step)
+        self.typename, self.atoms, self.ismaximal, self.step = str(typename), dict(atoms), bool(maximal), int(step)
+        self.step_modifier = 0
         self._searcher = searcher
-        if SHOW_STORY:
+        if SHOW_DEBUG:
             from pprint import pprint
             print('ATOMS FOR MOTIF {}:'.format(typename))
             pprint(self.atoms)
@@ -23,7 +24,7 @@ class Motif:
     @property
     def name(self) -> str:  return self.typename
     @property
-    def uid(self) -> int:  return self.step
+    def uid(self) -> int:  return self.step + self.step_modifier
     @property
     def type(self):  return self._searcher
 
@@ -53,31 +54,50 @@ class Motif:
         assert isinstance(score, int)
         return score
 
+    def increase_step(self, step_diff:int):
+        """Increase internally the step of self"""
+        self.step_modifier += int(step_diff)
 
+    @property
+    def new_nodes(self) -> iter:
+        yield from (node for numset, node in self.atoms.get('new_powernode', ()))
+        yield from self.stars
     @property
     def new_powernodes(self) -> iter:
         yield from self.atoms.get('new_powernode', ())
     @property
     def powernodes(self) -> iter:
-        yield from self.atoms.get('powernode', ())
+        _ = lambda s: s + (self.step_modifier if s == self.step else 0)
+        yield from (
+            (_(step), numset) for step, numset in self.atoms.get('powernode', ())
+        )
     @property
     def stars(self) -> iter:
         yield from (args[0] for args in self.atoms.get('star', ()))
     @property
     def new_poweredge(self) -> iter:
+        _ = lambda s: s + (self.step_modifier if s == self.step else 0)
         for args in self.atoms.get('poweredge', ()):
             if len(args) == 4:
                 step_a, set_a, step_b, set_b = args
-                yield (step_a, set_a), (step_b, set_b)
+                yield (_(step_a), set_a), (_(step_b), set_b)
             elif len(args) == 3:
                 step_a, set_a, node = args
-                yield (step_a, set_a), node
+                yield (_(step_a), set_a), node
     @property
     def hierachy_added(self) -> iter:
-        yield from self.atoms.get('hierarchy_add', ())
+        _ = lambda s: s + (self.step_modifier if s == self.step else 0)
+        yield from (
+            (_(step1), numset, _(step2), numset2)
+            for step1, numset, step2, numset2
+            in self.atoms.get('hierarchy_add', ()))
     @property
     def hierachy_removed(self) -> iter:
-        yield from self.atoms.get('hierarchy_remove', ())
+        _ = lambda s: s + (self.step_modifier if s == self.step else 0)
+        yield from (
+            (_(step1), numset, _(step2), numset2)
+            for step1, numset, step2, numset2
+            in self.atoms.get('hierarchy_remove', ()))
 
 
     def edges_covered(self, sets:[frozenset]=None) -> iter:
