@@ -4,6 +4,7 @@ Function solve_motif_search is defined according to global constants.
 
 """
 
+import math
 import clyngor
 from constants import COVERED_EDGES_FROM_ASP, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH
 
@@ -32,7 +33,7 @@ def oneshot_motif_search(step:int, lowerbound:int, upperbound:int, files:iter, g
 def multishot_motif_search(step:int, lowerbound:int, upperbound:int, files:iter, graph:str) -> iter:
     """Yield atoms found in bests models"""
     all_models = _build_solver(step, lowerbound, upperbound, files, graph, options='--opt-mode=optN')
-    best_opt, models = 0, []
+    best_opt, models = math.inf, []
     for model, opt in all_models.with_optimization:
         if SHOW_DEBUG:
             print('OPT, MODEL:', opt[0], model)
