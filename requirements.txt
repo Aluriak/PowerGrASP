@@ -1,4 +1,5 @@
-pyasp>=1.4.2
-clyngor==0.3.0
-networkx>=1.10
-bubbletools>=0.4.0
+bubbletools==0.5.3
+clyngor==0.3.1
+networkx==2.1
+phasme==0.0.11
+pytest==3.5.0
