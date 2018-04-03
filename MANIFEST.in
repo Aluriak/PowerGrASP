@@ -1,3 +1,2 @@
 exclude *
-recursive-include phasme
-recursive-include asp
+recursive-include powergrasp *.py *.lp

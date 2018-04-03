@@ -108,7 +108,7 @@ class BicliqueSearcher(MotifSearcher):
         graph = ''.join(graph.as_asp(step))
         if SHOW_DEBUG:
             print('UHJGMR: GRAPH:', graph)
-        files = ('asp/search-biclique.lp', 'asp/process-motif.lp', 'asp/scoring_powergraph.lp')
+        files = ('powergrasp/asp/search-biclique.lp', 'powergrasp/asp/process-motif.lp', 'powergrasp/asp/scoring_powergraph.lp')
         yield from asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
@@ -136,7 +136,7 @@ class CliqueSearcher(MotifSearcher):
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
         graph = ''.join(graph.as_asp(step))
-        files = ('asp/search-clique.lp', 'asp/process-motif.lp', 'asp/scoring_powergraph.lp')
+        files = ('powergrasp/asp/search-clique.lp', 'powergrasp/asp/process-motif.lp', 'powergrasp/asp/scoring_powergraph.lp')
         yield from asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
