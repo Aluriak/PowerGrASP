@@ -36,7 +36,7 @@ def multishot_motif_search(step:int, lowerbound:int, upperbound:int, files:iter,
     for model, opt in all_models.with_optimization:
         print(model, opt)
         if opt[0] < best_opt:  # smaller is best
-            best_opt, models = opt[0], []
+            best_opt, models = opt[0], []  # model will be given again as last model, so no need to include it twice
         else:
             models.append(model)
     yield from models
