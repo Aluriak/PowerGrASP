@@ -67,31 +67,37 @@ class Motif:
         yield from self.atoms.get('new_powernode', ())
     @property
     def powernodes(self) -> iter:
+        _ = lambda s: s + (self.step_modifier if s == self.step else 0)
         yield from (
-            ((step + self.step_modifier if step == self.step else step), numset)
-            for step, numset in self.atoms.get('powernode', ())
+            (_(step), numset) for step, numset in self.atoms.get('powernode', ())
         )
     @property
     def stars(self) -> iter:
         yield from (args[0] for args in self.atoms.get('star', ()))
     @property
     def new_poweredge(self) -> iter:
+        _ = lambda s: s + (self.step_modifier if s == self.step else 0)
         for args in self.atoms.get('poweredge', ()):
             if len(args) == 4:
                 step_a, set_a, step_b, set_b = args
-                if step_a == self.step: step_a += self.step_modifier
-                if step_b == self.step: step_b += self.step_modifier
-                yield (step_a, set_a), (step_b, set_b)
+                yield (_(step_a), set_a), (_(step_b), set_b)
             elif len(args) == 3:
                 step_a, set_a, node = args
-                if step_a == self.step: step_a += self.step_modifier
-                yield (step_a, set_a), node
+                yield (_(step_a), set_a), node
     @property
     def hierachy_added(self) -> iter:
-        yield from self.atoms.get('hierarchy_add', ())
+        _ = lambda s: s + (self.step_modifier if s == self.step else 0)
+        yield from (
+            (_(step1), numset, _(step2), numset2)
+            for step1, numset, step2, numset2
+            in self.atoms.get('hierarchy_add', ()))
     @property
     def hierachy_removed(self) -> iter:
-        yield from self.atoms.get('hierarchy_remove', ())
+        _ = lambda s: s + (self.step_modifier if s == self.step else 0)
+        yield from (
+            (_(step1), numset, _(step2), numset2)
+            for step1, numset, step2, numset2
+            in self.atoms.get('hierarchy_remove', ()))
 
 
     def edges_covered(self, sets:[frozenset]=None) -> iter:
