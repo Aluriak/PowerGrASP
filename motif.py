@@ -1,5 +1,5 @@
 
-from constants import TEST_INTEGRITY, SHOW_STORY, COVERED_EDGES_FROM_ASP
+from constants import TEST_INTEGRITY, SHOW_DEBUG, COVERED_EDGES_FROM_ASP
 
 
 class Motif:
@@ -14,7 +14,7 @@ class Motif:
         self.typename, self.atoms, self.ismaximal, self.step = str(typename), dict(atoms), bool(maximal), int(step)
         self.step_modifier = 0
         self._searcher = searcher
-        if SHOW_STORY:
+        if SHOW_DEBUG:
             from pprint import pprint
             print('ATOMS FOR MOTIF {}:'.format(typename))
             pprint(self.atoms)

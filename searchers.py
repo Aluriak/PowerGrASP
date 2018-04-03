@@ -6,7 +6,7 @@ import asp
 import utils
 from motif import Motif
 from graph import Graph
-from constants import TEST_INTEGRITY, SHOW_STORY, MULTISHOT_MOTIF_SEARCH
+from constants import TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH
 
 
 class MotifSearcher:
@@ -106,7 +106,7 @@ class BicliqueSearcher(MotifSearcher):
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
         graph = ''.join(graph.as_asp(step))
-        if SHOW_STORY:
+        if SHOW_DEBUG:
             print('UHJGMR: GRAPH:', graph)
         files = ('asp/search-biclique.lp', 'asp/process-motif.lp', 'asp/scoring_powergraph.lp')
         yield from asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)

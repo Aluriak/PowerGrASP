@@ -5,7 +5,7 @@ Function solve_motif_search is defined according to global constants.
 """
 
 import clyngor
-from constants import COVERED_EDGES_FROM_ASP, SHOW_STORY, MULTISHOT_MOTIF_SEARCH
+from constants import COVERED_EDGES_FROM_ASP, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH
 
 
 def _build_solver(step:int, lowerbound:int, upperbound:int, files:iter, graph:str, options:str='') -> iter:
@@ -34,7 +34,8 @@ def multishot_motif_search(step:int, lowerbound:int, upperbound:int, files:iter,
     all_models = _build_solver(step, lowerbound, upperbound, files, graph, options='--opt-mode=optN')
     best_opt, models = 0, []
     for model, opt in all_models.with_optimization:
-        print(model, opt)
+        if SHOW_DEBUG:
+            print('OPT, MODEL:', opt[0], model)
         if opt[0] < best_opt:  # smaller is best
             best_opt, models = opt[0], []  # model will be given again as last model, so no need to include it twice
         else:
