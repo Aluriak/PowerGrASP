@@ -81,7 +81,9 @@ if __name__ == "__main__":
     # graphfile = 'data/disjoint-subpnodes.lp'
     # graphfile = 'data/inclusions.lp'
     # graphfile = 'data/double_biclique_unambiguous.lp'
-    graphfile = 'data/bintree.lp'
+    # graphfile = 'data/bintree.lp'
+    # graphfile = 'data/bintree-small.lp'
+    graphfile = 'data/multiple-optimals.lp'
 
     with open('out/out.bbl', 'w') as fd:
         for line in compress_by_cc(graphfile):
