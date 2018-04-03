@@ -1,6 +1,5 @@
 
-from utils import quoted
-
+from powergrasp.utils import quoted
 
 def test_quoted():
     """Hard to test in docstring because of all the backslashs"""

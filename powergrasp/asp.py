@@ -6,7 +6,7 @@ Function solve_motif_search is defined according to global constants.
 
 import math
 import clyngor
-from constants import COVERED_EDGES_FROM_ASP, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH
+from powergrasp.constants import COVERED_EDGES_FROM_ASP, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH
 
 
 def _build_solver(step:int, lowerbound:int, upperbound:int, files:iter, graph:str, options:str='') -> iter:

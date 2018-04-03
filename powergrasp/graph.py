@@ -2,11 +2,10 @@ import phasme
 import networkx
 from collections import defaultdict
 from pprint import pprint
-import utils
-import constants
-from constants import TEST_INTEGRITY, SHOW_DEBUG, SHOW_MOTIF_HANDLING, COVERED_EDGES_FROM_ASP
-
-from motif import Motif
+from powergrasp import utils
+from powergrasp import constants
+from powergrasp.motif import Motif
+from powergrasp.constants import TEST_INTEGRITY, SHOW_DEBUG, SHOW_MOTIF_HANDLING, COVERED_EDGES_FROM_ASP
 
 
 def proper_nx_graph(graph:networkx.Graph) -> networkx.Graph:

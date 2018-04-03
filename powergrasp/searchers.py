@@ -2,11 +2,11 @@
 import itertools
 from collections import defaultdict
 
-import asp
-import utils
-from motif import Motif
-from graph import Graph
-from constants import TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH
+from . import asp
+from . import utils
+from .motif import Motif
+from .graph import Graph
+from .constants import TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH
 
 
 class MotifSearcher:

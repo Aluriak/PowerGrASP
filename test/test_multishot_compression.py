@@ -8,8 +8,8 @@ import os
 import pytest
 import itertools
 
-from main import compress_by_cc
-import constants
+from powergrasp.routines import compress_by_cc
+from powergrasp import constants
 from .ambiguous_test_cases import cases
 
 

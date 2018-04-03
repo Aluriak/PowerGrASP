@@ -15,10 +15,10 @@ constants = {
     'SHOW_STORY': True,
 
     # Show motifs transformation into powergraph.
-    'SHOW_MOTIF_HANDLING': True,
+    'SHOW_MOTIF_HANDLING': False,
 
     # Show full trace of the compression. Useful for debugging.
-    'SHOW_DEBUG': True,
+    'SHOW_DEBUG': False,
 
     # Recover covered edges from ASP. If falsy, will ask motif searcher to compute the edges, which may be quicker.
     'COVERED_EDGES_FROM_ASP': False,

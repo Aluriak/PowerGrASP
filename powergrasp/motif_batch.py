@@ -7,8 +7,8 @@ and non-overlapping subset selection.
 """
 
 from itertools import islice
-from constants import TEST_INTEGRITY
-from motif import Motif
+from powergrasp.motif import Motif
+from powergrasp.constants import TEST_INTEGRITY
 
 
 class MotifBatch:

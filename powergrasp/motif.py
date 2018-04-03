@@ -1,5 +1,5 @@
 
-from constants import TEST_INTEGRITY, SHOW_DEBUG, COVERED_EDGES_FROM_ASP
+from powergrasp.constants import TEST_INTEGRITY, SHOW_DEBUG, COVERED_EDGES_FROM_ASP
 
 
 class Motif:

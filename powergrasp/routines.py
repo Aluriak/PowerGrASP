@@ -1,8 +1,10 @@
+"""Definition of high level functions operating the compression.
 
-# import utils
-from searchers import CliqueSearcher, BicliqueSearcher
-from graph import Graph
-from constants import MULTISHOT_MOTIF_SEARCH, TEST_INTEGRITY
+"""
+
+from .searchers import CliqueSearcher, BicliqueSearcher
+from .graph import Graph
+from .constants import MULTISHOT_MOTIF_SEARCH
 
 
 def compress(graph:Graph) -> [str]:
@@ -59,33 +61,3 @@ def compress_by_cc(fname:str) -> [str]:
             yield from compress_multishot(graph)
         else:
             yield from compress(graph)
-
-
-if __name__ == "__main__":
-    # graphfile = 'data/ddiam.lp'
-    # graphfile = 'data/one_edge.lp'
-    # graphfile = 'data/clique.lp'
-    # graphfile = 'data/perfectfit.lp'
-    # graphfile = 'data/abnormal.lp'
-    # graphfile = 'data/n8_d0.7.lp'
-    # graphfile = 'data/partition.lp'
-    # graphfile = 'data/cliques.lp'
-    # graphfile = 'data/pnode-to-clique.lp'
-    # graphfile = 'data/concomp.lp'
-    # graphfile = 'data/perfectfit.lp'
-    # graphfile = 'data/quoting.lp'
-    # graphfile = 'data/variable-name.gml'
-    # graphfile = 'data/hanging-bio-notree-cc0.lp'
-    # graphfile = 'data/horrible_data.lp'
-    # graphfile = 'data/hanging-study.lp'
-    # graphfile = 'data/disjoint-subpnodes.lp'
-    # graphfile = 'data/inclusions.lp'
-    # graphfile = 'data/double_biclique_unambiguous.lp'
-    # graphfile = 'data/bintree.lp'
-    # graphfile = 'data/bintree-small.lp'
-    graphfile = 'data/multiple-optimals.lp'
-
-    with open('out/out.bbl', 'w') as fd:
-        for line in compress_by_cc(graphfile):
-            fd.write(line + '\n')
-

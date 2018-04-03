@@ -7,8 +7,8 @@ from the template_test_function function.
 import os
 import pytest
 
-from main import compress_by_cc
-import constants
+from powergrasp.routines import compress_by_cc
+from powergrasp import constants
 from .test_cases import cases
 
 
