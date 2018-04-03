@@ -7,6 +7,12 @@ from . import utils
 from .motif import Motif
 from .graph import Graph
 from .constants import TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH
+from . import ASP_FILES
+
+
+MOTIF_ASP_FILES = ASP_FILES['process-motif'], ASP_FILES['scoring_powergraph']
+CLIQUE_ASP_FILES = (ASP_FILES['search-clique'], *MOTIF_ASP_FILES)
+BICLIQUE_ASP_FILES = (ASP_FILES['search-biclique'], *MOTIF_ASP_FILES)
 
 
 class MotifSearcher:
@@ -108,8 +114,8 @@ class BicliqueSearcher(MotifSearcher):
         graph = ''.join(graph.as_asp(step))
         if SHOW_DEBUG:
             print('UHJGMR: GRAPH:', graph)
-        files = ('powergrasp/asp/search-biclique.lp', 'powergrasp/asp/process-motif.lp', 'powergrasp/asp/scoring_powergraph.lp')
-        yield from asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
+        yield from asp.solve_motif_search(step, lowerbound, upperbound,
+                                          files=BICLIQUE_ASP_FILES, graph=graph)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
         """Return the edges that are covered by given sets"""
@@ -136,8 +142,8 @@ class CliqueSearcher(MotifSearcher):
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
         graph = ''.join(graph.as_asp(step))
-        files = ('powergrasp/asp/search-clique.lp', 'powergrasp/asp/process-motif.lp', 'powergrasp/asp/scoring_powergraph.lp')
-        yield from asp.solve_motif_search(step, lowerbound, upperbound, files=files, graph=graph)
+        yield from asp.solve_motif_search(step, lowerbound, upperbound,
+                                          files=CLIQUE_ASP_FILES, graph=graph)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
         """Return the edges that are covered by given sets"""
