@@ -17,6 +17,9 @@ constants = {
     # Show motifs transformation into powergraph.
     'SHOW_MOTIF_HANDLING': False,
 
+    # Generate and save a bubble representation of the graph at each step.
+    'BUBBLE_FOR_EACH_STEP': False,
+
     # Show full trace of the compression. Useful for debugging.
     'SHOW_DEBUG': False,
 

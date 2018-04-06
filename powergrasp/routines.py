@@ -4,7 +4,7 @@
 
 from .searchers import CliqueSearcher, BicliqueSearcher
 from .graph import Graph
-from .constants import MULTISHOT_MOTIF_SEARCH
+from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP
 
 
 def compress(graph:Graph) -> [str]:
@@ -23,6 +23,8 @@ def compress(graph:Graph) -> [str]:
             graph.compress(best_motif)
             for searcher in searchers:
                 searcher.on_new_compressed_motif(best_motif)
+            if BUBBLE_FOR_EACH_STEP:
+                graph.output('out/out_k{}_s{}.bbl'.format(step, best_motif.score))
         else:
             break  # nothing to compress
     yield from graph.bubble_repr()
@@ -46,6 +48,8 @@ def compress_multishot(graph:Graph) -> [str]:
             step += graph.compress_all(best_motifs.non_overlapping_subset())
             for searcher in searchers:
                 searcher.on_new_compressed_motif(best_motifs)
+            if BUBBLE_FOR_EACH_STEP:
+                graph.output('out/out_k{}_s{}.bbl'.format(step, best_motif.score))
         else:
             break  # nothing to compress
     yield from graph.bubble_repr()
