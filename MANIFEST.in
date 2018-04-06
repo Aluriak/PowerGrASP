@@ -1,2 +1,4 @@
 exclude *
 recursive-include powergrasp *.py *.lp
+prune data
+prune test
