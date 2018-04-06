@@ -36,6 +36,9 @@
 % A node is contained by all blocks above the block containing it.
 block(k-1,K,T,X):- block(k-1,L,U,X) ; include_block(k-1,K,T,L,U).
 
+% If a powernode contains a node in a block and a node not in the block, all nodes in block must be contained.
+newconcept(T,Z):- newconcept(T,X) ; newconcept(T,Y) ; block(k-1,L,U,Z) ; block(k-1,L,U,X) ; not block(k-1,L,U,Y).
+
 % Blocks created at step k-1 containing the set T of the motif.
 block_contains_newconcept(L,U,T):- block(k-1,L,U,X) ; newconcept(T,X) ; block(k-1,L,U,Y): newconcept(T,Y).
 

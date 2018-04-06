@@ -48,6 +48,8 @@ horrible_data:
 	$(MAKE) compress INFILE=horrible_data.lp
 inclusions:
 	$(MAKE) compress INFILE=inclusions.lp
+consider-included-nodes:
+	$(MAKE) compress INFILE=consider-included-nodes.lp
 multiple-optimals:
 	$(MAKE) compress INFILE=multiple-optimals.lp
 n8_d0:
