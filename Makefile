@@ -6,7 +6,6 @@ INFILE=double_biclique_unambiguous.lp
 compress:
 	python -m powergrasp data/$(INFILE) -o out/out.bbl
 	python -m bubbletools validate out/out.bbl
-	cp out/out.bbl ~/packages/PowerGrASP/powergrasp/data
 
 test: t
 t:
