@@ -28,12 +28,18 @@ def compress(graph:Graph) -> [str]:
         timer_last = timer_start
     searchers = (CliqueSearcher(graph), BicliqueSearcher(graph))
     step = 0
+    complete_compression = True
     while True:
         step += 1
         score_to_beat = 0
         best_motif = None
         for searcher in sorted(searchers, key=lambda s: s.upperbound, reverse=True):
-            motif = next(searcher.search(step, score_to_beat), None)
+            try:
+                motif = next(searcher.search(step, score_to_beat), None)
+            except KeyboardInterrupt:
+                print('WARNING interrupted search. Graph compression aborted. Output will be written.')
+                complete_compression, best_motif = False, None
+                break
             if motif and (best_motif is None or motif.score > best_motif.score):
                 best_motif, score_to_beat = motif, motif.score
         if best_motif:
@@ -55,7 +61,7 @@ def compress(graph:Graph) -> [str]:
                 timer_last = now
         else:
             break  # nothing to compress
-    yield from graph.bubble_repr()
+    yield from graph.bubble_repr(head_comment='Warning: incomplete compression (stopped at step {})'.format(step) if not complete_compression else '')
 
 
 def compress_multishot(graph:Graph) -> [str]:
@@ -66,15 +72,21 @@ def compress_multishot(graph:Graph) -> [str]:
         timer_last = timer_start
     searchers = (CliqueSearcher(graph), BicliqueSearcher(graph))
     step = 0
+    complete_compression = True
     while True:
         step += 1
         score_to_beat = 0
         best_motifs, best_motifs_score = None, 0
-        for searcher in sorted(searchers, key=lambda s: s.upperbound, reverse=True):
-            motifs = MotifBatch(searcher.search(step, score_to_beat))
-            if motifs and motifs.score > best_motifs_score:
-                best_motifs, best_motifs_score = motifs, motifs.score
-                score_to_beat = best_motifs_score
+        try:
+            for searcher in sorted(searchers, key=lambda s: s.upperbound, reverse=True):
+                motifs = MotifBatch(searcher.search(step, score_to_beat))
+                if motifs and motifs.score > best_motifs_score:
+                    best_motifs, best_motifs_score = motifs, motifs.score
+                    score_to_beat = best_motifs_score
+        except KeyboardInterrupt:
+            print('WARNING interrupted search. Graph compression aborted. Output will be written.')
+            complete_compression, best_motifs = False, None
+            break
         if best_motifs:
             step += graph.compress_all(best_motifs.non_overlapping_subset())
             for searcher in searchers:
@@ -94,7 +106,7 @@ def compress_multishot(graph:Graph) -> [str]:
                 timer_last = now
         else:
             break  # nothing to compress
-    yield from graph.bubble_repr()
+    yield from graph.bubble_repr(head_comment='Warning: incomplete compression (stopped at step {})'.format(step) if not complete_compression else '')
 
 
 def compress_by_cc(fname:str) -> [str]:
