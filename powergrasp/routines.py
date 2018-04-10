@@ -61,7 +61,14 @@ def compress(graph:Graph) -> [str]:
                 timer_last = now
         else:
             break  # nothing to compress
+    if TIMERS and SHOW_STORY:
+        timer_output = get_time()
     yield from graph.bubble_repr(head_comment='Warning: incomplete compression (stopped at step {})'.format(step) if not complete_compression else '')
+    if TIMERS and SHOW_STORY:
+        timers = round(now - timer_start, 2), round(now - timer_output, 2)
+        print("TIMER since start: {}s\t\toutput generation: {}s"
+              "".format(*timers))
+
 
 
 def compress_multishot(graph:Graph) -> [str]:
@@ -106,7 +113,14 @@ def compress_multishot(graph:Graph) -> [str]:
                 timer_last = now
         else:
             break  # nothing to compress
+    if TIMERS and SHOW_STORY:
+        timer_output = get_time()
     yield from graph.bubble_repr(head_comment='Warning: incomplete compression (stopped at step {})'.format(step) if not complete_compression else '')
+    if TIMERS and SHOW_STORY:
+        now = get_time()
+        timers = round(now - timer_start, 2), round(now - timer_output, 2)
+        print("TIMER since start: {}s\t\toutput generation: {}s"
+              "".format(*timers))
 
 
 def compress_by_cc(fname:str) -> [str]:

@@ -47,7 +47,8 @@ On random error, try adding `--no-cache-dir` somewhere.
 - [x] CLI
 - [x] run on big graph
 - [x] search multiple motif in the same run (speed up observed on bio graph)
-- [ ] timers for solving, full run, extraction, output writing
+- [x] timers for solving, full run, output writing
+- [ ] timers for extraction
 - [ ] technical documentation
 - [ ] search and specific compression of trees
 - [ ] search and specific compression of triangle-free graphs
@@ -56,6 +57,7 @@ On random error, try adding `--no-cache-dir` somewhere.
 ## Changelog
 
 - 8.5
+    - timer for output writing
     - config allow user to define the number of CPU for clingo to use
     - simplify ASP code by removing useless arg in block/4 atoms
 - 8.4
