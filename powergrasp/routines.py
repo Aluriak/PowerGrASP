@@ -54,7 +54,7 @@ def compress(graph:Graph) -> [str]:
                 now = get_time()
                 timers = round(now - timer_start, 2), round(now - timer_last, 2)
                 if STATISTIC_FILE:
-                    save_stats(*timers, best_motifs.name, best_motifs.score)
+                    save_stats(*timers, best_motif.name, best_motif.score)
                 if SHOW_STORY:
                     print("TIMER since start: {}s\t\tsince last motif: {}s"
                           "".format(*timers))
