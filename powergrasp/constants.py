@@ -49,7 +49,7 @@ constants = {
     # Search for multiple motif in a single search. Accelerate the solving for graph with lots of equivalent motifs.
     'MULTISHOT_MOTIF_SEARCH': True,
 
-    # Optimization on biclique lowerbound computation. Can be costly. Deactivate with 0.
+    # Optimization on biclique lowerbound computation. Can be costly. Deactivate with 1. With value at n, up to n neighbors are considered.
     'BICLIQUE_LOWERBOUND_MAXNEI': 2,
 }
 
