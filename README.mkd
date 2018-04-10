@@ -51,3 +51,15 @@ On random error, try adding `--no-cache-dir` somewhere.
 - [ ] technical documentation
 - [ ] search and specific compression of trees
 - [ ] search and specific compression of triangle-free graphs
+
+
+## Changelog
+
+- 8.4
+  - replace ASP code constraint to achieve much more efficient grounding
+  - configuration allow for improved lowerbound computation of bicliques
+  - generated bubble allow client to give heading comments
+  - handle keyboard interruption during search with grace
+  - implement timers and statistics recording
+  - enable multishot motif search by default
+  - various bugfixes
