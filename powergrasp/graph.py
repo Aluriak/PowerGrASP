@@ -248,8 +248,10 @@ class Graph:
                 fd.write(line + '\n')
 
 
-    def bubble_repr(self) -> iter:
+    def bubble_repr(self, head_comment:str='') -> iter:
         """Yield lines of bubble representation"""
+        if head_comment:
+            yield from ('# ' + line for line in head_comment.splitlines(False))
         _format_name = lambda x: format_name(format_name(None, self.uid), x)
         if constants.BUBBLE_WITH_NODES:
             for node in self.__nodes:
