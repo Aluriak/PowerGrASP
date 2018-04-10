@@ -3,6 +3,7 @@
 .pytest_cache/
 Session.vim
 __pycache__/
+debug/
 dist/
 powergrasp.egg-info/
 venv/
