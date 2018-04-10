@@ -47,7 +47,7 @@ constants = {
     'CONFIG_FILE': 'powergrasp.cfg',
 
     # Search for multiple motif in a single search. Accelerate the solving for graph with lots of equivalent motifs.
-    'MULTISHOT_MOTIF_SEARCH': False,
+    'MULTISHOT_MOTIF_SEARCH': True,
 }
 
 
