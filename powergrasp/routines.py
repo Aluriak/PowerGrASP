@@ -4,11 +4,28 @@
 
 from .searchers import CliqueSearcher, BicliqueSearcher
 from .graph import Graph
-from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP
+from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE
+
+
+if TIMERS:
+    import time
+    def get_time() -> float: return round(time.time(), 2)
+    if STATISTIC_FILE:
+        # empty the file
+        with open(STATISTIC_FILE, 'w') as fd:
+            pass
+        # function to fill it during compression
+        def save_stats(*args):
+            """Fill statistic file with given data"""
+            with open(STATISTIC_FILE, 'a') as fd:
+                fd.write(','.join(map(str, args)) + '\n')
 
 
 def compress(graph:Graph) -> [str]:
     """Yield bubble lines found in graph"""
+    if TIMERS:
+        timer_start = get_time()
+        timer_last = timer_start
     searchers = (CliqueSearcher(graph), BicliqueSearcher(graph))
     step = 0
     while True:
@@ -23,8 +40,19 @@ def compress(graph:Graph) -> [str]:
             graph.compress(best_motif)
             for searcher in searchers:
                 searcher.on_new_compressed_motif(best_motif)
+            if SHOW_STORY:
+                print('INFO {} motif of score {} compressed'.format(best_motif.name, best_motif.score))
             if BUBBLE_FOR_EACH_STEP:
                 graph.output('out/out_k{}_s{}.bbl'.format(step, best_motif.score))
+            if TIMERS:
+                now = get_time()
+                timers = round(now - timer_start, 2), round(now - timer_last, 2)
+                if STATISTIC_FILE:
+                    save_stats(*timers, best_motifs.name, best_motifs.score)
+                if SHOW_STORY:
+                    print("TIMER since start: {}s\t\tsince last motif: {}s"
+                          "".format(*timers))
+                timer_last = now
         else:
             break  # nothing to compress
     yield from graph.bubble_repr()
@@ -32,7 +60,10 @@ def compress(graph:Graph) -> [str]:
 
 def compress_multishot(graph:Graph) -> [str]:
     """Yield bubble lines found in graph"""
-    from motif_batch import MotifBatch
+    from .motif_batch import MotifBatch
+    if TIMERS:
+        timer_start = get_time()
+        timer_last = timer_start
     searchers = (CliqueSearcher(graph), BicliqueSearcher(graph))
     step = 0
     while True:
@@ -50,6 +81,17 @@ def compress_multishot(graph:Graph) -> [str]:
                 searcher.on_new_compressed_motif(best_motifs)
             if BUBBLE_FOR_EACH_STEP:
                 graph.output('out/out_k{}_s{}.bbl'.format(step, best_motif.score))
+            if SHOW_STORY:
+                print('INFO {} motif of score {} compressed'.format(best_motifs.name, best_motifs.score))
+            if TIMERS:
+                now = get_time()
+                timers = round(now - timer_start, 2), round(now - timer_last, 2)
+                if STATISTIC_FILE:
+                    save_stats(*timers, best_motifs.name, best_motifs.score)
+                if SHOW_STORY:
+                    print("TIMER since start: {}s\t\tsince last motif: {}s"
+                          "".format(*timers))
+                timer_last = now
         else:
             break  # nothing to compress
     yield from graph.bubble_repr()

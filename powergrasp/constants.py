@@ -17,6 +17,12 @@ constants = {
     # Show motifs transformation into powergraph.
     'SHOW_MOTIF_HANDLING': False,
 
+    # Timers
+    'TIMERS': True,
+
+    # Statistics file
+    'STATISTIC_FILE': 'out/stats.csv',
+
     # Generate and save a bubble representation of the graph at each step.
     'BUBBLE_FOR_EACH_STEP': False,
 
