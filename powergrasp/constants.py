@@ -5,6 +5,7 @@ Mostly used for dev and debug.
 """
 import os
 import json
+import multiprocessing
 
 # Default values
 constants = {
@@ -51,6 +52,9 @@ constants = {
 
     # Optimization on biclique lowerbound computation. Can be costly. Deactivate with 1. With value at n, up to n neighbors are considered.
     'BICLIQUE_LOWERBOUND_MAXNEI': 2,
+
+    # Number of CPU available to clingo (or a string like '2,join' or '48,compete'), or 0 for autodetect number of CPU.
+    'CLINGO_MULTITHREADING': 1,
 }
 
 
@@ -65,6 +69,39 @@ try:
 except FileNotFoundError:
     if constants['SHOW_STORY'] or constants['SHOW_DEBUG']:
         print("INFO no config file")
+
+
+def _convert_parallel_mode_option(value:str or int) -> str:
+    """Return the option to give to clingo to handle given number of CPU.
+
+    >>> _convert_parallel_mode_option(0)
+    ' --parallel-mode=4'
+    >>> _convert_parallel_mode_option(1)
+    ''
+    >>> _convert_parallel_mode_option('0,join')
+    ' --parallel-mode=4,join'
+
+    """
+    if isinstance(value, str):
+        if value.isnumeric():
+            return str(number_of_available_cpu(int(value)))
+        if value and value.startswith('0'):
+            nb_cpu = str(multiprocessing.cpu_count())
+            return _convert_parallel_mode_option(nb_cpu + value.lstrip('0'))
+        elif value:
+            return ' --parallel-mode=' + value
+    elif value == 0:
+        return _convert_parallel_mode_option(multiprocessing.cpu_count())
+    elif value > 1:
+        return ' --parallel-mode=' + str(value)
+    return ''
+
+
+# Apply the value convertion, if any.
+_CONVERTIONS = {
+    'CLINGO_MULTITHREADING': _convert_parallel_mode_option,
+}
+constants = {f: _CONVERTIONS.get(f, lambda x:x)(v) for f, v in constants.items()}
 
 
 # Put them in global access
