@@ -6,7 +6,7 @@ from . import asp
 from . import utils
 from .motif import Motif
 from .graph import Graph
-from .constants import TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH
+from .constants import TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH, BICLIQUE_LOWERBOUND_MAXNEI
 from . import ASP_FILES
 
 
@@ -107,8 +107,22 @@ class BicliqueSearcher(MotifSearcher):
     def _name(self) -> str: return 'biclique'
 
     def compute_initial_lowerbound(self, graph:Graph) -> int:
-        """Maximal lowerbound is the score of biggest star"""
-        return max(len(neighbors) for _, neighbors in graph.neighbors())
+        """Maximal lowerbound is the score of biggest star, or the score of the biggest intersection"""
+        n = {node: frozenset(neighbors) for node, neighbors in graph.neighbors()}
+        biggest_star = max(len(neighbors) for _, neighbors in graph.neighbors())
+        if BICLIQUE_LOWERBOUND_MAXNEI <= 1:
+            return biggest_star
+        elif BICLIQUE_LOWERBOUND_MAXNEI == 2:
+            maxnei2 = max(len(n[a] & n[b]) * 2 for a, b in itertools.combinations(n.keys(), r=2))
+            return max(maxnei2, biggest_star)
+        elif BICLIQUE_LOWERBOUND_MAXNEI >= 3:
+            maxnei = 0
+            for level in range(2, BICLIQUE_LOWERBOUND_MAXNEI + 1):
+                max_for_level = max(len(frozenset.intersection(*(n[s] for s in sets))) * level for sets in itertools.combinations(n.keys(), r=level))
+                if max_for_level <= maxnei: break
+                maxnei = max_for_level
+                if maxnei <= biggest_star: break
+            return max(maxnei, biggest_star)
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
         graph = ''.join(graph.as_asp(step))
