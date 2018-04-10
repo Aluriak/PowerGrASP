@@ -84,9 +84,9 @@ class Graph:
             yield 'edge({},{}).'.format(source, target)
         for (stepa, seta), nodes in self.__powernodes.items():
             for node in nodes:
-                yield 'block({},{},{},{}).'.format(step-1, stepa, seta, node)
+                yield 'block({},{},{}).'.format(stepa, seta, node)
         for stepa, seta, stepb, setb in self.__hierarchy:
-            yield 'include_block({},{},{},{},{}).'.format(step-1, stepa, seta, stepb, setb)
+            yield 'include_block({},{},{},{}).'.format(stepa, seta, stepb, setb)
         if powerobjects:
             raise NotImplementedError()
 

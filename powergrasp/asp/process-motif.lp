@@ -34,20 +34,20 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % A node is contained by all blocks above the block containing it.
-block(k-1,K,T,X):- block(k-1,L,U,X) ; include_block(k-1,K,T,L,U).
+block(K,T,X):- block(L,U,X) ; include_block(K,T,L,U).
 
 % If a powernode contains a node in a block and a node not in the block, all nodes in block must be contained.
-:-     newconcept(T,X) ;     block(k-1,L,U,X) ;  % X is in the block
-   not newconcept(T,Y) ;     block(k-1,L,U,Y) ;  % Y is not in the pnode
-       newconcept(T,Z) ; not block(k-1,L,U,Z) ;  % Z is outside
+:-     newconcept(T,X) ;     block(L,U,X) ;  % X is in the block
+   not newconcept(T,Y) ;     block(L,U,Y) ;  % Y is not in the pnode
+       newconcept(T,Z) ; not block(L,U,Z) ;  % Z is outside
    X!=Y.
 
 % Blocks created at step k-1 containing the set T of the motif.
-block_contains_newconcept(L,U,T):- block(k-1,L,U,X) ; newconcept(T,X) ; block(k-1,L,U,Y): newconcept(T,Y).
+block_contains_newconcept(L,U,T):- block(L,U,X) ; newconcept(T,X) ; block(L,U,Y): newconcept(T,Y).
 
 % Newconcept T fits perfectly powernode cc,L,U, so no new power node has to be generated
 perfectfit(L,U,T):-  block_contains_newconcept(L,U,T) ; L<k ; not star(T) ;
-                     newconcept(T,Y): block(k-1,L,U,Y).
+                     newconcept(T,Y): block(L,U,Y).
 
 % New concept may or may not be already present in the hierarchy.
 powernode_integrated(L,U,X):- newconcept(T,X) ; perfectfit(L,U,T).
@@ -66,7 +66,7 @@ powernode_integrated(k,T,X):- newconcept(T,X) ; not perfectfit(_,_,T) ; not star
 
 % B is a parent block of P if it contains it and no other block contained in B contains P.
 parent_block(KP,TP,T):- block_contains_newconcept(KP,TP,T) ; not perfectfit(KP,TP,T) ;
-                        not include_block(k-1,KP,TP,KZ,TZ): block_contains_newconcept(KZ,TZ,T).
+                        not include_block(KP,TP,KZ,TZ): block_contains_newconcept(KZ,TZ,T).
 
 
 % Block inclusion : keep trace of block hierarchy
@@ -88,9 +88,9 @@ hierarchy_add(KP,TP,k,T):- parent_block(KP,TP,T) ; not star(T).
 %    - all blocks included in B that are in P are included in P instead of B
 change_hierarchy(KP,TP,k,T,L,U):-
     parent_block(KP,TP,T) ; % the parent block…
-    include_block(k-1,KP,TP,L,U) ; L<k ;  % contains a block that is not the new one
-    newconcept(T,E) ; block(k-1,L,U,E) ;  % so they share an element
-    newconcept(T,E):  block(k-1,L,U,E).   % so other block is included in the new.
+    include_block(KP,TP,L,U) ; L<k ;  % contains a block that is not the new one
+    newconcept(T,E) ; block(L,U,E) ;  % so they share an element
+    newconcept(T,E):  block(L,U,E).   % so other block is included in the new.
 #show parent_block/3.
 
 % Add the link between new powernode and the block it contains.
@@ -99,7 +99,7 @@ hierarchy_add(K1,T1,K2,T2):- change_hierarchy(_,_,K1,T1,K2,T2).
 hierarchy_remove(K1,T1,K2,T2):- change_hierarchy(K1,T1,_,_,K2,T2).
 
 % No overlap.
-:- newconcept(T,E) ; block(k-1,L,U,E) ;  % an existing block and the new one share an element
+:- newconcept(T,E) ; block(L,U,E) ;  % an existing block and the new one share an element
    not block_contains_newconcept(L,U,T) ;  % but the block is not containing the new
    not change_hierarchy(_,_,k,T,L,U).  % nor is contained by the new.
 
