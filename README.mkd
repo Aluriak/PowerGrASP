@@ -57,6 +57,7 @@ On random error, try adding `--no-cache-dir` somewhere.
 ## Changelog
 
 - 8.5
+    - no statistics file to write by default
     - timer for output writing
     - config allow user to define the number of CPU for clingo to use
     - simplify ASP code by removing useless arg in block/4 atoms
