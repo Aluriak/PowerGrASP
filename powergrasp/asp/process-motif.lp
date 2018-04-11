@@ -141,8 +141,8 @@ powernode_count(2):- not special_node(1); not special_node(2).
 #show powernode_count/1.
 
 % Are covered all edges of concept that link two nodes of different sets.
-covered_edge(X,Y):- newconcept(T,X) ; newconcept(3-T,Y) ; X<=Y ; T=1..2 ; biclique ; covered_edges_from_asp.
-covered_edge(X,Y):- newconcept(T,X) ; newconcept(3-T,Y) ; X<=Y ; T=1..2 ; clique ; covered_edges_from_asp.
+covered_edge(X,Y):- newconcept(T,X) ; newconcept(3-T,Y) ; X<Y ; T=1..2 ; biclique ; covered_edges_from_asp=1.
+covered_edge(X,Y):- newconcept(1,X) ; newconcept(1,Y) ; X<Y ; clique ; covered_edges_from_asp=1.
 #show covered_edge/2.
 
 % A star is defined by the hub, not the set.
