@@ -9,6 +9,13 @@ compress:
 
 test: t
 t:
+	- mv powergrasp.cfg powergrasp.cfg.bak
+	$(MAKE) _pure_tests  # with default values
+	cp test/powergrasp.oneshot.cfg powergrasp.cfg
+	$(MAKE) _pure_tests  # with oneshot activated
+	rm powergrasp.cfg
+	- mv powergrasp.cfg.bak powergrasp.cfg
+_pure_tests:
 	pytest powergrasp test -vv --doctest-module
 
 
