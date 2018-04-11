@@ -13,6 +13,8 @@ t:
 	$(MAKE) _pure_tests  # with default values
 	cp test/powergrasp.oneshot.cfg powergrasp.cfg
 	$(MAKE) _pure_tests  # with oneshot activated
+	cp test/powergrasp.manyoptions.cfg powergrasp.cfg
+	$(MAKE) _pure_tests  # with many options tweaked (edges from ASP, integrity,…)
 	rm powergrasp.cfg
 	- mv powergrasp.cfg.bak powergrasp.cfg
 _pure_tests:
