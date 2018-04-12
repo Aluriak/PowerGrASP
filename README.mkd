@@ -60,7 +60,7 @@ On random error, try adding `--no-cache-dir` somewhere.
     - config may now be given in INI format
     - improve logging
     - config allow optimization target between memory or CPU (currently define a constraint implementation in ASP)
-    - bugfix for edges yielded by ASP
+    - bugfix about edges yielded by ASP and multithreading parameter
     - no statistics file to write by default
     - timer for output writing
     - config allow user to define the number of CPU for clingo to use

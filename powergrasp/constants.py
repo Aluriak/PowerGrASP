@@ -119,13 +119,15 @@ def _convert_parallel_mode_option(value:str or int) -> str:
     ' --parallel-mode=4'
     >>> _convert_parallel_mode_option(1)
     ''
+    >>> _convert_parallel_mode_option('2')
+    ' --parallel-mode=2'
     >>> _convert_parallel_mode_option('0,join')
     ' --parallel-mode=4,join'
 
     """
     if isinstance(value, str):
         if value.isnumeric():
-            return str(number_of_available_cpu(int(value)))
+            return str(_convert_parallel_mode_option(int(value)))
         if value and value.startswith('0'):
             nb_cpu = str(multiprocessing.cpu_count())
             return _convert_parallel_mode_option(nb_cpu + value.lstrip('0'))
