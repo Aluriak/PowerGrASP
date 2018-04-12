@@ -108,5 +108,4 @@ constants = {f: _CONVERTIONS.get(f, lambda x:x)(v) for f, v in constants.items()
 
 
 # Put them in global access
-for field, value in constants.items():
-    globals()[field] = value
+globals().update(constants)
