@@ -29,7 +29,8 @@ Sorry, no technical doc for the moment.
 
 ## Configuration
 PowerGrASP have some [configuration values](powergrasp/constants.py),
-that can be overwritten by a `powergrasp.cfg` file in json format.
+that can be overwritten by a `powergrasp.cfg` file in either ini or json format,
+as shown in [`test/powergrasp.oneshot.cfg`](test/powergrasp.oneshot.cfg) and [`test/powergrasp.manyoptions.cfg`](test/powergrasp.manyoptions.cfg).
 
 Configuration allow user to define how much text will be provided by powergrasp,
 or some options for core compression and output data.
