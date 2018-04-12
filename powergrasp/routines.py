@@ -58,7 +58,7 @@ def compress(graph:Graph) -> [str]:
             if BUBBLE_FOR_EACH_STEP:
                 graph.output('out/out_k{}_s{}.bbl'.format(step, best_motif.score))
             if SHOW_STORY:
-                print('INFO {} motif of score {} compressed'.format(best_motifs.name, best_motifs.score))
+                print('INFO {} {} motif of score {} compressed'.format(best_motifs.count, best_motifs.name, best_motifs.score))
             if TIMERS:
                 now = get_time()
                 timers = round(now - timer_start, 2), round(now - timer_last, 2)

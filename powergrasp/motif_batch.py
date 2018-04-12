@@ -31,6 +31,8 @@ class MotifBatch:
     def name(self) -> str:  return self.motifs[0].typename
     @property
     def ismaximal(self) -> bool:  return self.motifs[0].ismaximal
+    @property
+    def count(self) -> int:  return len(self.motifs)
 
 
     def non_overlapping_subset(self) -> iter:

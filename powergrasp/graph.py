@@ -92,8 +92,6 @@ class Graph:
 
 
     def compress(self, motif:Motif):
-        if SHOW_STORY or SHOW_DEBUG:
-            print('COMPRESS…')
         if SHOW_DEBUG:
             pprint(dict(self.__powernodes))
         # Add the poweredges
@@ -187,6 +185,8 @@ class Graph:
 
     def compress_all(self, motifs:iter) -> int:
         """Compress all given motifs."""
+        if SHOW_STORY or SHOW_DEBUG:
+            print('COMPRESS…')
         for step_diff, motif in enumerate(motifs, start=0):
             motif.increase_step(step_diff)
             self.compress(motif)
