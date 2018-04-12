@@ -1,11 +1,14 @@
 """Some constants to tune the compression behavior.
 
-Mostly used for dev and debug.
+Final user may want to override it by writing in 'powergrasp.cfg' file in
+either JSON or INI format.
 
 """
 import os
 import json
+import configparser
 import multiprocessing
+from collections import ChainMap
 
 # Default values
 constants = {
@@ -58,20 +61,55 @@ constants = {
 
     # When a choice is given, prefer memory over CPU:
     'OPTIMIZE_FOR_MEMORY': False,
+
+    # TODO  Detect and postpone compression of terminal tree subgraphs
+    'TERMINAL_TREES_POSTPONING': True,
+    # TODO  Detect, delete and restore bridges
+    'BRIDGES_CUT': True,
+    # TODO  Detect and if available run specialized compression routine for: trees, triangle-free graphs, cactii.
+    #  Will not do anything on a graph that does not belong to those classes.
+    'SPECIAL_CASES_DETECTION': True,
 }
 
 
+def open_config_file(fname:str) -> dict:
+    """Try reading file in INI, and if it do not works, try JSON"""
+    try:
+        # read file, take all available sections
+        config = configparser.ConfigParser()
+        config.read(fname)
+        if not config.sections():
+            print('ERROR input config do not have any section.')
+        else:
+            return {
+                key: config[section][key]
+                for section in config.sections()
+                for key in config[section]
+            }
+    except configparser.MissingSectionHeaderError as err:
+        ini_err = err.args[0]
+        try:
+            with open(fname) as fd:
+                return json.load(fd)
+        except json.decoder.JSONDecodeError as err:
+            json_err = err.args[0]
+            print("ERROR input config file is not a valid json, nor a valid ini."
+                  "\nINI  error: {}\nJSON error: {}".format(ini_err, json_err))
+
+
 try:
-    with open(constants['CONFIG_FILE']) as fd:
-        cfg = json.load(fd)
-        for field, value in cfg.items():
-            field = field.upper().replace(' ', '_')
-            if field in constants:
-                constants[field] = value
-        print('INFO: config file {} loaded.'.format(fd.name))
+    cfg = open_config_file(constants['CONFIG_FILE'])
 except FileNotFoundError:
+    cfg = None
+if cfg:
+    for field, value in cfg.items():
+        field = field.upper().replace(' ', '_')
+        if field in constants:
+            constants[field] = value
     if constants['SHOW_STORY'] or constants['SHOW_DEBUG']:
-        print("INFO no config file")
+        print('INFO: config file {} loaded.'.format(constants['CONFIG_FILE']))
+elif constants['SHOW_STORY'] or constants['SHOW_DEBUG']:
+    print("INFO no config file")
 
 
 def _convert_parallel_mode_option(value:str or int) -> str:
