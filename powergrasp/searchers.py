@@ -6,11 +6,11 @@ from . import asp
 from . import utils
 from .motif import Motif
 from .graph import Graph
-from .constants import TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH, BICLIQUE_LOWERBOUND_MAXNEI
+from .constants import TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH, BICLIQUE_LOWERBOUND_MAXNEI, OPTIMIZE_FOR_MEMORY
 from . import ASP_FILES
 
 
-MOTIF_ASP_FILES = ASP_FILES['process-motif'], ASP_FILES['scoring_powergraph']
+MOTIF_ASP_FILES = ASP_FILES['process-motif'], ASP_FILES['scoring_powergraph'], (ASP_FILES['block-constraint-memory'] if OPTIMIZE_FOR_MEMORY else ASP_FILES['block-constraint-cpu'])
 CLIQUE_ASP_FILES = (ASP_FILES['search-clique'], *MOTIF_ASP_FILES)
 BICLIQUE_ASP_FILES = (ASP_FILES['search-biclique'], *MOTIF_ASP_FILES)
 

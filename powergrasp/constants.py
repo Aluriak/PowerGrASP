@@ -55,6 +55,9 @@ constants = {
 
     # Number of CPU available to clingo (or a string like '2,join' or '48,compete'), or 0 for autodetect number of CPU.
     'CLINGO_MULTITHREADING': 1,
+
+    # When a choice is given, prefer memory over CPU:
+    'OPTIMIZE_FOR_MEMORY': False,
 }
 
 

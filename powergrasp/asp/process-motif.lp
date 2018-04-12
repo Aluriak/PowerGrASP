@@ -4,6 +4,8 @@
 %  that needs to be grounded with programs `search-*.lp`.
 %  the processing consist of general rules shared by cliques and bicliques,
 %  like parent block or include block rules, and the associated constraints.
+
+% A constraint for block overlap avoidance should be grounded with that program.
 %
 % initial version:  09/07/2014   L. Bourneuf
 % revised version:  26/03/2018   J. Nicolas
@@ -35,12 +37,6 @@
 
 % A node is contained by all blocks above the block containing it.
 block(K,T,X):- block(L,U,X) ; include_block(K,T,L,U).
-
-% If a powernode contains a node in a block and a node not in the block, all nodes in block must be contained.
-:-     newconcept(T,X) ;     block(L,U,X) ;  % X is in the block
-   not newconcept(T,Y) ;     block(L,U,Y) ;  % Y is not in the pnode
-       newconcept(T,Z) ; not block(L,U,Z) ;  % Z is outside
-   X!=Y.
 
 % Blocks created at step k-1 containing the set T of the motif.
 block_contains_newconcept(L,U,T):- block(L,U,X) ; newconcept(T,X) ; block(L,U,Y): newconcept(T,Y).

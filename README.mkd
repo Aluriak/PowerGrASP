@@ -57,6 +57,7 @@ On random error, try adding `--no-cache-dir` somewhere.
 ## Changelog
 
 - 8.5
+    - config allow optimization target between memory or CPU (currently define a constraint implementation in ASP)
     - bugfix for edges yielded by ASP
     - no statistics file to write by default
     - timer for output writing
