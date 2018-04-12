@@ -28,19 +28,20 @@ Sorry, no technical doc for the moment.
 
 
 ## Configuration
-PowerGrASP have some [configuration values](powergrasp/constants.py),
-that can be overwritten by a `powergrasp.cfg` file in either ini or json format,
-as shown in [`test/powergrasp.oneshot.cfg`](test/powergrasp.oneshot.cfg) and [`test/powergrasp.manyoptions.cfg`](test/powergrasp.manyoptions.cfg).
+PowerGrASP has some [configuration values](powergrasp/constants.py),
+that can be overwritten by a `powergrasp.cfg` file placed in the working directory.
 
-Configuration allow user to define how much text will be provided by powergrasp,
-or some options for core compression and output data.
+The config file may be either in ini or json format, as shown in [`test/powergrasp.oneshot.cfg`](test/powergrasp.oneshot.cfg) and [`test/powergrasp.manyoptions.cfg`](test/powergrasp.manyoptions.cfg).
+
+Configuration allow user to define how much text will be outputed by powergrasp,
+and to tune the core compression and related optimizations.
 
 
 ## installation
 
     pip install powergrasp
 
-On random error, try adding `--no-cache-dir` somewhere.
+On random error, try adding `--no-cache-dir` at the end of the command.
 
 
 ## TODO
