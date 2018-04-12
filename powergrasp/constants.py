@@ -103,6 +103,7 @@ def _convert_parallel_mode_option(value:str or int) -> str:
 # Apply the value convertion, if any.
 _CONVERTIONS = {
     'CLINGO_MULTITHREADING': _convert_parallel_mode_option,
+    'BICLIQUE_LOWERBOUND_MAXNEI': int,
 }
 constants = {f: _CONVERTIONS.get(f, lambda x:x)(v) for f, v in constants.items()}
 
