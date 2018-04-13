@@ -72,6 +72,10 @@ constants = {
 }
 
 
+def make_key(key:str) -> str:
+    """Return the well formed key for constants dictionary"""
+    return key.upper().replace(' ', '_')
+
 def open_config_file(fname:str) -> dict:
     """Try reading file in INI, and if it do not works, try JSON"""
     try:
@@ -82,15 +86,16 @@ def open_config_file(fname:str) -> dict:
             print('ERROR input config do not have any section.')
         else:
             return {
-                key: config[section][key]
+                key: config.getboolean(section, key)
+                if isinstance(constants.get(key), bool) else config[section][key]
                 for section in config.sections()
-                for key in config[section]
+                for key in map(make_key, config[section])
             }
     except configparser.MissingSectionHeaderError as err:
         ini_err = err.args[0]
         try:
             with open(fname) as fd:
-                return json.load(fd)
+                return {make_key(k): v for k, v in json.load(fd).items()}
         except json.decoder.JSONDecodeError as err:
             json_err = err.args[0]
             print("ERROR input config file is not a valid json, nor a valid ini."
@@ -103,9 +108,11 @@ except FileNotFoundError:
     cfg = None
 if cfg:
     for field, value in cfg.items():
-        field = field.upper().replace(' ', '_')
         if field in constants:
             constants[field] = value
+        elif constants['SHOW_STORY'] or constants['SHOW_DEBUG']:
+            print("WARNING field '{}' is not a valid field for configuration."
+                  "".format(field))
     if constants['SHOW_STORY'] or constants['SHOW_DEBUG']:
         print('INFO: config file {} loaded.'.format(constants['CONFIG_FILE']))
 elif constants['SHOW_STORY'] or constants['SHOW_DEBUG']:
