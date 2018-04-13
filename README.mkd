@@ -59,8 +59,8 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.6
-- 8.5
     - bugfixes for INI format
+- 8.5
     - config may now be given in INI format
     - improve logging
     - config allow optimization target between memory or CPU (currently define a constraint implementation in ASP)
