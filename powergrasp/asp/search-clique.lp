@@ -7,6 +7,8 @@
 % Constants:
 %       - cc: treated connected component. (cc/1 gives existing cc)
 %       -  k: current step of treatment (first step is 1)
+%       - lowerbound: the minimal cover to reach.
+%       - upperbound: the maximal reachable cover.
 %
 % Input:
 %       - edge(X,Y): there exist an edge linking X and Y in cc. (X<Y)
