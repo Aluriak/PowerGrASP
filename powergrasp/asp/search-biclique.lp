@@ -8,6 +8,7 @@
 %
 % Constants:
 %       - k: current step of treatment (first step is 1).
+%       - lowerbound: the minimal cover to reach.
 %       - upperbound: the maximal reachable cover.
 %       - max_set_size: the maximal reachable size of a set.
 % Input:
