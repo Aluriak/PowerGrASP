@@ -2,5 +2,5 @@
 % If quoting is correcly handled, it should be used on litterals
 %  and therefore a 1×2 star should be found.
 
-edge(a,b).
-edge("a",c).
+edge(b,a).
+edge("b",c).

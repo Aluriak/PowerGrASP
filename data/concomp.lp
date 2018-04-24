@@ -1,7 +1,7 @@
 
 
 
-edge(a,(b;c;d;e)).
+edge((a;b;c;d),e).
 
 edge((1;6),(2;3;4;5)).
 

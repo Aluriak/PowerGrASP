@@ -11,8 +11,8 @@ compress:
 test: t
 t:
 	- mv powergrasp.cfg powergrasp.cfg.bak
-	$(MAKE) _pure_tests  # with default values
-	# now with various configurations tweakings
+	# try different option sets
+	$(MAKE) _test_cfg_file TEST_CFG_FILE=default  # with default values
 	$(MAKE) _test_cfg_file TEST_CFG_FILE=oneshot
 	$(MAKE) _test_cfg_file TEST_CFG_FILE=manyoptions
 	$(MAKE) _test_cfg_file TEST_CFG_FILE=nostarsearch

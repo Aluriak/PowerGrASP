@@ -1,7 +1,7 @@
 graph [
   node [
     id 0
-    label "A"
+    label "B"
   ]
   node [
     id 1
@@ -17,7 +17,7 @@ graph [
   ]
   node [
     id 4
-    label "&#34;B&#34;"
+    label "&#34;A&#34;"
   ]
   edge [
     source 0
