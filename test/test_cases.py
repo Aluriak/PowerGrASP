@@ -217,12 +217,12 @@ NODE\tb
 NODE\tc
 NODE\td
 NODE\te
-IN\tc\tPWRN-a-1-2
-IN\td\tPWRN-a-1-2
-IN\tb\tPWRN-a-1-2
-IN\te\tPWRN-a-1-2
-SET\tPWRN-a-1-2\t1.0
-EDGE\tPWRN-a-1-2\ta\t1.0
+IN\tc\tPWRN-a-1-1
+IN\td\tPWRN-a-1-1
+IN\tb\tPWRN-a-1-1
+IN\te\tPWRN-a-1-1
+SET\tPWRN-a-1-1\t1.0
+EDGE\tPWRN-a-1-1\ta\t1.0
 """
 
 cases['concomp.lp'] = """
@@ -249,12 +249,12 @@ NODE\tb
 NODE\tc
 NODE\td
 NODE\te
-IN\tb\tPWRN-a-1-2
-IN\tc\tPWRN-a-1-2
-IN\td\tPWRN-a-1-2
-IN\te\tPWRN-a-1-2
-SET\tPWRN-a-1-2\t1.0
-EDGE\tPWRN-a-1-2\ta\t1.0
+IN\tb\tPWRN-a-1-1
+IN\tc\tPWRN-a-1-1
+IN\td\tPWRN-a-1-1
+IN\te\tPWRN-a-1-1
+SET\tPWRN-a-1-1\t1.0
+EDGE\tPWRN-a-1-1\ta\t1.0
 """
 
 cases['prio_deg.lp'] = """
@@ -324,45 +324,12 @@ NODE\tB
 NODE\tC
 NODE\tD
 NODE\tE
-SET\tPWRN-A-1-2\t1.0
-IN\tC\tPWRN-A-1-2
-IN\tB\tPWRN-A-1-2
-IN\tD\tPWRN-A-1-2
-EDGE\tA\tPWRN-A-1-2\t1.0
+SET\tPWRN-A-1-1\t1.0
+IN\tC\tPWRN-A-1-1
+IN\tB\tPWRN-A-1-1
+IN\tD\tPWRN-A-1-1
+EDGE\tA\tPWRN-A-1-1\t1.0
 EDGE\tB\tE\t1.0
-"""
-
-cases['test.gml'] = """
-NODE\tb
-NODE\tc
-NODE\td
-NODE\tf
-NODE\tg
-NODE\tl
-NODE\tm
-NODE\tp
-NODE\ts
-NODE\tv
-NODE\tw
-IN\td\tPWRN-b-1-1
-IN\tw\tPWRN-b-1-1
-IN\tc\tPWRN-b-1-1
-IN\ts\tPWRN-b-1-1
-IN\tb\tPWRN-b-1-1
-IN\tf\tPWRN-b-2-2
-IN\tPWRN-b-3-2\tPWRN-b-2-2
-IN\tg\tPWRN-b-2-2
-IN\tm\tPWRN-b-3-2
-IN\tv\tPWRN-b-3-2
-SET\tPWRN-b-1-1\t1.0
-SET\tPWRN-b-2-2\t1.0
-SET\tPWRN-b-3-2\t1.0
-EDGE\tPWRN-b-3-2\tl\t1.0
-EDGE\tl\tp\t1.0
-EDGE\tPWRN-b-1-1\tPWRN-b-1-1\t1.0
-EDGE\tm\tv\t1.0
-EDGE\tc\tf\t1.0
-EDGE\tPWRN-b-2-2\tb\t1.0
 """
 
 cases['unclique.lp'] = """
@@ -412,10 +379,10 @@ cases['quoting.lp'] = """
 NODE\ta
 NODE\tb
 NODE\tc
-IN\tc\tPWRN-a-1-2
-IN\tb\tPWRN-a-1-2
-SET\tPWRN-a-1-2\t1.0
-EDGE\tPWRN-a-1-2\ta\t1.0
+IN\tc\tPWRN-a-1-1
+IN\tb\tPWRN-a-1-1
+SET\tPWRN-a-1-1\t1.0
+EDGE\tPWRN-a-1-1\ta\t1.0
 """
 
 cases['test.graphml'] = """
@@ -455,20 +422,20 @@ IN\tb\tPWRN-b-1-1
 IN\tw\tPWRN-b-1-1
 IN\td\tPWRN-b-1-1
 IN\ts\tPWRN-b-1-1
-IN\tg\tPWRN-b-2-2
-IN\tf\tPWRN-b-2-2
-IN\tPWRN-b-3-2\tPWRN-b-2-2
-IN\tv\tPWRN-b-3-2
-IN\tm\tPWRN-b-3-2
+IN\tg\tPWRN-b-2-1
+IN\tf\tPWRN-b-2-1
+IN\tPWRN-b-3-1\tPWRN-b-2-1
+IN\tv\tPWRN-b-3-1
+IN\tm\tPWRN-b-3-1
 SET\tPWRN-b-1-1\t1.0
-SET\tPWRN-b-2-2\t1.0
-SET\tPWRN-b-3-2\t1.0
-EDGE\tPWRN-b-2-2\tb\t1.0
+SET\tPWRN-b-2-1\t1.0
+SET\tPWRN-b-3-1\t1.0
+EDGE\tPWRN-b-2-1\tb\t1.0
 EDGE\tc\tf\t1.0
 EDGE\tPWRN-b-1-1\tPWRN-b-1-1\t1.0
 EDGE\tm\tv\t1.0
 EDGE\tl\tp\t1.0
-EDGE\tPWRN-b-3-2\tl\t1.0
+EDGE\tPWRN-b-3-1\tl\t1.0
 """
 
 cases['horrible_data.lp'] = """

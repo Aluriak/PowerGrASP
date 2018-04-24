@@ -2,7 +2,7 @@
 
 """
 
-from .searchers import CliqueSearcher, BicliqueSearcher
+from .searchers import CliqueSearcher, BicliqueSearcher, StarSearcher
 from .graph import Graph
 from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE
 from .motif_batch import MotifBatch
@@ -40,7 +40,7 @@ def compress(graph:Graph) -> [str]:
     if TIMERS:
         timer_start = get_time()
         timer_last = timer_start
-    searchers = (CliqueSearcher(graph), BicliqueSearcher(graph))
+    searchers = (CliqueSearcher(graph), BicliqueSearcher(graph), StarSearcher(graph))
     step = 0
     complete_compression = True
     while True:
