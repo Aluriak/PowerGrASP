@@ -6,7 +6,8 @@ from powergrasp import utils
 from powergrasp import constants
 from powergrasp.motif import Motif
 from powergrasp.constants import (TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG,
-                                  SHOW_MOTIF_HANDLING, COVERED_EDGES_FROM_ASP)
+                                  SHOW_MOTIF_HANDLING, COVERED_EDGES_FROM_ASP,
+                                  OUTPUT_NODE_PREFIX)
 
 
 def proper_nx_graph(graph:networkx.Graph) -> networkx.Graph:
@@ -253,6 +254,9 @@ class Graph:
         if head_comment:
             yield from ('# ' + line for line in head_comment.splitlines(False))
         _format_name = lambda x: format_name(format_name(None, self.uid), x)
+        if OUTPUT_NODE_PREFIX:
+            __format_name = _format_name
+            _format_name = lambda x: OUTPUT_NODE_PREFIX + '-' + __format_name(x)
         if constants.BUBBLE_WITH_NODES:
             for node in self.__nodes:
                 yield 'NODE\t{}'.format(_format_name(node))

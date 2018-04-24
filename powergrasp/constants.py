@@ -30,6 +30,9 @@ constants = {
     # Generate and save a bubble representation of the graph at each step.
     'BUBBLE_FOR_EACH_STEP': False,
 
+    # Prefix to add to all (power)nodes names in output.
+    'OUTPUT_NODE_PREFIX': '',
+
     # Show full trace of the compression. Useful for debugging.
     'SHOW_DEBUG': False,
 
