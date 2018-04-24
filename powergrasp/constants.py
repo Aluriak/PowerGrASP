@@ -128,14 +128,20 @@ def _convert_parallel_mode_option(value:str or int) -> str:
     ''
     >>> _convert_parallel_mode_option('2')
     ' --parallel-mode=2'
-    >>> _convert_parallel_mode_option('0,join')
-    ' --parallel-mode=4,join'
+    >>> _convert_parallel_mode_option(' 2')
+    ' --parallel-mode=2'
+    >>> _convert_parallel_mode_option('0,split')
+    ' --parallel-mode=4,split'
 
     """
     if isinstance(value, str):
+        value = value.strip()
         if value.isnumeric():
             return str(_convert_parallel_mode_option(int(value)))
         if value and value.startswith('0'):
+            if value[1:] not in {',compete', ',split'}:
+                raise ValueError("Multithreading option value is not valid: {}"
+                                 "".format(value))
             nb_cpu = str(multiprocessing.cpu_count())
             return _convert_parallel_mode_option(nb_cpu + value.lstrip('0'))
         elif value:
