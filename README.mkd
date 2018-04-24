@@ -58,6 +58,10 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 
 ## Changelog
 
+- 8.7
+    - specify a prefix for all (power) nodes with OUTPUT_NODE_PREFIX config field
+    - arbitrary options for clingo using CLINGO_OPTIONS config field
+    - bugfix on string options given in ini file, when unecessary quotes are kept
 - 8.6
     - bugfixes for INI format
 - 8.5
