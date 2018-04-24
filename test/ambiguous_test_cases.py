@@ -67,3 +67,41 @@ IN\tf1\tPWRN-a-4-2
 IN\tf2\tPWRN-a-4-2
 """,
 }
+
+cases['test.gml'] = {
+    'common': """
+NODE\tb
+NODE\tc
+NODE\td
+NODE\tf
+NODE\tg
+NODE\tl
+NODE\tm
+NODE\tp
+NODE\ts
+NODE\tv
+NODE\tw
+""",
+    'values': (1, 2),
+    'variant': """
+IN\tc\tPWRN-b-1-1
+IN\tb\tPWRN-b-1-1
+IN\tw\tPWRN-b-1-1
+IN\td\tPWRN-b-1-1
+IN\ts\tPWRN-b-1-1
+IN\tg\tPWRN-b-2-{a}
+IN\tf\tPWRN-b-2-{a}
+IN\tPWRN-b-3-{a}\tPWRN-b-2-{a}
+IN\tv\tPWRN-b-3-{a}
+IN\tm\tPWRN-b-3-{a}
+SET\tPWRN-b-1-1\t1.0
+SET\tPWRN-b-2-{a}\t1.0
+SET\tPWRN-b-3-{a}\t1.0
+EDGE\tPWRN-b-2-{a}\tb\t1.0
+EDGE\tc\tf\t1.0
+EDGE\tPWRN-b-1-1\tPWRN-b-1-1\t1.0
+EDGE\tm\tv\t1.0
+EDGE\tl\tp\t1.0
+EDGE\tPWRN-b-3-{a}\tl\t1.0
+""",
+}

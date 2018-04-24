@@ -56,7 +56,7 @@ constants = {
     # Search for multiple motif in a single search. Accelerate the solving for graph with lots of equivalent motifs.
     'MULTISHOT_MOTIF_SEARCH': True,
 
-    # Optimization on biclique lowerbound computation. Can be costly. Deactivate with 1. With value at n, up to n neighbors are considered.
+    # Optimization on biclique lowerbound computation. Can be costly. Deactivate with 2. With value at n, up to n neighbors are considered.
     'BICLIQUE_LOWERBOUND_MAXNEI': 2,
 
     # Arbitrary parameters to give to clingo (note that some, like multithreading or optmode, may already be set by other options).
@@ -64,6 +64,9 @@ constants = {
 
     # Number of CPU available to clingo (or a string like '2,join' or '48,compete'), or 0 for autodetect number of CPU.
     'CLINGO_MULTITHREADING': 1,
+
+    # Two different motifs for stars and bicliques, so the work of biclique is lighter.
+    'USE_STAR_MOTIF': True,
 
     # When a choice is given, prefer memory over CPU:
     'OPTIMIZE_FOR_MEMORY': False,
@@ -117,8 +120,8 @@ if cfg:
         if field in constants:
             constants[field] = value
         elif constants['SHOW_STORY'] or constants['SHOW_DEBUG']:
-            print("WARNING field '{}' is not a valid field for configuration."
-                  "".format(field))
+            raise ValueError("field '{}' is not a valid field for configuration."
+                             "".format(field))
     if constants['SHOW_STORY'] or constants['SHOW_DEBUG']:
         print('INFO: config file {} loaded.'.format(constants['CONFIG_FILE']))
 elif constants['SHOW_STORY'] or constants['SHOW_DEBUG']:

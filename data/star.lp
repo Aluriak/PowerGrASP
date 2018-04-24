@@ -1,4 +1,4 @@
 
 
-edge(a,(b;c;d;e)).
+edge((a;b;c;d),e).
 

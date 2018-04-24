@@ -1,5 +1,6 @@
 
 INFILE=double_biclique_unambiguous.lp
+TEST_CFG_FILE=
 
 
 ## Usage and tests
@@ -10,15 +11,18 @@ compress:
 test: t
 t:
 	- mv powergrasp.cfg powergrasp.cfg.bak
-	$(MAKE) _pure_tests  # with default values
-	cp test/powergrasp.oneshot.cfg powergrasp.cfg
-	$(MAKE) _pure_tests  # with oneshot activated
-	cp test/powergrasp.manyoptions.cfg powergrasp.cfg
-	$(MAKE) _pure_tests  # with many options tweaked (edges from ASP, integrity,…)
+	# try different option sets
+	$(MAKE) _test_cfg_file TEST_CFG_FILE=default  # with default values
+	$(MAKE) _test_cfg_file TEST_CFG_FILE=oneshot
+	$(MAKE) _test_cfg_file TEST_CFG_FILE=manyoptions
+	$(MAKE) _test_cfg_file TEST_CFG_FILE=nostarsearch
 	rm powergrasp.cfg
 	- mv powergrasp.cfg.bak powergrasp.cfg
 _pure_tests:
 	pytest powergrasp test -vv --doctest-module
+_test_cfg_file:
+	cp test/powergrasp.$(TEST_CFG_FILE).cfg powergrasp.cfg
+	$(MAKE) _pure_tests  # with many options tweaked (edges from ASP, integrity,…)
 
 
 ## Packaging
