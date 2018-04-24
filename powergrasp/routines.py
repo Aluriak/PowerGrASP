@@ -2,9 +2,9 @@
 
 """
 
-from .searchers import CliqueSearcher, BicliqueSearcher, StarSearcher
+from .searchers import CliqueSearcher, BicliqueSearcher, StarSearcher, NonStarBicliqueSearcher
 from .graph import Graph
-from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE
+from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE, USE_STAR_MOTIF
 from .motif_batch import MotifBatch
 
 
@@ -33,14 +33,17 @@ def search_best_motifs(searchers, step) -> MotifBatch:
     return best_motifs
 
 
-
-
 def compress(graph:Graph) -> [str]:
     """Yield bubble lines found in graph"""
     if TIMERS:
         timer_start = get_time()
         timer_last = timer_start
-    searchers = (CliqueSearcher(graph), BicliqueSearcher(graph), StarSearcher(graph))
+    if USE_STAR_MOTIF:
+        searchers = CliqueSearcher(graph), NonStarBicliqueSearcher(graph), StarSearcher(graph)
+    else:
+        searchers = CliqueSearcher(graph), BicliqueSearcher(graph)
+    if SHOW_STORY:
+        print('INFO searchers: ' + ', '.join(s.name for s in searchers))
     step = 0
     complete_compression = True
     while True:

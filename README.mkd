@@ -59,6 +59,7 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.7
+    - StarSearch is dedicated to find stars, simplifying BicliqueSearch's job (enabled by default, user may use Biclique instead of both Star and NonStarBiclique)
     - specify a prefix for all (power) nodes with OUTPUT_NODE_PREFIX config field
     - arbitrary options for clingo using CLINGO_OPTIONS config field
     - bugfix on string options given in ini file, when unecessary quotes are kept

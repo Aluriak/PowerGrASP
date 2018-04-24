@@ -12,6 +12,7 @@ from . import ASP_FILES
 
 MOTIF_ASP_FILES = ASP_FILES['process-motif'], ASP_FILES['scoring_powergraph'], (ASP_FILES['block-constraint-memory'] if OPTIMIZE_FOR_MEMORY else ASP_FILES['block-constraint-cpu'])
 CLIQUE_ASP_FILES = (ASP_FILES['search-clique'], *MOTIF_ASP_FILES)
+FULLBICLIQUE_ASP_FILES = (ASP_FILES['search-fullbiclique'], *MOTIF_ASP_FILES)
 BICLIQUE_ASP_FILES = (ASP_FILES['search-biclique'], *MOTIF_ASP_FILES)
 STAR_ASP_FILES = (ASP_FILES['search-star'], *MOTIF_ASP_FILES)
 
@@ -103,10 +104,53 @@ class MotifSearcher:
 
 
 class BicliqueSearcher(MotifSearcher):
-    """Searcher for Bicliques with at least 2 elements in each set."""
-
+    """Searcher for Bicliques, including stars."""
 
     def _name(self) -> str: return 'biclique'
+
+    def compute_initial_lowerbound(self, graph:Graph) -> int:
+        """Maximal lowerbound is the score of biggest star, or the score of the biggest intersection"""
+        n = {node: frozenset(neighbors) for node, neighbors in graph.neighbors()}
+        biggest_star = max(len(neighbors) for _, neighbors in graph.neighbors())
+        if BICLIQUE_LOWERBOUND_MAXNEI <= 1:
+            return biggest_star
+        elif BICLIQUE_LOWERBOUND_MAXNEI == 2:
+            maxnei2 = max(len(n[a] & n[b]) * 2 for a, b in itertools.combinations(n.keys(), r=2))
+            return max(maxnei2, biggest_star)
+        elif BICLIQUE_LOWERBOUND_MAXNEI >= 3:
+            maxnei = 0
+            for level in range(2, BICLIQUE_LOWERBOUND_MAXNEI + 1):
+                max_for_level = max(len(frozenset.intersection(*(n[s] for s in sets))) * level for sets in itertools.combinations(n.keys(), r=level))
+                if max_for_level <= maxnei: break
+                maxnei = max_for_level
+                if maxnei <= biggest_star: break
+            return max(maxnei, biggest_star)
+        else:
+            maxnei2 = max(len(n[a] & n[b]) * 2 for a, b in itertools.combinations(n.keys(), r=2))
+            return max(maxnei2, biggest_star)
+
+    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
+        graph = ''.join(graph.as_asp(step))
+        if SHOW_DEBUG:
+            print('MXDKJX: GRAPH:', graph)
+        yield from asp.solve_motif_search(step, lowerbound, upperbound,
+                                          files=FULLBICLIQUE_ASP_FILES, graph=graph)
+
+    def covered_edges(self, sets:[frozenset]) -> iter:
+        """Return the edges that are covered by given sets"""
+        assert len(sets) == 2
+        yield from map(frozenset, itertools.product(*sets))
+
+
+class NonStarBicliqueSearcher(MotifSearcher):
+    """Searcher for Bicliques with at least 2 elements in each set.
+
+    To be combined with StarSearcher to reproduce the behavior of
+    BicliqueSearcher.
+
+    """
+
+    def _name(self) -> str: return 'non-star-biclique'
 
     def compute_initial_lowerbound(self, graph:Graph) -> int:
         """Maximal lowerbound is the score of biggest star, or the score of the biggest intersection"""
