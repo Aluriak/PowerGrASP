@@ -332,39 +332,6 @@ EDGE\tA\tPWRN-A-1-2\t1.0
 EDGE\tB\tE\t1.0
 """
 
-cases['test.gml'] = """
-NODE\tb
-NODE\tc
-NODE\td
-NODE\tf
-NODE\tg
-NODE\tl
-NODE\tm
-NODE\tp
-NODE\ts
-NODE\tv
-NODE\tw
-IN\td\tPWRN-b-1-1
-IN\tw\tPWRN-b-1-1
-IN\tc\tPWRN-b-1-1
-IN\ts\tPWRN-b-1-1
-IN\tb\tPWRN-b-1-1
-IN\tf\tPWRN-b-2-2
-IN\tPWRN-b-3-2\tPWRN-b-2-2
-IN\tg\tPWRN-b-2-2
-IN\tm\tPWRN-b-3-2
-IN\tv\tPWRN-b-3-2
-SET\tPWRN-b-1-1\t1.0
-SET\tPWRN-b-2-2\t1.0
-SET\tPWRN-b-3-2\t1.0
-EDGE\tPWRN-b-3-2\tl\t1.0
-EDGE\tl\tp\t1.0
-EDGE\tPWRN-b-1-1\tPWRN-b-1-1\t1.0
-EDGE\tm\tv\t1.0
-EDGE\tc\tf\t1.0
-EDGE\tPWRN-b-2-2\tb\t1.0
-"""
-
 cases['unclique.lp'] = """
 NODE\ta
 NODE\tb
