@@ -120,8 +120,8 @@ if cfg:
         if field in constants:
             constants[field] = value
         elif constants['SHOW_STORY'] or constants['SHOW_DEBUG']:
-            print("WARNING field '{}' is not a valid field for configuration."
-                  "".format(field))
+            raise ValueError("field '{}' is not a valid field for configuration."
+                             "".format(field))
     if constants['SHOW_STORY'] or constants['SHOW_DEBUG']:
         print('INFO: config file {} loaded.'.format(constants['CONFIG_FILE']))
 elif constants['SHOW_STORY'] or constants['SHOW_DEBUG']:
