@@ -132,13 +132,17 @@ def _convert_parallel_mode_option(value:str or int) -> str:
     ' --parallel-mode=2'
     >>> _convert_parallel_mode_option('0,split')
     ' --parallel-mode=4,split'
+    >>> _convert_parallel_mode_option("'0,split'")
+    ' --parallel-mode=4,split'
+    >>> _convert_parallel_mode_option('"0,split"')
+    ' --parallel-mode=4,split'
 
     """
     if isinstance(value, str):
-        value = value.strip()
+        value = value.strip(' "\'\t\n')
         if value.isnumeric():
             return str(_convert_parallel_mode_option(int(value)))
-        if value and value.startswith('0'):
+        elif value and value.startswith('0'):
             if value[1:] not in {',compete', ',split'}:
                 raise ValueError("Multithreading option value is not valid: {}"
                                  "".format(value))
