@@ -6,7 +6,8 @@ Function solve_motif_search is defined according to global constants.
 
 import math
 import clyngor
-from powergrasp.constants import COVERED_EDGES_FROM_ASP, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH, CLINGO_MULTITHREADING
+from powergrasp.constants import (COVERED_EDGES_FROM_ASP, SHOW_STORY, SHOW_DEBUG,
+                                  MULTISHOT_MOTIF_SEARCH, CLINGO_MULTITHREADING, CLINGO_OPTIONS)
 
 
 def _build_solver(step:int, lowerbound:int, upperbound:int, files:iter, graph:str, options:str='') -> iter:
@@ -15,6 +16,7 @@ def _build_solver(step:int, lowerbound:int, upperbound:int, files:iter, graph:st
     if COVERED_EDGES_FROM_ASP:
         constants['covered_edges_from_asp'] = 1
     options += CLINGO_MULTITHREADING
+    options += ' ' + CLINGO_OPTIONS.strip(' \t\n\'"')
     models = clyngor.solve(files=tuple(files), inline=str(graph), constants=constants, stats=False, options=options)
     if SHOW_STORY:
         print('SOLVE', models.command)
