@@ -49,8 +49,11 @@ class MotifSearcher:
         self.init_for_graph(graph)
 
     def init_for_graph(self, graph:Graph):
-        self._upperbound = self.compute_initial_upperbound(graph)
-        self._lowerbound = self.compute_initial_lowerbound(graph)
+        if hasattr(self, 'compute_initial_bounds'):  # all-in-one method
+            self._lowerbound, self._upperbound = self.compute_initial_bounds(graph)
+        else:  # use the standard one
+            self._lowerbound = self.compute_initial_lowerbound(graph)
+            self._upperbound = self.compute_initial_upperbound(graph)
         if SHOW_STORY and self.lowerbound > self.upperbound:
             print("INFO Search for {} will not be functional, because bounds"
                   " ({};{}) avoid any search.".format(self.name, *self.bounds))
@@ -212,17 +215,27 @@ class CliqueSearcher(MotifSearcher):
 
     def _name(self) -> str: return 'clique'
 
-    def compute_initial_upperbound(self, graph:Graph) -> int:
-        """Use utils.maximal_clique_size function on all nodes of graph to
-        compute the biggest clique possible theoretically."""
-        clique_size = 0
-        for node, _, nb_edge in graph.neighbors(increasing_degree=True, nb_edges_between_neighbors=True):
+    def compute_initial_bounds(self, graph:Graph) -> ():
+        """Return lowerbound and upperbound for initial problems.
+
+        If any node with clustering coefficient equals to 1 exists,
+        the number of neighbors gives a lowerbound.
+
+        Use utils.maximal_clique_size function on all nodes of graph to
+        compute the biggest clique possible theoretically.
+
+        """
+        node_to_edge = lambda n: (n * (n - 1)) // 2
+        min_clique_size, max_clique_size = 0, 0
+        for node, neighbors, nb_edge in graph.neighbors(increasing_degree=True, nb_edges_between_neighbors=True):
             node_clique_size = utils.maximal_clique_size(nb_edge)
-            clique_size = max(clique_size, node_clique_size)
+            max_clique_size = max(max_clique_size, node_clique_size)
+            if nb_edge == node_to_edge(len(neighbors)):  # clustering coefficient is 1
+                min_clique_size = max(min_clique_size, len(neighbors))
             # if clique_size > len(neighbors):  # TODO: test and prove useful that optimization
                 # break  # we can't found better since it's sorted
-        # return the number of edges, not the number of node
-        return int(clique_size * (clique_size - 1) / 2)
+        return node_to_edge(min_clique_size), node_to_edge(max_clique_size)
+
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
         graph = ''.join(graph.as_asp(step))

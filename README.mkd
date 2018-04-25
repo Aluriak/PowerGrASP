@@ -60,7 +60,7 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.8
-    - 
+    - clique search: lowerbound is initially computed as the maximal degree of node of clustering coefficient equals to 1
 - 8.7
     - raise error when an invalid key is found in config file
     - StarSearch is dedicated to find stars, simplifying BicliqueSearch's job (enabled by default, user may use Biclique instead of both Star and NonStarBiclique)
