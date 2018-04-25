@@ -54,6 +54,10 @@ class MotifSearcher:
         else:  # use the standard one
             self._lowerbound = self.compute_initial_lowerbound(graph)
             self._upperbound = self.compute_initial_upperbound(graph)
+        if self._lowerbound in {0, 1}:
+            print("WARNING lowerbound computed for {} is {}, which is an "
+                  "unexpected number.".format(self.name, self._lowerbound))
+        self._lowerbound = max(2, self._lowerbound)
         if SHOW_STORY and self.lowerbound > self.upperbound:
             print("INFO Search for {} will not be functional, because bounds"
                   " ({};{}) avoid any search.".format(self.name, *self.bounds))
@@ -234,7 +238,7 @@ class CliqueSearcher(MotifSearcher):
                 min_clique_size = max(min_clique_size, len(neighbors))
             # if clique_size > len(neighbors):  # TODO: test and prove useful that optimization
                 # break  # we can't found better since it's sorted
-        return node_to_edge(min_clique_size), node_to_edge(max_clique_size)
+        return max(3, node_to_edge(min_clique_size)), node_to_edge(max_clique_size)
 
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:

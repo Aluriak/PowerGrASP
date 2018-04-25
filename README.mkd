@@ -60,6 +60,7 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.8
+    - bugfix: lowerbound can't go under 2 (3 for cliques)
     - clique search: lowerbound is initially computed as the maximal degree of node of clustering coefficient equals to 1
 - 8.7
     - raise error when an invalid key is found in config file
