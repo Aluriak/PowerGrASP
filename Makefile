@@ -62,6 +62,8 @@ inclusions:
 	$(MAKE) compress INFILE=inclusions.lp
 consider-included-nodes:
 	$(MAKE) compress INFILE=consider-included-nodes.lp
+motif-overlapping:
+	$(MAKE) compress INFILE=motif-overlapping.lp
 multiple-optimals:
 	$(MAKE) compress INFILE=multiple-optimals.lp
 n8_d0:
