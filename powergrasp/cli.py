@@ -21,7 +21,7 @@ def writable_file(filepath:str) -> str:
 
     """
     try:
-        with open(filepath, 'w') as fd:
+        with open(filepath, 'a') as fd:
             pass
         os.remove(filepath)
         return filepath
