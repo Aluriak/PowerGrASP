@@ -6,7 +6,7 @@ from . import asp
 from . import utils
 from .motif import Motif
 from .graph import Graph
-from .constants import TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH, BICLIQUE_LOWERBOUND_MAXNEI, OPTIMIZE_FOR_MEMORY
+from .constants import TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH, BICLIQUE_LOWERBOUND_MAXNEI, OPTIMIZE_FOR_MEMORY, CLINGO_OPTIONS
 from . import ASP_FILES
 
 
@@ -102,6 +102,9 @@ class MotifSearcher:
         """Yield edges covered by given motif."""
         raise NotImplementedError()
 
+    def _clingo_options(self):
+        return CLINGO_OPTIONS[None] + ' ' + CLINGO_OPTIONS.get(self.name, '')
+
 
     @property
     def name(self) -> str:
@@ -141,6 +144,7 @@ class BicliqueSearcher(MotifSearcher):
         if SHOW_DEBUG:
             print('MXDKJX: GRAPH:', graph)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
+                                          options=self._clingo_options(),
                                           files=FULLBICLIQUE_ASP_FILES, graph=graph)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
@@ -178,6 +182,7 @@ class NonStarBicliqueSearcher(MotifSearcher):
         if SHOW_DEBUG:
             print('UHJGMR: GRAPH:', graph)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
+                                          options=self._clingo_options(),
                                           files=BICLIQUE_ASP_FILES, graph=graph)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
@@ -205,6 +210,7 @@ class StarSearcher(MotifSearcher):
         if SHOW_DEBUG:
             print('ABQSSN: GRAPH:', graph)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
+                                          options=self._clingo_options(),
                                           files=STAR_ASP_FILES, graph=graph)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
@@ -244,6 +250,7 @@ class CliqueSearcher(MotifSearcher):
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
         graph = ''.join(graph.as_asp(step))
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
+                                          options=self._clingo_options(),
                                           files=CLIQUE_ASP_FILES, graph=graph)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
@@ -251,3 +258,11 @@ class CliqueSearcher(MotifSearcher):
         assert len(sets) == 1
         nodes = frozenset(next(iter(sets)))
         yield from map(frozenset, itertools.combinations(nodes, r=2))
+
+
+# verify clingo options
+SEARCHERS = {searcher.name for searcher in globals().values()
+             if type(searcher) is type and issubclass(searcher, MotifSearcher)}
+for searcher in CLINGO_OPTIONS:
+    if searcher not in SEARCHERS and searcher is not None:
+        raise ValueError("CLINGO_OPTIONS got a non-valid searcher value: " + searcher)

@@ -5,6 +5,7 @@ either JSON or INI format.
 
 """
 import os
+import ast
 import json
 import configparser
 import multiprocessing
@@ -60,7 +61,7 @@ constants = {
     'BICLIQUE_LOWERBOUND_MAXNEI': 2,
 
     # Arbitrary parameters to give to clingo (note that some, like multithreading or optmode, may already be set by other options).
-    'CLINGO_OPTIONS': '',
+    'CLINGO_OPTIONS': {},
 
     # Number of CPU available to clingo (or a string like '2,join' or '48,compete'), or 0 for autodetect number of CPU.
     'CLINGO_MULTITHREADING': 1,
@@ -85,21 +86,42 @@ def make_key(key:str) -> str:
     """Return the well formed key for constants dictionary"""
     return key.upper().replace(' ', '_')
 
+def make_value_from_ini(key:str, section, config:configparser.ConfigParser):
+    """Return the int, str, dict, float or tuple equivalent to value
+    found for given section and key.
+
+    """
+    assert key in constants, key
+    assert section in config
+    assert key in config[section], (config[section], key)
+    default = constants[key]
+    if isinstance(default, bool):
+        return config.getboolean(section, key)
+    elif isinstance(default, (int, float, tuple, list, dict, set, frozenset, type(None))):
+        try:
+            return type(default)(ast.literal_eval(config[section][key]))
+        except ValueError as err:  # it's not a python literal, so it's a string
+            return config[section][key]
+    elif isinstance(default, str):
+        return config[section][key]
+    else:
+        raise ValueError("Non-handled option type {} for field {}"
+                         "".format(type(default), key))
+
 def open_config_file(fname:str) -> dict:
     """Try reading file in INI, and if it do not works, try JSON"""
     try:
         # read file, take all available sections
         config = configparser.ConfigParser()
         config.read(fname)
-        if not config.sections():
-            print('ERROR input config do not have any section.')
-        else:
+        if config.sections():
             return {
-                key: config.getboolean(section, key)
-                if isinstance(constants.get(key), bool) else config[section][key]
+                key: make_value_from_ini(key, section, config)
                 for section in config.sections()
                 for key in map(make_key, config[section])
             }
+        else:
+            print('ERROR input config do not have any section.')
     except configparser.MissingSectionHeaderError as err:
         ini_err = err.args[0]
         try:
@@ -166,10 +188,25 @@ def _convert_parallel_mode_option(value:str or int) -> str:
     return ''
 
 
+def _convert_clingo_options(value:dict or str) -> dict:
+    """Return a map from motif name to clingo options."""
+    # NB: can't access MotifSearchers subclass at this point, since constants
+    #  are computed at import time. We therefore can't verify the keys of the dict.
+    # convert string to dict
+    if isinstance(value, str):
+        value = {None: value}
+    # validate and return the dict
+    value = {None if motif is None else motif.lower().replace(' ', '-').replace('_', '-'): options
+             for motif, options in value.items()}
+    value.setdefault(None, '')
+    return value
+
+
 # Apply the value convertion, if any.
 _CONVERTIONS = {
     'CLINGO_MULTITHREADING': _convert_parallel_mode_option,
     'BICLIQUE_LOWERBOUND_MAXNEI': int,
+    'CLINGO_OPTIONS': _convert_clingo_options,
 }
 constants = {f: _CONVERTIONS.get(f, lambda x:x)(v) for f, v in constants.items()}
 
