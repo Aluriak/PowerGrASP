@@ -2,6 +2,7 @@
 INFILE=double_biclique_unambiguous.lp
 TEST_CFG_FILE=
 
+SHOW_DURATIONS=--durations=22
 
 ## Usage and tests
 compress:
@@ -19,7 +20,7 @@ t:
 	rm powergrasp.cfg
 	- mv powergrasp.cfg.bak powergrasp.cfg
 _pure_tests:
-	pytest powergrasp test -vv --doctest-module
+	pytest powergrasp test -vv --doctest-module $(SHOW_DURATIONS)
 _test_cfg_file:
 	cp test/powergrasp.$(TEST_CFG_FILE).cfg powergrasp.cfg
 	$(MAKE) _pure_tests  # with many options tweaked (edges from ASP, integrity,…)
