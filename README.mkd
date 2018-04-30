@@ -60,6 +60,7 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.9
+    - many bugfixes
     - CLINGO_OPTIONS can be a dict, mapping motif name to arbitrary parameters
 - 8.8
     - bugfix: lowerbound can't go under 2 (3 for cliques)
