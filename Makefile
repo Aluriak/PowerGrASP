@@ -76,6 +76,8 @@ partition:
 	$(MAKE) compress INFILE=partition.lp
 perfectfit:
 	$(MAKE) compress INFILE=perfectfit.lp
+phosphatase:
+	$(MAKE) compress INFILE=phosphatase.lp
 pnode-to-clique:
 	$(MAKE) compress INFILE=pnode-to-clique.lp
 prio_deg:
@@ -84,6 +86,8 @@ quoting:
 	$(MAKE) compress INFILE=quoting.lp
 star:
 	$(MAKE) compress INFILE=star.lp
+structural-binding-maincc:
+	$(MAKE) compress INFILE=structural_binding_maincc.lp
 testblocks:
 	$(MAKE) compress INFILE=testblocks.lp
 test-gml:
