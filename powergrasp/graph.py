@@ -4,6 +4,7 @@ from collections import defaultdict
 from pprint import pprint
 from powergrasp import utils
 from powergrasp import constants
+from powergrasp import edge_filtering
 from powergrasp.motif import Motif
 from powergrasp.constants import (TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG,
                                   SHOW_MOTIF_HANDLING, COVERED_EDGES_FROM_ASP,
@@ -60,7 +61,7 @@ class Graph:
         self.__uid = str(min(self.__nodes, key=str))
         self.__nb_node = len(self.__nodes)
         self.__nb_cc = networkx.number_connected_components(nxgraph)
-        self._nxgraph = networkx.freeze(nxgraph)
+        self._nxgraph = nxgraph if constants.KEEP_NX_GRAPH else networkx.freeze(nxgraph)
 
         self.__hierarchy = set()  # inclusions between powernodes
         self.__powernodes = defaultdict(set)  # (step, set) -> {node in powernode}
@@ -73,15 +74,35 @@ class Graph:
         yield from (Graph(nxgraph.subgraph(cc))
                     for cc in networkx.connected_components(nxgraph))
 
-    def as_asp(self, step:int, powerobjects:bool=False) -> [str]:
+    def as_asp(self, step:int, powerobjects:bool=False,
+               filter_for_bicliques:bool=False,
+               filter_for_cliques:bool=False,
+               filter_for_stars:bool=False,
+               lowerbound:int=2, upperbound:int=None) -> [str]:
         """Yield atoms of graph's ASP string representation, in edges and hierarchy.
 
         powerobjects -- also include powernodes and poweredges
+        filter_for_bicliques -- don't yield edges that can't be compressed as bicliques
+        filter_for_cliques -- don't yield edges that can't be compressed as cliques
+        filter_for_stars -- don't yield edges that can't be compressed as stars
+        lowerbound -- the lowerbound for the motif to search (used by filtering)
+        upperbound -- idem. Will be ignored unless filtering is enabled.
 
         """
+        if upperbound is None: upperbound = len(self.__edges)
+        nb_filters = sum((filter_for_bicliques, filter_for_cliques, filter_for_stars))
+        assert nb_filters in {0, 1}, "Too much filters asked: " + str(nb_filters)
         assert step > 0, step
         assert (step-1) >= 0, step
-        for source, target in self.__edges:
+        # define the edges to work on (depending of choosen filter and bounds)
+        filter = None
+        if constants.GRAPH_FILTERING:
+            if filter_for_bicliques: filter = edge_filtering.for_biclique
+            elif filter_for_cliques: filter = edge_filtering.for_clique
+            elif filter_for_stars: filter = edge_filtering.for_star
+        filtered_edges = filter(self._nxgraph, lowerbound, upperbound) if filter else self.__edges
+        # yield the wanted atoms.
+        for source, target in filtered_edges:
             yield 'edge({},{}).'.format(source, target)
         for (stepa, seta), nodes in self.__powernodes.items():
             for node in nodes:
@@ -113,13 +134,15 @@ class Graph:
             covered = frozenset(motif.edges_covered())
         else:
             covered = frozenset(motif.edges_covered(self.__powernodes.get(uid, {uid}) for uid in powernodes))
-        nb_edges = len(self.__edges)
+        nb_edges_before_compress = len(self.__edges)
         if TEST_INTEGRITY:
             edges = frozenset(self.__edges)
             if SHOW_DEBUG: print('IFBTVC GRAPH:', self.__edges)
             if SHOW_DEBUG: print('ZEDRBM COVER:', covered)
         self.__edges -= covered
-        diff = nb_edges - len(covered) != len(self.__edges)
+        if constants.KEEP_NX_GRAPH:
+            self._nxgraph.remove_edges_from(map(tuple, covered))
+        diff = nb_edges_before_compress - len(covered) != len(self.__edges)
         if TEST_INTEGRITY and diff:
             diff_cov = covered - edges
             diff_edg = edges - covered
@@ -129,7 +152,7 @@ class Graph:
                                        len(diff_edg), motif.name, ', '.join(map(str, diff_edg))))
         elif diff:
             raise ValueError("Edges yielded by {} searcher were not in the graph."
-                             " Rerun with TEST_INTEGRITY to get the problem."
+                             " Rerun with TEST_INTEGRITY to get insights."
                              "".format(motif.name))
         if SHOW_MOTIF_HANDLING:
             print('\tCOVER', len(covered))
