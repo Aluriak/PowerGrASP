@@ -59,6 +59,9 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 
 ## Changelog
 
+- 8.10
+    - graph filtering: optimization leading to general performance gain when enabled
+    - improvements on {low,upp}erbounds computations
 - 8.9
     - many bugfixes
     - CLINGO_OPTIONS can be a dict, mapping motif name to arbitrary parameters
