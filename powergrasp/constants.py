@@ -210,6 +210,14 @@ _CONVERTIONS = {
 }
 constants = {f: _CONVERTIONS.get(f, lambda x:x)(v) for f, v in constants.items()}
 
+# verifications about clingo options
+if constants['CLINGO_MULTITHREADING']:
+    for motif, options in constants['CLINGO_OPTIONS'].items():
+        if '--parallel-mode=' in options:
+            raise ValueError("Invalid option value: --parallel-mode given by both"
+                             " CLINGO_OPTIONS ({}) and CLINGO_MULTITHREADING ({})."
+                             "".format(options, constants['CLINGO_MULTITHREADING']))
+
 
 # Put them in global access
 globals().update(constants)
