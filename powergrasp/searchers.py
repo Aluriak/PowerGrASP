@@ -29,10 +29,10 @@ class MotifSearcher:
     - search: called to search a motif in the graph.
     - on_new_compressed_motif: called when a new motif is compressed. Information on that motif is given, notably its score.
     - covered_edges: function giving the edges covered by a given motif
-    - name: the name of the motif, human-readable, making it different from the others.
 
     And the following methods to be overwritten (if no default) by subclasses:
 
+    - name: the name of the motif, human-readable, making it different from the others.
     - _compute_initial_upperbound: give upperbound at first step for given graph (default: number of graph edges)
     - _compute_initial_lowerbound: idem for lowerbound (default: 2)
     - _search: called to search a motif in the graph, returns atoms found by ASP solver.
@@ -106,17 +106,10 @@ class MotifSearcher:
         return CLINGO_OPTIONS[None] + ' ' + CLINGO_OPTIONS.get(self.name, '')
 
 
-    @property
-    def name(self) -> str:
-        return str(self._name())
-    def _name(self) -> str:
-        raise NotImplementedError()
-
-
 class BicliqueSearcher(MotifSearcher):
     """Searcher for Bicliques, including stars."""
 
-    def _name(self) -> str: return 'biclique'
+    name = 'biclique'
 
     def compute_initial_lowerbound(self, graph:Graph) -> int:
         """Maximal lowerbound is the score of biggest star, or the score of the biggest intersection"""
@@ -161,7 +154,7 @@ class NonStarBicliqueSearcher(MotifSearcher):
 
     """
 
-    def _name(self) -> str: return 'non-star-biclique'
+    name = 'non-star-biclique'
 
     def compute_initial_lowerbound(self, graph:Graph) -> int:
         """Maximal lowerbound is the score of biggest star, or the score of the biggest intersection"""
@@ -194,11 +187,12 @@ class NonStarBicliqueSearcher(MotifSearcher):
 class StarSearcher(MotifSearcher):
     """Searcher for Stars."""
 
+    name = 'star'
+
     def __init__(self, graph:Graph):
         self.__star_size = max(len(neighbors) for _, neighbors in graph.neighbors())
         super().__init__(graph)
 
-    def _name(self) -> str: return 'star'
 
     def compute_initial_lowerbound(self, graph:Graph) -> int:
         return self.__star_size
@@ -223,7 +217,7 @@ class StarSearcher(MotifSearcher):
 class CliqueSearcher(MotifSearcher):
     """Searcher for Cliques."""
 
-    def _name(self) -> str: return 'clique'
+    name = 'clique'
 
     def compute_initial_bounds(self, graph:Graph) -> ():
         """Return lowerbound and upperbound for initial problems.
@@ -262,7 +256,7 @@ class CliqueSearcher(MotifSearcher):
 
 # verify clingo options
 SEARCHERS = {searcher.name for searcher in globals().values()
-             if type(searcher) is type and issubclass(searcher, MotifSearcher)}
+             if type(searcher) is type and issubclass(searcher, MotifSearcher) and searcher is not MotifSearcher}
 for searcher in CLINGO_OPTIONS:
     if searcher not in SEARCHERS and searcher is not None:
         raise ValueError("CLINGO_OPTIONS got a non-valid searcher value: " + searcher)
