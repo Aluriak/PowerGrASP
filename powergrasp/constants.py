@@ -72,6 +72,9 @@ constants = {
     # When a choice is given, prefer memory over CPU:
     'OPTIMIZE_FOR_MEMORY': False,
 
+    # Ignore edges dynamically determined as impossible to compress
+    'GRAPH_FILTERING': True,
+
     # TODO  Detect and postpone compression of terminal tree subgraphs
     'TERMINAL_TREES_POSTPONING': True,
     # TODO  Detect, delete and restore bridges
@@ -79,6 +82,10 @@ constants = {
     # TODO  Detect and if available run specialized compression routine for: trees, triangle-free graphs, cactii.
     #  Will not do anything on a graph that does not belong to those classes.
     'SPECIAL_CASES_DETECTION': True,
+}
+
+_derived_constants = {
+    'KEEP_NX_GRAPH': lambda c: c['GRAPH_FILTERING'],
 }
 
 
@@ -209,6 +216,11 @@ _CONVERTIONS = {
     'CLINGO_OPTIONS': _convert_clingo_options,
 }
 constants = {f: _CONVERTIONS.get(f, lambda x:x)(v) for f, v in constants.items()}
+# add the derived ones
+constants.update({
+    field: make_value(constants)
+    for field, make_value in _derived_constants.items()
+})
 
 # verifications about clingo options
 if constants['CLINGO_MULTITHREADING']:
