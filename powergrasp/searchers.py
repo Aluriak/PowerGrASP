@@ -73,11 +73,14 @@ class MotifSearcher:
         return graph.nb_edge
     def compute_initial_lowerbound(self, graph:Graph) -> int:
         return 2
+    def compute_new_lowerbound(self, graph:Graph, motif:Motif) -> int:
+        return 2
+
     def on_new_compressed_motif(self, motif:Motif):
         """How to react when a motif is compressed ?"""
         if motif.ismaximal and motif.name == self.name:
             self._upperbound = motif.score
-        self._lowerbound = 2  # now the optimization is not valid
+        self._lowerbound = self.compute_new_lowerbound(self.graph, motif)
 
 
     def search(self, step:int, score_to_beat:int=0) -> [Motif]:
@@ -256,6 +259,9 @@ class CliqueSearcher(MotifSearcher):
             # if clique_size > len(neighbors):  # TODO: test and prove useful that optimization
                 # break  # we can't found better since it's sorted
         return max(3, node_to_edge(min_clique_size)), node_to_edge(max_clique_size)
+
+    def compute_new_lowerbound(self, graph:Graph, motif:Motif) -> int:
+        return 3  # At least 3 elements in a clique
 
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
