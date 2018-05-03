@@ -69,10 +69,10 @@ constants = {
     # Two different motifs for stars and bicliques, so the work of biclique is lighter.
     'USE_STAR_MOTIF': True,
 
-    # When a choice is given, prefer memory over CPU:
+    # When a choice is given, prefer memory over CPU.
     'OPTIMIZE_FOR_MEMORY': False,
 
-    # Ignore edges dynamically determined as impossible to compress
+    # Ignore edges dynamically determined as impossible to compress.
     'GRAPH_FILTERING': True,
 
     # TODO  Detect and postpone compression of terminal tree subgraphs

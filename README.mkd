@@ -36,6 +36,8 @@ The config file may be either in ini or json format, as shown in [`test/powergra
 Configuration allow user to define how much text will be outputed by powergrasp,
 and to tune the core compression and related optimizations.
 
+See complete list in the [options section](#Options).
+
 
 ## installation
 
@@ -60,6 +62,8 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.10
+    - expose `__version__` attribute in the package
+    - add a list of available options in the README
     - graph filtering: optimization leading to general performance gain when enabled
     - improvements on {low,upp}erbounds computations
 - 8.9
@@ -94,3 +98,150 @@ On random error, try adding `--no-cache-dir` at the end of the command.
     - implement timers and statistics recording
     - enable multishot motif search by default
     - various bugfixes
+
+## Options
+Description of all powergrasp options.
+All values example are given for INI format.
+
+### test integrity
+Run some integrity tests during runtime to ensure that compression is working well.
+May slow the compression a lot, and is mainly a debugging tool.
+
+Default value:
+
+    test_integrity = true
+
+### show story
+Print in stdout the main steps of compression.
+Default value:
+
+    show_story = true
+
+### show motif handling
+Print in stdout the motif transformation.
+Default value:
+
+    show_motif_handling = false
+
+### timers
+Maintain and print in stdout some timers.
+Default value:
+
+    timers = true
+
+### statistics file
+A file in which some statistics will be written in CSV format, giving among others size of compressed motifs, and their compression times (if *timers* option is enabled).
+Default value:
+
+    statistics_file = None
+
+Example value:
+
+    statistics_file = 'statistics.csv'
+
+### bubble for each step
+Generate and save a bubble representation of the graph at each step.
+Mainly used for debugging.
+Default value:
+
+    bubble_for_each_step = false
+
+### output node prefix
+Prefix to add to all (power)nodes names in output.
+Default value:
+
+    output_node_prefix = ''
+
+### show debug
+Show full trace of the compression. Useful for debugging.
+Default value:
+
+    show_debug = False
+
+### covered edges from asp
+Recover covered edges from ASP. If falsy, will ask motif searcher to compute the edges, which may be quicker.
+Default value:
+
+    covered_edges_from_asp = False
+
+### bubble with nodes
+Nodes and sets are optional in the output bubble.
+Default value:
+
+    bubble_with_nodes = True
+    bubble_with_sets = True
+
+### bubble poweredge factor
+Edges in bubble are associated to a factor
+Default value:
+
+    bubble_poweredge_factor = '1.0'
+    bubble_edge_factor = '1.0'
+
+### bubble simplify quotes
+When possible, delete the quotes around identifiers in the bubble. May lead to node name collision.
+Default value:
+
+    bubble_simplify_quotes = True
+
+### config file
+Load options found in given config file, if it exists.
+Default value:
+
+    config_file = 'powergrasp.cfg'
+
+### multishot motif search
+Search for multiple motif in a single search.
+Accelerate the solving for graph with lots of equivalent motifs. It is generally a good option to enable.
+Default value:
+
+    multishot_motif_search = True
+
+### biclique lowerbound maxnei
+Optimization on biclique lowerbound computation. Can be costly. Deactivate with 2. With value at n, up to n neighbors are considered.
+Default value:
+
+    biclique_lowerbound_maxnei = 2
+
+### clingo options
+Arbitrary parameters to give to clingo (note that some, like multithreading or optmode, may already be set by other options).
+Default value:
+
+    clingo_options = {}
+
+Give a particular configuration for bicliques search:
+
+    clingo_options = {'no-star-biclique': '--configuration=handy'}
+
+### clingo multithreading
+Number of CPU available to clingo, or 0 for autodetect number of CPU.
+Default value:
+
+    clingo_multithreading = 1
+
+Get as many thread there are available CPU:
+
+    clingo_multithreading = 0
+
+Specify a competing search between 4 threads:
+
+    clingo_multithreading = '4,compete'
+
+
+### use star motif
+Two different motifs for stars and bicliques, so the work of biclique is lighter.
+Default value:
+
+    use_star_motif = True
+
+### optimize for memory
+When a choice is given, prefer memory over CPU.
+Default value:
+
+    optimize_for_memory = False
+
+### graph filtering
+Ignore edges dynamically determined as impossible to compress.
+Default value:
+
+    graph_filtering = True
