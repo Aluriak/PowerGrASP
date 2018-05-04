@@ -72,6 +72,9 @@ constants = {
     # When a choice is given, prefer memory over CPU.
     'OPTIMIZE_FOR_MEMORY': False,
 
+    # If set, will keep nodes connected to nothing. Else, will discard them.
+    'KEEP_SINGLE_NODES': True,
+
     # Ignore edges dynamically determined as impossible to compress.
     'GRAPH_FILTERING': True,
 

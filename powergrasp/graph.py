@@ -8,7 +8,7 @@ from powergrasp import edge_filtering
 from powergrasp.motif import Motif
 from powergrasp.constants import (TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG,
                                   SHOW_MOTIF_HANDLING, COVERED_EDGES_FROM_ASP,
-                                  OUTPUT_NODE_PREFIX)
+                                  OUTPUT_NODE_PREFIX, KEEP_SINGLE_NODES)
 
 
 def proper_nx_graph(graph:networkx.Graph) -> networkx.Graph:
@@ -26,7 +26,17 @@ def proper_nx_graph(graph:networkx.Graph) -> networkx.Graph:
         return utils.normalized_name(node)  # needed to avoid collisions with constants, variable,…
     proper = type(graph)()
     repr_edges = (frozenset(map(node_repr, edge)) for edge in graph.edges)  # apply node representation
-    proper.add_edges_from(edge for edge in repr_edges if len(edge) == 2)  # filter self loops
+    if KEEP_SINGLE_NODES:
+        # replace self loops by node existence notification
+        for edge in repr_edges:
+            if len(edge) == 1:
+                proper.add_node(next(iter(edge)))
+            elif len(edge) == 2:
+                proper.add_edge(*edge)
+            else:
+                raise ValueError("invalid edge components: " + str(edge))
+    else:  # ignore them
+        proper.add_edges_from(edge for edge in repr_edges if len(edge) == 2)
     return proper
 
 

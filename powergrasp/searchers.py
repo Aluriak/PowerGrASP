@@ -6,7 +6,9 @@ from . import asp
 from . import utils
 from .motif import Motif
 from .graph import Graph
-from .constants import TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, MULTISHOT_MOTIF_SEARCH, BICLIQUE_LOWERBOUND_MAXNEI, OPTIMIZE_FOR_MEMORY, CLINGO_OPTIONS
+from .constants import (TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, KEEP_SINGLE_NODES,
+                        MULTISHOT_MOTIF_SEARCH, BICLIQUE_LOWERBOUND_MAXNEI,
+                        OPTIMIZE_FOR_MEMORY, CLINGO_OPTIONS)
 from . import ASP_FILES
 
 
@@ -54,7 +56,7 @@ class MotifSearcher:
         else:  # use the standard one
             self._lowerbound = self.compute_initial_lowerbound(graph)
             self._upperbound = self.compute_initial_upperbound(graph)
-        if self._lowerbound in {0, 1}:
+        if not KEEP_SINGLE_NODES and self._lowerbound in {0, 1}:
             print("WARNING lowerbound computed for {} is {}, which is an "
                   "unexpected number.".format(self.name, self._lowerbound))
         self._lowerbound = max(2, self._lowerbound)
@@ -188,10 +190,12 @@ class NonStarBicliqueSearcher(MotifSearcher):
                     max_for_level = 0
                 if max_for_level < maxnei: break
                 maxnei = max_for_level
-            return maxnei, upperbound
         else:
-            maxnei2 = max(len(n[a] & n[b]) * 2 for a, b in itertools.combinations(n.keys(), r=2))
-            return maxnei2, upperbound
+            try:
+                maxnei = max(len(n[a] & n[b]) * 2 for a, b in itertools.combinations(n.keys(), r=2))
+            except ValueError:
+                maxnei = 0
+        return maxnei, upperbound
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
         graph = ''.join(graph.as_asp(step, filter_for_bicliques=True, lowerbound=lowerbound, upperbound=upperbound))

@@ -85,6 +85,8 @@ prio_deg:
 	$(MAKE) compress INFILE=prio_deg.lp
 quoting:
 	$(MAKE) compress INFILE=quoting.lp
+single-node:
+	$(MAKE) compress INFILE=single-node.lp
 star:
 	$(MAKE) compress INFILE=star.lp
 structural-binding-maincc:

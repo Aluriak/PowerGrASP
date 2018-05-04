@@ -2,6 +2,8 @@
 
 """
 
+from powergrasp import constants
+
 cases = {}  # filename: expected bubble
 
 # Expected results of tested cases
@@ -370,6 +372,10 @@ IN\ta\tPWRN-a-1-1
 SET\tPWRN-a-1-1\t1.0
 EDGE\tPWRN-a-1-1\tb\t1.0
 """
+
+cases['single-node.lp'] = """
+NODE\ta
+""" if constants.KEEP_SINGLE_NODES else ""
 
 cases['star.lp'] = """
 NODE\ta
