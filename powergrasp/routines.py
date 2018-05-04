@@ -27,9 +27,11 @@ def search_best_motifs(searchers, step) -> MotifBatch:
     best_motifs, best_motifs_score = None, 0
     for searcher in sorted(searchers, key=lambda s: s.upperbound, reverse=True):
         motifs = MotifBatch(searcher.search(step, score_to_beat))
-        if motifs and motifs.score > best_motifs_score:
-            best_motifs, best_motifs_score = motifs, motifs.score
-            score_to_beat = best_motifs_score
+        if motifs:
+            searcher.on_new_found_motif(motifs)
+            if motifs.score > best_motifs_score:
+                best_motifs, best_motifs_score = motifs, motifs.score
+                score_to_beat = best_motifs_score
     return best_motifs
 
 

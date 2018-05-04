@@ -76,10 +76,13 @@ class MotifSearcher:
     def compute_new_lowerbound(self, graph:Graph, motif:Motif) -> int:
         return 2
 
+    def on_new_found_motif(self, motif:Motif):
+        """How to react when a motif is found ?"""
+        if motif.ismaximal and motif.name == self.name:
+            self._upperbound = min(self._upperbound, motif.score)
+
     def on_new_compressed_motif(self, motif:Motif):
         """How to react when a motif is compressed ?"""
-        if motif.ismaximal and motif.name == self.name:
-            self._upperbound = motif.score
         self._lowerbound = self.compute_new_lowerbound(self.graph, motif)
 
 
