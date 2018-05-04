@@ -7,7 +7,7 @@ edge((a;b;c),(a;b;c)).
 % Two cliques are shallowed by a star.
 edge((a1;a2;a3;a4;a5),(a1;a2;a3;a4;a5)).  % first clique
 edge((b1;b2;b3;b4),(b1;b2;b3;b4)).  % smaller clique
-edge(h,(a1;b1)).  % hub
+edge(h,(a1;b4)).  % hub
 edge(h,(c1;c2;c3;c4;c5;c6;c7;c8;c9)).  % enough nodes to make the star the biggest motif
 
 % A clique is eaten by a biclique.
