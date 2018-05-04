@@ -102,3 +102,19 @@ def normalized_name(string:str) -> str:
 
     """
     return quoted(phasme.commons.fixed_name(unquoted(string)))
+
+
+def reverse_dict(indict:dict) -> dict:
+    """Return a dict containing values of input dict as keys,
+    and a set of associated keys as values.
+
+    >>> reverse_dict({1: 2, 3: 2})
+    {2: {1, 3}}
+    >>> reverse_dict({1: 2, 3: 4})
+    {2: {1}, 4: {3}}
+
+    """
+    ret = {}
+    for key, val in indict.items():
+        ret.setdefault(val, set()).add(key)
+    return ret

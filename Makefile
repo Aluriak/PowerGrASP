@@ -6,8 +6,11 @@ SHOW_DURATIONS=--durations=22
 
 ## Usage and tests
 compress:
-	python -m powergrasp data/$(INFILE) -o out/out.bbl
+	python -m powergrasp data/$(INFILE) out/out.bbl
 	python -m bubbletools validate out/out.bbl
+
+config:
+	python -m powergrasp --config
 
 test: t
 t:

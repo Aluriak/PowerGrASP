@@ -8,11 +8,11 @@ For the version published in 2017, see [this repository](https://github.com/alur
 
 ## CLI
 
-    powergrasp mygraph.gml -o compressed.bbl
+    python -m powergrasp mygraph.gml -o compressed.bbl
 
 ### help !
 
-    powergrasp --help
+    python -m powergrasp --help
 
 ## API
 
@@ -30,6 +30,10 @@ Sorry, no technical doc for the moment.
 ## Configuration
 PowerGrASP has some [configuration values](powergrasp/constants.py),
 that can be overwritten by a `powergrasp.cfg` file placed in the working directory.
+
+The configuration may be printed in stdout using:
+
+    python -m powergrasp --config
 
 The config file may be either in ini or json format, as shown in [`test/powergrasp.oneshot.cfg`](test/powergrasp.oneshot.cfg) and [`test/powergrasp.manyoptions.cfg`](test/powergrasp.manyoptions.cfg).
 
@@ -62,6 +66,7 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.10
+    - CLI: --config flag to print the full configuration in stdout
     - handling spaces instead of _ in fields names for INI format
     - do not filter out nodes alone in their connected component (cf KEEP_SINGLE_NODES option)
     - perf gain: the first motif to reach the best score is compressed, instead of the last

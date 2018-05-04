@@ -7,9 +7,11 @@ either JSON or INI format.
 import os
 import ast
 import json
+import itertools
 import configparser
 import multiprocessing
 from collections import ChainMap
+from . import utils
 
 # Default values
 constants = {
@@ -79,12 +81,12 @@ constants = {
     'GRAPH_FILTERING': True,
 
     # TODO  Detect and postpone compression of terminal tree subgraphs
-    'TERMINAL_TREES_POSTPONING': True,
+    # 'TERMINAL_TREES_POSTPONING': True,
     # TODO  Detect, delete and restore bridges
-    'BRIDGES_CUT': True,
+    # 'BRIDGES_CUT': True,
     # TODO  Detect and if available run specialized compression routine for: trees, triangle-free graphs, cactii.
     #  Will not do anything on a graph that does not belong to those classes.
-    'SPECIAL_CASES_DETECTION': True,
+    # 'SPECIAL_CASES_DETECTION': True,
 }
 
 _derived_constants = {
@@ -243,3 +245,51 @@ if constants['CLINGO_MULTITHREADING']:
 
 # Put them in global access
 globals().update(constants)
+
+
+def print_config():
+    """Print configuration in stdout"""
+    # name_width = max(len(name) for name, _ in uplets)
+    # value_width = max(len(repr(value)) for _, value in uplets)
+    uplets = sorted(tuple(OPTIONS_CATEGORIES.items()))
+    name_width = max(len(name) for _, names in uplets for name in names)
+    for category, options in uplets:
+        print('[{}]'.format(category))
+        for option in options:
+            value = repr(constants[option]).strip('"\'')
+            option = option.lower().replace('_', ' ').ljust(name_width)
+            print('{} = {}'.format(option, value))
+        print()
+
+
+
+OPTIONS_CATEGORIES = utils.reverse_dict({
+    'TEST_INTEGRITY': 'debug',
+    'SHOW_STORY': 'debug',
+    'SHOW_MOTIF_HANDLING': 'debug',
+    'TIMERS': 'statistics',
+    'STATISTIC_FILE': 'statistics',
+    'BUBBLE_FOR_EACH_STEP': 'debug',
+    'OUTPUT_NODE_PREFIX': 'output',
+    'SHOW_DEBUG': 'debug',
+    'COVERED_EDGES_FROM_ASP': 'optimization',
+    'BUBBLE_WITH_NODES': 'output',
+    'BUBBLE_WITH_SETS': 'output',
+    'BUBBLE_POWEREDGE_FACTOR': 'output',
+    'BUBBLE_EDGE_FACTOR': 'output',
+    'BUBBLE_SIMPLIFY_QUOTES': 'input',
+    'CONFIG_FILE': 'input',
+    'MULTISHOT_MOTIF_SEARCH': 'optimization',
+    'BICLIQUE_LOWERBOUND_MAXNEI': 'optimization',
+    'CLINGO_OPTIONS': 'clingo',
+    'CLINGO_MULTITHREADING': 'clingo',
+    'USE_STAR_MOTIF': 'optimization',
+    'OPTIMIZE_FOR_MEMORY': 'optimization',
+    'KEEP_SINGLE_NODES': 'output',
+    'GRAPH_FILTERING': 'optimization',
+    # 'TERMINAL_TREES_POSTPONING': 'optimization',
+    # 'BRIDGES_CUT': 'optimization',
+    # 'SPECIAL_CASES_DETECTION': 'optimization',
+})
+categorized_options = itertools.chain.from_iterable(OPTIONS_CATEGORIES.values())
+assert all(option in constants for option in categorized_options)

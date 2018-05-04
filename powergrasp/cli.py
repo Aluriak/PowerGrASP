@@ -11,6 +11,7 @@ def parse_args(description:str, args:iter=None) -> dict:
 
 def existant_file(filepath:str) -> str:
     """Argparse type, raising an error if given file does not exists"""
+    if filepath is None: return None
     if not os.path.exists(filepath):
         raise argparse.ArgumentTypeError("file {} doesn't exists".format(filepath))
     return filepath
@@ -33,10 +34,13 @@ def cli_parser(description:str) -> argparse.ArgumentParser:
     # main parser
     parser = argparse.ArgumentParser(description=description.strip())
 
-    parser.add_argument('infile', type=existant_file,
-                        help="Name of the input file to compress")
-    parser.add_argument('--outfile', '-o', type=writable_file, default='out.bbl',
-                        help="Name of the bubble file to produce")
 
+    parser.add_argument('infile', type=existant_file, nargs='?',
+                        help="Name of the input file to compress")
+    parser.add_argument('outfile', nargs='?',
+                        type=writable_file, default='out.bbl',
+                        help="Name of the bubble file to produce")
+    parser.add_argument('--config', '-c', action='store_true', dest='show_config',
+                        help="Print detected configuration, then quit.")
 
     return parser
