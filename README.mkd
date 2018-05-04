@@ -62,6 +62,7 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.10
+    - handling spaces instead of _ in fields names for INI format
     - do not filter out nodes alone in their connected component (cf KEEP_SINGLE_NODES option)
     - perf gain: the first motif to reach the best score is compressed, instead of the last
     - improve handling of statistic files, that now contains cc idx and motif bounds

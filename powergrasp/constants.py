@@ -96,27 +96,28 @@ def make_key(key:str) -> str:
     """Return the well formed key for constants dictionary"""
     return key.upper().replace(' ', '_')
 
-def make_value_from_ini(key:str, section, config:configparser.ConfigParser):
+def make_value_from_ini(found_key:str, real_key:str, section,
+                        config:configparser.ConfigParser):
     """Return the int, str, dict, float or tuple equivalent to value
     found for given section and key.
 
     """
-    assert key in constants, key
+    assert real_key in constants, real_key
     assert section in config
-    assert key in config[section], (config[section], key)
-    default = constants[key]
+    assert found_key in config[section], (config[section], found_key)
+    default = constants[real_key]
     if isinstance(default, bool):
-        return config.getboolean(section, key)
+        return config.getboolean(section, found_key)
     elif isinstance(default, (int, float, tuple, list, dict, set, frozenset, type(None))):
         try:
-            return type(default)(ast.literal_eval(config[section][key]))
+            return type(default)(ast.literal_eval(config[section][found_key]))
         except ValueError as err:  # it's not a python literal, so it's a string
-            return config[section][key]
+            return config[section][found_key]
     elif isinstance(default, str):
-        return config[section][key]
+        return config[section][found_key]
     else:
         raise ValueError("Non-handled option type {} for field {}"
-                         "".format(type(default), key))
+                         "".format(type(default), real_key))
 
 def open_config_file(fname:str) -> dict:
     """Try reading file in INI, and if it do not works, try JSON"""
@@ -126,9 +127,9 @@ def open_config_file(fname:str) -> dict:
         config.read(fname)
         if config.sections():
             return {
-                key: make_value_from_ini(key, section, config)
+                key: make_value_from_ini(found_key, key, section, config)
                 for section in config.sections()
-                for key in map(make_key, config[section])
+                for found_key, key in map(lambda k:(k, make_key(k)), config[section])
             }
         else:
             print('ERROR input config do not have any section.')
