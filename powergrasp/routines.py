@@ -33,7 +33,7 @@ def search_best_motifs(searchers, step) -> MotifBatch:
     return best_motifs
 
 
-def compress(graph:Graph) -> [str]:
+def compress(graph:Graph, *, cc_idx=None) -> [str]:
     """Yield bubble lines found in graph"""
     if TIMERS:
         timer_start = get_time()
@@ -54,7 +54,7 @@ def compress(graph:Graph) -> [str]:
             print('WARNING interrupted search. Graph compression aborted. Output will be written.')
             complete_compression, best_motifs = False, None
             break
-        if best_motifs:
+        if best_motifs:  # let's compress it
             step += graph.compress_all(best_motifs.non_overlapping_subset())
             for searcher in searchers:
                 searcher.on_new_compressed_motif(best_motifs)
@@ -65,12 +65,18 @@ def compress(graph:Graph) -> [str]:
             if TIMERS:
                 now = get_time()
                 timers = round(now - timer_start, 2), round(now - timer_last, 2)
-                if STATISTIC_FILE:
-                    save_stats(*timers, best_motifs.name, best_motifs.score)
                 if SHOW_STORY:
                     print("TIMER since start: {}s\t\tsince last motif: {}s"
                           "".format(*timers))
                 timer_last = now
+            if STATISTIC_FILE:
+                bounds = [
+                    '{}:[{};{}]'.format(searcher.name, searcher.lowerbound, searcher.upperbound)
+                    for searcher in searchers
+                ]
+                if not TIMERS:
+                    timers = 'none', 'none'
+                save_stats(cc_idx, *timers, best_motifs.name, best_motifs.score, *bounds)
         else:
             break  # nothing to compress
     if TIMERS and SHOW_STORY:
@@ -89,4 +95,4 @@ def compress_by_cc(fname:str) -> [str]:
     for idx, graph in enumerate(graphs, start=1):
         if idx > 1:  yield ''
         yield '# CONNECTED COMPONENT {}'.format(idx)
-        yield from compress(graph)
+        yield from compress(graph, cc_idx=idx)
