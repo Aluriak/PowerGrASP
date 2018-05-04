@@ -249,3 +249,9 @@ Ignore edges dynamically determined as impossible to compress.
 Default value:
 
     graph_filtering = True
+
+### keep single nodes
+If a node is found to be alone in its connected component, it will be kept nonetheless.
+Default value:
+
+    KEEP_SINGLE_NODES = True
