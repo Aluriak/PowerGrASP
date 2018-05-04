@@ -108,9 +108,15 @@ def make_value_from_ini(found_key:str, real_key:str, section,
     default = constants[real_key]
     if isinstance(default, bool):
         return config.getboolean(section, found_key)
-    elif isinstance(default, (int, float, tuple, list, dict, set, frozenset, type(None))):
+    elif isinstance(default, type(None)):
         try:
-            return type(default)(ast.literal_eval(config[section][found_key]))
+            return ast.literal_eval(config[section][found_key])
+        except ValueError as err:  # it's not a python literal, so it's a string
+            return config[section][found_key]
+    elif isinstance(default, (int, float, tuple, list, dict, set, frozenset)):
+        value = config[section][found_key] or '""'  # cast empty value to empty string
+        try:
+            return type(default)(ast.literal_eval(value))
         except ValueError as err:  # it's not a python literal, so it's a string
             return config[section][found_key]
     elif isinstance(default, str):
