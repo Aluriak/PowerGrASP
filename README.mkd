@@ -62,6 +62,7 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.10
+    - perf gain: the first motif to reach the best score is compressed, instead of the last
     - improve handling of statistic files, that now contains cc idx and motif bounds
     - expose `__version__` attribute in the package
     - add a list of available options in the README

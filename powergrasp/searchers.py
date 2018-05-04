@@ -88,7 +88,7 @@ class MotifSearcher:
 
     def search(self, step:int, score_to_beat:int=0) -> [Motif]:
         """Search for motifs, better than the one to beat."""
-        lowerbound = max(self.lowerbound, score_to_beat)
+        lowerbound = max(self.lowerbound, score_to_beat+1)
         if lowerbound > self.upperbound:
             if SHOW_STORY:
                 print("INFO No {} search because of bounds ({};{})."
