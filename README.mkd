@@ -68,7 +68,7 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 - 8.10
     - CLI: --config flag to print the full configuration in stdout
     - handling spaces instead of _ in fields names for INI format
-    - do not filter out nodes alone in their connected component (cf KEEP_SINGLE_NODES option)
+    - do not filter out nodes alone in their connected component (cf [keep-single-nodes option](#keep-single-nodes))
     - perf gain: the first motif to reach the best score is compressed, instead of the last
     - improve handling of statistic files, that now contains cc idx and motif bounds
     - expose `__version__` attribute in the package
@@ -167,7 +167,7 @@ Default value:
 
     show_debug = False
 
-### covered edges from asp
+### covered edges from ASP
 Recover covered edges from ASP. If falsy, will ask motif searcher to compute the edges, which may be quicker.
 Default value:
 
@@ -181,7 +181,7 @@ Default value:
     bubble_with_sets = True
 
 ### bubble poweredge factor
-Edges in bubble are associated to a factor
+Edges in bubble are associated to a factor.
 Default value:
 
     bubble_poweredge_factor = '1.0'
@@ -228,7 +228,7 @@ Default value:
 
     clingo_multithreading = 1
 
-Get as many thread there are available CPU:
+Use as many thread there are available CPU:
 
     clingo_multithreading = 0
 
@@ -238,13 +238,13 @@ Specify a competing search between 4 threads:
 
 
 ### use star motif
-Two different motifs for stars and bicliques, so the work of biclique is lighter.
+Two different motifs for stars and bicliques, so the search space for bicliques is smaller. Yields good performance improvements on big graphs.
 Default value:
 
     use_star_motif = True
 
 ### optimize for memory
-When a choice is given, prefer memory over CPU.
+When possible, prefer memory over CPU.
 Default value:
 
     optimize_for_memory = False
