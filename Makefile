@@ -104,3 +104,5 @@ unclique:
 	$(MAKE) compress INFILE=unclique.lp
 variable-name:
 	$(MAKE) compress INFILE=variable-name.gml
+wiki-tree-decomposition:
+	$(MAKE) compress INFILE=wiki-tree-decomposition.lp
