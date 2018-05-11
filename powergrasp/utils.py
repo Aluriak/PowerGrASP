@@ -4,7 +4,7 @@ import math
 import phasme
 
 
-def maximal_clique_size(nb_edge:int):
+def maximal_clique_size(nb_edge:int) -> int:
     """Maximal number of nodes implied in a clique when there is given
     number of edges between neighbors of a node.
 
