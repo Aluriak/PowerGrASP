@@ -4,8 +4,11 @@
 
 from .searchers import CliqueSearcher, BicliqueSearcher, StarSearcher, NonStarBicliqueSearcher
 from .graph import Graph
+from . import constants as const
 from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE, USE_STAR_MOTIF
 from .motif_batch import MotifBatch
+from multiprocessing.dummy import Pool as ThreadPool  # dummy here to use the threading backend, not process
+# from multiprocessing import Pool as ThreadPool  # use multiprocessing, not threading
 
 
 if TIMERS:
@@ -21,11 +24,13 @@ if TIMERS:
             with open(STATISTIC_FILE, 'a') as fd:
                 fd.write(','.join(map(str, args)) + '\n')
 
-def search_best_motifs(searchers, step) -> MotifBatch:
-    """Return (new step, best_motif(s))"""
+def search_best_motifs_sequentially(searchers, step) -> MotifBatch:
+    """Return a MotifBatch instance containing the best motifs
+    found by given searchers."""
     score_to_beat = 0
     best_motifs, best_motifs_score = None, 0
-    for searcher in sorted(searchers, key=lambda s: s.upperbound, reverse=True):
+    ordered_searchers = const.MOTIF_TYPE_ORDER(searchers)
+    for searcher in ordered_searchers:
         motifs = MotifBatch(searcher.search(step, score_to_beat))
         if motifs:
             searcher.on_new_found_motif(motifs)
@@ -33,6 +38,18 @@ def search_best_motifs(searchers, step) -> MotifBatch:
                 best_motifs, best_motifs_score = motifs, motifs.score
                 score_to_beat = best_motifs_score
     return best_motifs
+
+def search_best_motifs_in_parallel(searchers, step) -> MotifBatch:
+    """Return a MotifBatch instance containing the best motifs
+    found by given searchers."""
+    with ThreadPool(len(searchers)) as pool:
+        founds = pool.starmap(search_best_motifs_sequentially, (([s], step) for s in searchers))
+    return max(founds, key=lambda f: 0 if f is None else f.score)
+
+if const.PARALLEL_MOTIF_SEARCH:
+    search_best_motifs = search_best_motifs_in_parallel
+else:
+    search_best_motifs = search_best_motifs_sequentially
 
 
 def compress(graph:Graph, *, cc_idx=None) -> [str]:

@@ -80,6 +80,12 @@ constants = {
     # Ignore edges dynamically determined as impossible to compress.
     'GRAPH_FILTERING': True,
 
+    # Perform the search for motifs in different process instead of sequentially.
+    'PARALLEL_MOTIF_SEARCH': False,
+
+    # Define in which order the motifs are tested.
+    'MOTIF_TYPE_ORDER': 'star,clique,non-star-biclique,biclique',
+
     # TODO  Detect and postpone compression of terminal tree subgraphs
     # 'TERMINAL_TREES_POSTPONING': True,
     # TODO  Detect, delete and restore bridges
@@ -221,11 +227,54 @@ def _convert_clingo_options(value:dict or str) -> dict:
     return value
 
 
+def _convert_motif_type_order(value:str) -> callable:
+    """Return a function returning sorted searchers according to the given value.
+
+    For instance, if input is 'worst-upperbound-first', the function returned
+    will sort input searchers according to their upperbound, smallest first.
+
+    """
+    error = lambda m: ValueError("Invalid value for option MOTIF TYPE ORDER: {} ({})".format(value, m))
+    value = value.lower().replace(' ', '-').replace('_', '-')
+    if ',' in value:
+        order = {name: idx for idx, name in enumerate(map(str.strip, value.split(',')))}
+        def ordered(searchers, *, order=order) -> iter:
+            """Yield given searchers according to their priority"""
+            return sorted(searchers, key=lambda s: order[s.name])
+    elif '-' in value:
+        which, bound, where = value = value.split('-')
+        greatests = {'greatest', 'biggest'}
+        smallests = {'worst', 'smallest'}
+        if len(value) != 3:
+            raise error("{} groups instead of 3, like 'greatest-lowerbound-first'".format(len(value)))
+        if which not in greatests | smallests:
+            raise error("the which value must be something like worst or greatest".format(len(value)))
+        reverse = (where == 'first') != (which in smallests)
+        if bound == 'lowerbound':
+            key = lambda s: s.lowerbound
+        elif bound == 'upperbound':
+            key = lambda s: s.upperbound
+        else:
+            raise error("the bound value must be upperbound or lowerbound".format(len(value)))
+        def ordered(searchers, *, reverse=reverse, key=key) -> iter:
+            return sorted(searchers, reverse=reverse, key=key)
+    elif value == 'random':  # funny, but not really useful
+        def ordered(searchers) -> iter:
+            import random
+            searchers = list(searchers)
+            random.shuffle(searchers)
+            return searchers
+    else:
+        raise error("not a list of elements or groups, like 'star,clique,non-star-biclique,biclique' or 'greatest-lowerbound-first'")
+    return ordered
+
+
 # Apply the value convertion, if any.
 _CONVERTIONS = {
     'CLINGO_MULTITHREADING': _convert_parallel_mode_option,
     'BICLIQUE_LOWERBOUND_MAXNEI': int,
     'CLINGO_OPTIONS': _convert_clingo_options,
+    'MOTIF_TYPE_ORDER': _convert_motif_type_order,
 }
 constants = {f: _CONVERTIONS.get(f, lambda x:x)(v) for f, v in constants.items()}
 # add the derived ones
@@ -287,6 +336,9 @@ OPTIONS_CATEGORIES = utils.reverse_dict({
     'OPTIMIZE_FOR_MEMORY': 'optimization',
     'KEEP_SINGLE_NODES': 'output',
     'GRAPH_FILTERING': 'optimization',
+    'PARALLEL_MOTIF_SEARCH': 'optimization',
+    'MOTIF_TYPE_ORDER': 'optimization',
+
     # 'TERMINAL_TREES_POSTPONING': 'optimization',
     # 'BRIDGES_CUT': 'optimization',
     # 'SPECIAL_CASES_DETECTION': 'optimization',

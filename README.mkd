@@ -66,6 +66,8 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.10
+    - [motif type order](#motif-type-order) option, allowing user to tune the order in which motifs are searched.
+    - [parallel motif search](#parallel-motif-search) option, making motifs search in different threads, and the overhaul compression much slower.
     - CLI: --config flag to print the full configuration in stdout
     - handling spaces instead of _ in fields names for INI format
     - do not filter out nodes alone in their connected component (cf [keep-single-nodes option](#keep-single-nodes))
@@ -259,4 +261,21 @@ Default value:
 If a node is found to be alone in its connected component, it will be kept nonetheless.
 Default value:
 
-    KEEP_SINGLE_NODES = True
+    keep_single_nodes = True
+
+### parallel motif search
+Use multithreading to search for all motifs in the same time, instead of sequentially.
+Interestingly, this yields very poor results, and it's even worse with multiprocessing.
+
+    parallel_motif_search = False
+
+### motif type order
+Define in which order the motifs are searched, e.g. cliques, then bicliques then stars.
+
+    motif_type_order = star,clique,non-star-biclique,biclique
+
+Instead of expliciting the exact motif names and order, it is also possible to specify a bound-based order:
+
+    motif_type_order = greatest-upperbound-first
+
+Or any variation with `worst`, `lowerbound` and `last`.
