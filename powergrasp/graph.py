@@ -351,8 +351,6 @@ class Graph:
                 yield 'SET\t{}\t1.0'.format(embedding_pnode)
 
         for stepa, seta, stepb, setb in self.__hierarchy:
-            if stepa == 0 and seta == 0:  # base level
-                continue  # ignore it
             yield 'IN\t{}\t{}'.format(_format_name((stepb, setb)), _format_name((stepa, seta)))  # contained first
         if const.BUBBLE_EMBEDS_CC:  # add a powernode embedding all the graph
             for root in self._roots():
