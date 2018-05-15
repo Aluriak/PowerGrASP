@@ -66,6 +66,7 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.10
+    - option [bubble embeds cc](#bubble-embeds-cc), to put each cc in a dedicated powernode
     - option [bubble with simple edges](#bubble-with-simple-edges), to keep or discard the simple edges from output
     - statistics on time and compression metrics are computed by cc and for all graph. See new options.
     - option [cc statistic file](#cc-statistic-file), to retrieve stats and metrics for connected components.
@@ -224,6 +225,13 @@ Default value:
 
     bubble_poweredge_factor = '1.0'
     bubble_edge_factor = '1.0'
+
+### bubble embeds cc
+If enabled, put each connected component in a dedicated powernode.
+Default value:
+
+    bubble_embeds_cc = no
+
 
 ### bubble simplify quotes
 When possible, delete the quotes around identifiers in the bubble. May lead to node name collision.

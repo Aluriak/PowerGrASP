@@ -58,6 +58,9 @@ constants = {
     'BUBBLE_WITH_NODES': True,
     'BUBBLE_WITH_SETS': True,
 
+    # Put each connected component in a dedicated powernode.
+    'BUBBLE_EMBEDS_CC': False,
+
     # Edges in bubble are associated to a factor
     'BUBBLE_POWEREDGE_FACTOR': '1.0',
     'BUBBLE_EDGE_FACTOR': '1.0',
@@ -353,6 +356,7 @@ OPTIONS_CATEGORIES = utils.reverse_dict({
     'BUBBLE_WITH_SETS': 'output',
     'BUBBLE_POWEREDGE_FACTOR': 'output',
     'BUBBLE_EDGE_FACTOR': 'output',
+    'BUBBLE_EMBEDS_CC': 'output',
     'BUBBLE_SIMPLIFY_QUOTES': 'input',
     'CONFIG_FILE': 'input',
     'MULTISHOT_MOTIF_SEARCH': 'optimization',

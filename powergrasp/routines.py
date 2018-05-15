@@ -104,7 +104,7 @@ def compress(graph:Graph, *, cc_idx=None) -> [str]:
     head_comment = ''
     if not complete_compression:
         head_comment = 'Warning: incomplete compression (stopped at step {})'.format(step)
-    yield from graph.bubble_repr(head_comment=head_comment)
+    yield from graph.bubble_repr(head_comment=head_comment, given_uid=cc_idx)
 
     # timers
     if TIMERS:

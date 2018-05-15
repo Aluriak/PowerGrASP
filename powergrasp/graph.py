@@ -119,6 +119,19 @@ class Graph:
         )
 
 
+    def _roots(self, include_nodes:bool=True, include_pnodes:bool=True) -> iter:
+        """Yield all roots, i.e nodes and powernodes that are
+        not contained by a powernode.
+
+        """
+        if include_nodes:
+            contained_nodes = frozenset(itertools.chain.from_iterable(self.__powernodes.values()))
+            yield from (node for node in self.__nodes if node not in contained_nodes)
+        if include_pnodes:
+            contained_pnodes = frozenset(itertools.chain.from_iterable((s, n) for _, __, s, n in self.__hierarchy))
+            yield from (pnode for pnode in self.__powernodes if pnode not in contained_pnodes)
+
+
     def as_asp(self, step:int, powerobjects:bool=False,
                filter_for_bicliques:bool=False,
                filter_for_cliques:bool=False,
@@ -317,11 +330,14 @@ class Graph:
                 fd.write(line + '\n')
 
 
-    def bubble_repr(self, head_comment:str='') -> iter:
+    def bubble_repr(self, head_comment:str='', given_uid=None) -> iter:
         """Yield lines of bubble representation"""
         if head_comment:
             yield from ('# ' + line for line in head_comment.splitlines(False))
         _format_name = lambda x: format_name(format_name(None, self.uid), x)
+        if const.BUBBLE_EMBEDS_CC:  # add a powernode embedding all the graph
+            embedding_pnode = 'CC-{}'.format(self.uid)
+            if given_uid: embedding_pnode += ' ({})'.format(given_uid)
         if const.OUTPUT_NODE_PREFIX:
             __format_name = _format_name
             _format_name = lambda x: const.OUTPUT_NODE_PREFIX + '-' + __format_name(x)
@@ -331,17 +347,26 @@ class Graph:
         if constants.BUBBLE_WITH_SETS:
             for uid in self.__powernodes:
                 yield 'SET\t{}\t1.0'.format(_format_name(uid))
+            if const.BUBBLE_EMBEDS_CC:  # add a powernode embedding all the graph
+                yield 'SET\t{}\t1.0'.format(embedding_pnode)
+
         for stepa, seta, stepb, setb in self.__hierarchy:
             if stepa == 0 and seta == 0:  # base level
                 continue  # ignore it
             yield 'IN\t{}\t{}'.format(_format_name((stepb, setb)), _format_name((stepa, seta)))  # contained first
+        if const.BUBBLE_EMBEDS_CC:  # add a powernode embedding all the graph
+            for root in self._roots():
+                yield 'IN\t{}\t{}'.format(_format_name(root), embedding_pnode)  # contained first
+
         for (step, numset), nodes in self.__powernodes.items():
             for node in nodes:
                 yield 'IN\t{}\t{}'.format(_format_name(node), _format_name((step, numset)))
+
         for source, targets in self.__poweredges.items():
             for target in targets:
                 source, target = sorted(tuple(map(_format_name, (source, target))))
                 yield 'EDGE\t{}\t{}\t{}'.format(source, target, constants.BUBBLE_POWEREDGE_FACTOR)
+
         if not const.BUBBLE_WITH_SIMPLE_EDGES:
             return  # do not yield the simple edges
         for source, target in self.__edges:
