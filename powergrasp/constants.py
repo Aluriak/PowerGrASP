@@ -98,6 +98,9 @@ constants = {
     # Perform the search for motifs in different process instead of sequentially.
     'PARALLEL_MOTIF_SEARCH': False,
 
+    # Number of processes to work on connected components. Zero to get one per cc. One to deactivate.
+    'PARALLEL_CC_COMPRESSION': 1,
+
     # Define in which order the motifs are tested.
     'MOTIF_TYPE_ORDER': 'star,clique,non-star-biclique,biclique',
 
@@ -369,6 +372,7 @@ OPTIONS_CATEGORIES = utils.reverse_dict({
     'KEEP_NX_GRAPH': 'optimization',
     'GRAPH_FILTERING': 'optimization',
     'PARALLEL_MOTIF_SEARCH': 'optimization',
+    'PARALLEL_CC_COMPRESSION': 'optimization',
     'MOTIF_TYPE_ORDER': 'optimization',
     'CC_STATISTIC_FILE': 'statistics',
 

@@ -9,7 +9,7 @@ from . import constants as const
 from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE, USE_STAR_MOTIF
 from .motif_batch import MotifBatch
 from multiprocessing.dummy import Pool as ThreadPool  # dummy here to use the threading backend, not process
-# from multiprocessing import Pool as ThreadPool  # use multiprocessing, not threading
+from multiprocessing import Pool as ProcessPool
 
 
 if TIMERS:
@@ -132,15 +132,25 @@ def compress_by_cc(fname:str) -> [str]:
     """Yield bubble lines from compression of each cc found in given filename"""
     if TIMERS and const.BUBBLE_WITH_STATISTICS:
         timer = get_time()
-    graphs = Graph.ccs_from_file(fname)
+    graphs = enumerate(Graph.ccs_from_file(fname), start=1)
     stats = None
-    for idx, graph in enumerate(graphs, start=1):
-        if idx > 1:  yield ''
-        yield '# CONNECTED COMPONENT {}'.format(idx)
-        yield from compress(graph, cc_idx=idx)
-
-        if const.GLOBAL_STATISTICS:
-            stats = _build_global_stats(stats, graph.compression_metrics_data())
+    if const.PARALLEL_CC_COMPRESSION == 1:  # simple case, allowing for global stats
+        for idx, graph in graphs:
+            if idx > 1:  yield ''
+            yield '# CONNECTED COMPONENT {}'.format(idx)
+            yield from compress(graph, cc_idx=idx)
+            if const.GLOBAL_STATISTICS:
+                stats = _build_global_stats(stats, graph.compression_metrics_data())
+    else:  # many processes imply a more complex system
+        nb_process = const.PARALLEL_CC_COMPRESSION
+        if nb_process == 0:
+            graphs = tuple(graphs)  # RIP memory
+            nb_process = len(graphs) or 1
+        with ProcessPool(nb_process) as pool:
+            for lines, stats_data in pool.starmap(_func_on_graph, graphs):
+                yield from lines
+                if const.GLOBAL_STATISTICS:
+                    stats = _build_global_stats(stats, stats_data)
 
     # show global stats
     if stats is not None and const.BUBBLE_WITH_STATISTICS:
@@ -148,6 +158,16 @@ def compress_by_cc(fname:str) -> [str]:
         yield from _gen_metrics(Graph.compression_metrics_from_data(stats))
     if TIMERS and const.BUBBLE_WITH_STATISTICS:
         yield '# total compression time: {}'.format(round(get_time() - timer, 2))
+
+
+def _func_on_graph(idx, graph):
+    """Function used by multiprocessing compression of cc. Needs to be global
+    to be pickled."""
+    lines = (
+        '# CONNECTED COMPONENT {}'.format(idx),
+        *compress(graph, cc_idx=idx)
+    )
+    return lines, graph.compression_metrics_data()
 
 
 def _build_global_stats(prev:tuple, current:tuple):

@@ -66,6 +66,7 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.10
+    - option [parallel cc compression](#parallel-cc-compression) to enable parallel compression of connected components
     - option [bubble embeds cc](#bubble-embeds-cc), to put each cc in a dedicated powernode
     - option [bubble with simple edges](#bubble-with-simple-edges), to keep or discard the simple edges from output
     - statistics on time and compression metrics are computed by cc and for all graph. See new options.
@@ -287,6 +288,19 @@ Specify a competing search between 4 threads:
 
     clingo_multithreading = '4,compete'
 
+### parallel cc compression
+To use to compress connected components in different processes.
+Default value (optimized in memory):
+
+    parallel_cc_compression = 1
+
+Compress with 4 processes :
+
+    parallel_cc_compression = 4
+
+Compress with one process for each connected component :
+
+    parallel_cc_compression = 0
 
 ### use star motif
 Two different motifs for stars and bicliques, so the search space for bicliques is smaller. Yields good performance improvements on big graphs.
