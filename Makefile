@@ -92,8 +92,12 @@ single-node:
 	$(MAKE) compress INFILE=single-node.lp
 star:
 	$(MAKE) compress INFILE=star.lp
+structural-binding:
+	$(MAKE) compress INFILE=structural-binding.lp
 structural-binding-maincc:
-	$(MAKE) compress INFILE=structural_binding_maincc.lp
+	$(MAKE) compress INFILE=structural-binding-maincc.lp
+structural-binding-nobridge:
+	$(MAKE) compress INFILE=structural-binding-nobridge.lp
 testblocks:
 	$(MAKE) compress INFILE=testblocks.lp
 test-gml:
