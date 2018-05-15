@@ -66,6 +66,7 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.10
+    - option [bubble with simple edges](#bubble-with-simple-edges), to keep or discard the simple edges from output
     - statistics on time and compression metrics are computed by cc and for all graph. See new options.
     - option [cc statistic file](#cc-statistic-file), to retrieve stats and metrics for connected components.
     - option [global statistics](#global-statistics), to compute statistics/metrics over all connected components.
@@ -229,6 +230,11 @@ When possible, delete the quotes around identifiers in the bubble. May lead to n
 Default value:
 
     bubble_simplify_quotes = True
+
+### bubble with simple edges
+If disabled, will discard simple (i.e. non-power) edges of output.
+Default value:
+    bubble_with_simple_edges = True
 
 ### config file
 Load options found in given config file, if it exists.

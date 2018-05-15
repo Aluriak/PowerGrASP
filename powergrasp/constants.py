@@ -42,6 +42,9 @@ constants = {
     # Generate and save a bubble representation of the graph at each step.
     'BUBBLE_FOR_EACH_STEP': False,
 
+    # Keep simple edges in output.
+    'BUBBLE_WITH_SIMPLE_EDGES': True,
+
     # Prefix to add to all (power)nodes names in output.
     'OUTPUT_NODE_PREFIX': '',
 
@@ -342,6 +345,7 @@ OPTIONS_CATEGORIES = utils.reverse_dict({
     'GLOBAL_STATISTICS': 'statistics',
     'BUBBLE_WITH_STATISTICS': 'statistics',
     'BUBBLE_FOR_EACH_STEP': 'debug',
+    'BUBBLE_WITH_SIMPLE_EDGES': 'output',
     'OUTPUT_NODE_PREFIX': 'output',
     'SHOW_DEBUG': 'debug',
     'COVERED_EDGES_FROM_ASP': 'optimization',

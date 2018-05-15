@@ -7,9 +7,7 @@ from powergrasp import utils
 from powergrasp import constants
 from powergrasp import edge_filtering
 from powergrasp.motif import Motif
-from powergrasp.constants import (TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG,
-                                  SHOW_MOTIF_HANDLING, COVERED_EDGES_FROM_ASP,
-                                  OUTPUT_NODE_PREFIX, KEEP_SINGLE_NODES)
+from powergrasp import constants as const
 
 
 def proper_nx_graph(graph:networkx.Graph) -> networkx.Graph:
@@ -27,7 +25,7 @@ def proper_nx_graph(graph:networkx.Graph) -> networkx.Graph:
         return utils.normalized_name(node)  # needed to avoid collisions with constants, variable,…
     proper = type(graph)()
     repr_edges = (frozenset(map(node_repr, edge)) for edge in graph.edges)  # apply node representation
-    if KEEP_SINGLE_NODES:
+    if const.KEEP_SINGLE_NODES:
         # replace self loops by node existence notification
         for edge in repr_edges:
             if len(edge) == 1:
@@ -58,7 +56,7 @@ class Graph:
             raise ValueError("Unexpected {}".format(graph))
         # internal graph representation
         self.__edges = map(frozenset, nxgraph.edges)
-        if TEST_INTEGRITY:
+        if const.TEST_INTEGRITY:
             self.__edges = tuple(self.__edges)
             for args in self.__edges:
                 if len(args) > 2:
@@ -161,36 +159,36 @@ class Graph:
 
 
     def compress(self, motif:Motif):
-        if SHOW_DEBUG:
+        if const.SHOW_DEBUG:
             pprint(dict(self.__powernodes))
         # Add the poweredges
         for source, target in motif.new_poweredge:
-            if SHOW_MOTIF_HANDLING: print('\tP-EDGE', source, target)
+            if const.SHOW_MOTIF_HANDLING: print('\tP-EDGE', source, target)
             self.__poweredges[source].add(target)
         # Get the powernodes as set of nodes, and build the new ones.
-        if not COVERED_EDGES_FROM_ASP:
+        if not const.COVERED_EDGES_FROM_ASP:
             powernodes = set(motif.powernodes) | set(motif.stars)  # set of nodes
         for numset, node in motif.new_powernodes:
             uid = motif.uid, numset
-            if SHOW_MOTIF_HANDLING: print('\tP-NODE', *uid, node)
+            if const.SHOW_MOTIF_HANDLING: print('\tP-NODE', *uid, node)
             self.__powernodes[uid].add(node)
-            if not COVERED_EDGES_FROM_ASP: powernodes.add(uid)
+            if not const.COVERED_EDGES_FROM_ASP: powernodes.add(uid)
 
         # graph edges reduction and monitoring
-        if COVERED_EDGES_FROM_ASP:
+        if const.COVERED_EDGES_FROM_ASP:
             covered = frozenset(motif.edges_covered())
         else:
             covered = frozenset(motif.edges_covered(self.__powernodes.get(uid, {uid}) for uid in powernodes))
         nb_edges_before_compress = len(self.__edges)
-        if TEST_INTEGRITY:
+        if const.TEST_INTEGRITY:
             edges = frozenset(self.__edges)
-            if SHOW_DEBUG: print('IFBTVC GRAPH:', self.__edges)
-            if SHOW_DEBUG: print('ZEDRBM COVER:', covered)
+            if const.SHOW_DEBUG: print('IFBTVC GRAPH:', self.__edges)
+            if const.SHOW_DEBUG: print('ZEDRBM COVER:', covered)
         self.__edges -= covered
         if constants.KEEP_NX_GRAPH:
             self._nxgraph.remove_edges_from(map(tuple, covered))
         diff = nb_edges_before_compress - len(covered) != len(self.__edges)
-        if TEST_INTEGRITY and diff:
+        if const.TEST_INTEGRITY and diff:
             diff_cov = covered - edges
             diff_edg = edges - covered
             raise ValueError("{} edges yielded by {} searcher were not in the graph: {}.\n\n"
@@ -201,12 +199,12 @@ class Graph:
             raise ValueError("Edges yielded by {} searcher were not in the graph."
                              " Rerun with TEST_INTEGRITY to get insights."
                              "".format(motif.name))
-        if SHOW_MOTIF_HANDLING:
+        if const.SHOW_MOTIF_HANDLING:
             print('\tCOVER', len(covered))
 
         # Now the big part: hierarchy. ASP send patch to apply on it.
         for args in motif.hierachy_added:
-            if SHOW_MOTIF_HANDLING:
+            if const.SHOW_MOTIF_HANDLING:
                 print('\tADD HIERARCHY', args)
             self.__hierarchy.add(args)
             step_parent, num_parent, step_son, num_son = args
@@ -216,11 +214,11 @@ class Graph:
             if nodes:
                 self.__powernodes[step_parent, num_parent] -= nodes
                 self.__powernodes[step_son, num_son] |= nodes
-                if SHOW_MOTIF_HANDLING:
+                if const.SHOW_MOTIF_HANDLING:
                     print('\tMOVE NODES: {} FROM {} TO {}'.format(nodes, (step_parent, num_parent), (step_son, num_son)))
 
         for args in motif.hierachy_removed:
-            if SHOW_MOTIF_HANDLING:
+            if const.SHOW_MOTIF_HANDLING:
                 print('\tDEL HIERARCHY', args)
             self.__hierarchy.remove(args)
 
@@ -233,11 +231,11 @@ class Graph:
         # nb_nodes_in_pnodes = sum(1 for _ in itertools.chain.from_iterable(self.__powernodes.values()))
         # nb_nodes_in_ground = ...
         # assert nb_nodes_in_pnodes == self.nb_node, (nb_nodes_in_pnodes, self.nb_node)
-        if SHOW_DEBUG:
+        if const.SHOW_DEBUG:
             print('PNODES:')
             pprint(dict(self.__powernodes))
 
-        if TEST_INTEGRITY:
+        if const.TEST_INTEGRITY:
             inclusions = defaultdict(set)
             for stp, nsp, sts, nss in self.__hierarchy:
                 inclusions[stp, nsp].add((sts, nss))
@@ -256,7 +254,7 @@ class Graph:
 
     def compress_all(self, motifs:iter) -> int:
         """Compress all given motifs."""
-        if SHOW_STORY or SHOW_DEBUG:
+        if const.SHOW_STORY or const.SHOW_DEBUG:
             print('COMPRESS…')
         for step_diff, motif in enumerate(motifs, start=0):
             motif.increase_step(step_diff)
@@ -302,7 +300,7 @@ class Graph:
 
     def output(self, filename:str):
         """Write in given filename the bubble representation of the graph"""
-        if SHOW_DEBUG:
+        if const.SHOW_DEBUG:
             print('\n\n###########################\n')
             print('PNODES:')
             pprint(dict(self.__powernodes))
@@ -324,9 +322,9 @@ class Graph:
         if head_comment:
             yield from ('# ' + line for line in head_comment.splitlines(False))
         _format_name = lambda x: format_name(format_name(None, self.uid), x)
-        if OUTPUT_NODE_PREFIX:
+        if const.OUTPUT_NODE_PREFIX:
             __format_name = _format_name
-            _format_name = lambda x: OUTPUT_NODE_PREFIX + '-' + __format_name(x)
+            _format_name = lambda x: const.OUTPUT_NODE_PREFIX + '-' + __format_name(x)
         if constants.BUBBLE_WITH_NODES:
             for node in self.__nodes:
                 yield 'NODE\t{}'.format(_format_name(node))
@@ -344,6 +342,8 @@ class Graph:
             for target in targets:
                 source, target = sorted(tuple(map(_format_name, (source, target))))
                 yield 'EDGE\t{}\t{}\t{}'.format(source, target, constants.BUBBLE_POWEREDGE_FACTOR)
+        if not const.BUBBLE_WITH_SIMPLE_EDGES:
+            return  # do not yield the simple edges
         for source, target in self.__edges:
             source, target = sorted(tuple(map(_format_name, (source, target))))
             yield 'EDGE\t{}\t{}\t{}'.format(source, target, constants.BUBBLE_EDGE_FACTOR)
