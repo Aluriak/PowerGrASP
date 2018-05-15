@@ -50,19 +50,6 @@ See complete list in the [options section](#Options).
 On random error, try adding `--no-cache-dir` at the end of the command.
 
 
-## TODO
-- [x] unit tests
-- [x] CLI
-- [x] run on big graph
-- [x] search multiple motif in the same run (speed up observed on bio graph)
-- [x] timers for solving, full run, output writing
-- [ ] timers for extraction
-- [ ] technical documentation
-- [ ] search and specific compression of trees
-- [ ] search and specific compression of triangle-free graphs
-- [x] search multiple motif in the same run (speed up observed on bio graph)
-
-
 ## Changelog
 
 - 8.10
