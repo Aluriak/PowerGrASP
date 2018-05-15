@@ -243,6 +243,7 @@ Default value:
 ### bubble with simple edges
 If disabled, will discard simple (i.e. non-power) edges of output.
 Default value:
+
     bubble_with_simple_edges = True
 
 ### config file
