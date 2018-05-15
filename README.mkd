@@ -47,7 +47,8 @@ See complete list in the [options section](#Options).
 
     pip install powergrasp
 
-On random error, try adding `--no-cache-dir` at the end of the command.
+On random error, try adding `--no-cache-dir` at the end of the command,
+and check that you are using python 3.
 
 
 ## Changelog
