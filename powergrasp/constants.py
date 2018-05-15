@@ -30,6 +30,15 @@ constants = {
     # Statistics file to write during compression.
     'STATISTIC_FILE': None,
 
+    # Connected components statistics file to write at the end of each cc.
+    'CC_STATISTIC_FILE': None,
+
+    # Compute statistics/metrics over all connected components.
+    'GLOBAL_STATISTICS': True,
+
+    # Include some statistics in output bubble.
+    'BUBBLE_WITH_STATISTICS': True,
+
     # Generate and save a bubble representation of the graph at each step.
     'BUBBLE_FOR_EACH_STEP': False,
 
@@ -268,6 +277,13 @@ def _convert_motif_type_order(value:str) -> callable:
         raise error("not a list of elements or groups, like 'star,clique,non-star-biclique,biclique' or 'greatest-lowerbound-first'")
     return ordered
 
+def _convert_erased_file(fname:str) -> str:
+    """A type to give to convertion, where value is a file to erase."""
+    if fname is not None:
+        with open(fname, 'w') as fd:
+            pass  # just erase it
+    return fname  # conserve it untouched
+
 
 # Apply the value convertion, if any.
 _CONVERTIONS = {
@@ -275,6 +291,10 @@ _CONVERTIONS = {
     'BICLIQUE_LOWERBOUND_MAXNEI': int,
     'CLINGO_OPTIONS': _convert_clingo_options,
     'MOTIF_TYPE_ORDER': _convert_motif_type_order,
+    'CC_STATISTIC_FILE': _convert_erased_file,
+    'COMPRESSION_STATISTIC_FILE': _convert_erased_file,
+    'STATISTIC_FILE': _convert_erased_file,
+
 }
 constants = {f: _CONVERTIONS.get(f, lambda x:x)(v) for f, v in constants.items()}
 # add the derived ones
@@ -318,6 +338,9 @@ OPTIONS_CATEGORIES = utils.reverse_dict({
     'SHOW_MOTIF_HANDLING': 'debug',
     'TIMERS': 'statistics',
     'STATISTIC_FILE': 'statistics',
+    'CC_STATISTIC_FILE': 'statistics',
+    'GLOBAL_STATISTICS': 'statistics',
+    'BUBBLE_WITH_STATISTICS': 'statistics',
     'BUBBLE_FOR_EACH_STEP': 'debug',
     'OUTPUT_NODE_PREFIX': 'output',
     'SHOW_DEBUG': 'debug',
@@ -335,13 +358,18 @@ OPTIONS_CATEGORIES = utils.reverse_dict({
     'USE_STAR_MOTIF': 'optimization',
     'OPTIMIZE_FOR_MEMORY': 'optimization',
     'KEEP_SINGLE_NODES': 'output',
+    'KEEP_NX_GRAPH': 'optimization',
     'GRAPH_FILTERING': 'optimization',
     'PARALLEL_MOTIF_SEARCH': 'optimization',
     'MOTIF_TYPE_ORDER': 'optimization',
+    'CC_STATISTIC_FILE': 'statistics',
 
     # 'TERMINAL_TREES_POSTPONING': 'optimization',
     # 'BRIDGES_CUT': 'optimization',
     # 'SPECIAL_CASES_DETECTION': 'optimization',
 })
-categorized_options = itertools.chain.from_iterable(OPTIONS_CATEGORIES.values())
+categorized_options = frozenset(itertools.chain.from_iterable(OPTIONS_CATEGORIES.values()))
 assert all(option in constants for option in categorized_options)
+for constant in constants:
+    if constant not in categorized_options:
+        raise ValueError("Option {} has no category".format(constant))

@@ -66,6 +66,10 @@ On random error, try adding `--no-cache-dir` at the end of the command.
 ## Changelog
 
 - 8.10
+    - statistics on time and compression metrics are computed by cc and for all graph. See new options.
+    - option [cc statistic file](#cc-statistic-file), to retrieve stats and metrics for connected components.
+    - option [global statistics](#global-statistics), to compute statistics/metrics over all connected components.
+    - option [bubble with statistics](#bubble-with-statistics), to include stats and metrics in output bubble file
     - [motif type order](#motif-type-order) option, allowing user to tune the order in which motifs are searched.
     - [parallel motif search](#parallel-motif-search) option, making motifs search in different threads, and the overhaul compression much slower.
     - CLI: --config flag to print the full configuration in stdout
@@ -148,7 +152,38 @@ Default value:
 
 Example value:
 
-    statistics_file = 'statistics.csv'
+    statistics_file = statistics.csv
+
+### cc statistic file
+Filename in which the statistics about each connected component will be written.
+Data will contain one row for each connected component, with the following data:
+
+- connected component index
+- the convertion rate
+- the edge reduction
+- the compression rate
+- time needed to compress the connected component (if TIMERS is enabled)
+
+Default value stands for *no file*:
+
+    cc_statistic_file = None
+
+Example value:
+
+    cc_statistic_file = statistics-cc.csv
+
+### global statistics
+When enabled, statistics and metrics computation on the overall graph will be performed at the end of compression.
+Default value:
+
+    global_statistics = True
+
+### bubble with statistics
+When enabled, output bubble will contain statistics about each connected component
+and the overall graph (if global_statistics is enabled).
+Default value:
+
+    bubble_with_statistics = True
 
 ### bubble for each step
 Generate and save a bubble representation of the graph at each step.

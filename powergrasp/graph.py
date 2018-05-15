@@ -1,5 +1,6 @@
 import phasme
 import networkx
+import itertools
 from collections import defaultdict
 from pprint import pprint
 from powergrasp import utils
@@ -72,6 +73,7 @@ class Graph:
         self.__nb_node = len(self.__nodes)
         self.__nb_cc = networkx.number_connected_components(nxgraph)
         self._nxgraph = nxgraph if constants.KEEP_NX_GRAPH else networkx.freeze(nxgraph)
+        self.__initial_number_of_edge = len(self.__edges)
 
         self.__hierarchy = set()  # inclusions between powernodes
         self.__powernodes = defaultdict(set)  # (step, set) -> {node in powernode}
@@ -83,6 +85,41 @@ class Graph:
         nxgraph = proper_nx_graph(phasme.build_graph.graph_from_file(filename))
         yield from (Graph(nxgraph.subgraph(cc))
                     for cc in networkx.connected_components(nxgraph))
+
+
+    # metrics related access
+    @property
+    def number_of_poweredge(self) -> int:
+        return sum(1 for _ in itertools.chain.from_iterable(self.__poweredges.values()))
+    @property
+    def number_of_simple_edge(self) -> int:
+        return len(self.__edges)
+    @property
+    def number_of_powernode(self) -> int:
+        return len(self.__powernodes)
+    @property
+    def initial_number_of_edge(self) -> int:
+        return self.__initial_number_of_edge
+
+    def compression_metrics(self) -> [(str, float)]:
+        """Yield the metrics of compression from self data"""
+        yield from Graph.compression_metrics_from_data(self.compression_metrics_data())
+
+    @staticmethod
+    def compression_metrics_from_data(data:(int, int, int, int)) -> [(str, float)]:
+        """Yield the metrics of compression from the input data"""
+        from .metrics import compression_metrics
+        yield from compression_metrics(*data)
+
+    def compression_metrics_data(self) -> (int, int, int, int):
+        """Return the 4 values used to compute the metrics"""
+        return (
+            self.initial_number_of_edge,
+            self.number_of_simple_edge,
+            self.number_of_poweredge,
+            self.number_of_powernode,
+        )
+
 
     def as_asp(self, step:int, powerobjects:bool=False,
                filter_for_bicliques:bool=False,

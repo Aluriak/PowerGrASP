@@ -1,4 +1,5 @@
 *.bbl
+*.csv
 .cache/
 .pytest_cache/
 Session.vim
