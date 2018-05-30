@@ -1,4 +1,5 @@
 
+import math
 import itertools
 from collections import defaultdict
 
@@ -131,27 +132,31 @@ class BicliqueSearcher(MotifSearcher):
         Maximal lowerbound is the score of biggest star, or the score of the biggest intersection.
         Minimal upperbound is the maximal possible association of the most connected nodes
         """
-        n = {node: frozenset(neighbors) for node, neighbors in graph.neighbors()}
-        sorted_degrees = sorted(tuple(map(len, n.values())), reverse=True)
-        upperbound = max(idx * deg for idx, deg in enumerate(sorted_degrees, start=1))
-        biggest_star = max(len(neighbors) for _, neighbors in graph.neighbors())
+        neis = {node: frozenset(neighbors) for node, neighbors in graph.neighbors()}
+        sorted_degrees = sorted(tuple(map(len, neis.values())), reverse=True)
+        try:
+            upperbound = max(idx * deg for idx, deg in enumerate(sorted_degrees, start=1) if deg > 1)
+        except ValueError:
+            upperbound = math.inf
+        upperbound = min(upperbound, graph.nb_edge)
+        biggest_star = max(len(neighbors) for neighbors in neis.values())
         if BICLIQUE_LOWERBOUND_MAXNEI <= 1:
             lowerbound = biggest_star
         elif BICLIQUE_LOWERBOUND_MAXNEI == 2:
-            maxnei2 = max(len(n[a] & n[b]) * 2 for a, b in itertools.combinations(n.keys(), r=2))
+            maxnei2 = max(len(neis[a] & neis[b]) * 2 for a, b in itertools.combinations(neis.keys(), r=2))
             lowerbound = max(maxnei2, biggest_star)
         elif BICLIQUE_LOWERBOUND_MAXNEI >= 3:
             lowerbound = 0
             for level in range(2, BICLIQUE_LOWERBOUND_MAXNEI + 1):
                 try:
-                    max_for_level = max(len(frozenset.intersection(*(n[s] for s in sets))) * level for sets in itertools.combinations(n.keys(), r=level))
+                    max_for_level = max(len(frozenset.intersection(*(neis[s] for s in sets))) * level for sets in itertools.combinations(neis.keys(), r=level))
                 except ValueError:
                     max_for_level = 0
                 if max_for_level < lowerbound: break
                 if lowerbound < biggest_star: break
                 lowerbound = max(lowerbound, max_for_level)
         else:
-            maxnei2 = max(len(n[a] & n[b]) * 2 for a, b in itertools.combinations(n.keys(), r=2))
+            maxnei2 = max(len(neis[a] & neis[b]) * 2 for a, b in itertools.combinations(neis.keys(), r=2))
             lowerbound = max(maxnei2, biggest_star)
         return lowerbound, upperbound
 
@@ -185,24 +190,31 @@ class NonStarBicliqueSearcher(MotifSearcher):
         Maximal lowerbound is the score of the biggest intersection.
         Minimal upperbound is the maximal possible association of the most connected nodes
         """
-        n = {node: frozenset(neighbors) for node, neighbors in graph.neighbors()}
-        sorted_degrees = sorted(tuple(map(len, n.values())), reverse=True)
-        upperbound = max(idx * deg for idx, deg in enumerate(sorted_degrees, start=1))
+        neis = {node: frozenset(neighbors) for node, neighbors in graph.neighbors()}
+        sorted_degrees = sorted(tuple(map(len, neis.values())), reverse=True)
+        try:
+            upperbound = max(idx * deg for idx, deg in enumerate(sorted_degrees, start=1) if deg > 1)
+        except ValueError:
+            upperbound = math.inf
+        upperbound = min(upperbound, graph.nb_edge)
         if BICLIQUE_LOWERBOUND_MAXNEI >= 3:
             maxnei = 0
             for level in range(2, BICLIQUE_LOWERBOUND_MAXNEI + 1):
                 try:
-                    max_for_level = max(len(frozenset.intersection(*(n[s] for s in sets))) * level for sets in itertools.combinations(n.keys(), r=level))
+                    max_for_level = max(len(frozenset.intersection(*(neis[s] for s in sets))) * level for sets in itertools.combinations(neis.keys(), r=level))
                 except ValueError:
                     max_for_level = 0
                 if max_for_level < maxnei: break
                 maxnei = max_for_level
         else:
             try:
-                maxnei = max(len(n[a] & n[b]) * 2 for a, b in itertools.combinations(n.keys(), r=2))
+                maxnei = max(len(neis[a] & neis[b]) * 2 for a, b in itertools.combinations(neis.keys(), r=2))
             except ValueError:
                 maxnei = 0
         return maxnei, upperbound
+
+    def compute_new_lowerbound(self, graph:Graph, motif:Motif) -> int:
+        return 4  # At least 2 elements in each set
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
         graph = ''.join(graph.as_asp(step, filter_for_bicliques=True, lowerbound=lowerbound, upperbound=upperbound))
