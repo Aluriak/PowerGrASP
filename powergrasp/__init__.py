@@ -6,4 +6,4 @@ ASP_FILES = {
 
 from .routines import compress_by_cc
 
-__version__ = '0.8.10'
+__version__ = '0.8.11'
