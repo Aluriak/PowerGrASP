@@ -53,6 +53,8 @@ and check that you are using python 3.
 
 ## Changelog
 
+- 8.11
+    - statistics/timers now provides time needed to search for each motif
 - 8.10
     - option [parallel cc compression](#parallel-cc-compression) to enable parallel compression of connected components
     - option [bubble embeds cc](#bubble-embeds-cc), to put each cc in a dedicated powernode

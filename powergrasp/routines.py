@@ -4,6 +4,7 @@
 
 import csv
 from .searchers import CliqueSearcher, BicliqueSearcher, StarSearcher, NonStarBicliqueSearcher
+from .utils import get_time
 from .graph import Graph
 from . import constants as const
 from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE, USE_STAR_MOTIF
@@ -12,15 +13,12 @@ from multiprocessing.dummy import Pool as ThreadPool  # dummy here to use the th
 from multiprocessing import Pool as ProcessPool
 
 
-if TIMERS:
-    import time
-    def get_time() -> float: return round(time.time(), 2)
-    if STATISTIC_FILE:
-        # function to fill the file during compression
-        def save_stats(*args):
-            """Fill statistic file with given data"""
-            with open(STATISTIC_FILE, 'a') as fd:
-                fd.write(','.join(map(str, args)) + '\n')
+if TIMERS and STATISTIC_FILE:
+    # function to fill the file during compression
+    def save_stats(*args):
+        """Fill statistic file with given data"""
+        with open(STATISTIC_FILE, 'a') as fd:
+            fd.write(','.join(map(str, args)) + '\n')
 
 
 def search_best_motifs_sequentially(searchers, step) -> MotifBatch:
@@ -87,6 +85,8 @@ def compress(graph:Graph, *, cc_idx=None) -> [str]:
                     print("TIMER since start: {}s\t\tsince last motif: {}s"
                           "".format(*timers))
                 timer_last = now
+                for searcher in searchers:  # timer per motif search
+                    timers = timers + ('{}:{}'.format(searcher.name, round(searcher.last_search_time, 2)),)
             if STATISTIC_FILE:
                 bounds = [
                     '{}:[{};{}]'.format(searcher.name, searcher.lowerbound, searcher.upperbound)

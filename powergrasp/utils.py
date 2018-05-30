@@ -1,7 +1,11 @@
 
 import re
 import math
+import time
 import phasme
+
+
+def get_time() -> float: return time.time()
 
 
 def maximal_clique_size(nb_edge:int) -> int:

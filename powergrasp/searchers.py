@@ -4,13 +4,13 @@ from collections import defaultdict
 
 from . import asp
 from . import utils
+from .utils import get_time
 from .motif import Motif
 from .graph import Graph
 from .constants import (TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, KEEP_SINGLE_NODES,
                         MULTISHOT_MOTIF_SEARCH, BICLIQUE_LOWERBOUND_MAXNEI,
                         OPTIMIZE_FOR_MEMORY, CLINGO_OPTIONS)
 from . import ASP_FILES
-
 
 MOTIF_ASP_FILES = ASP_FILES['process-motif'], ASP_FILES['scoring_powergraph'], (ASP_FILES['block-constraint-memory'] if OPTIMIZE_FOR_MEMORY else ASP_FILES['block-constraint-cpu'])
 CLIQUE_ASP_FILES = (ASP_FILES['search-clique'], *MOTIF_ASP_FILES)
@@ -49,6 +49,7 @@ class MotifSearcher:
     def __init__(self, graph:Graph):
         self.graph = graph
         self.init_for_graph(graph)
+        self.__timer = None
 
     def init_for_graph(self, graph:Graph):
         if hasattr(self, 'compute_initial_bounds'):  # all-in-one method
@@ -90,6 +91,7 @@ class MotifSearcher:
 
     def search(self, step:int, score_to_beat:int=0) -> [Motif]:
         """Search for motifs, better than the one to beat."""
+        self.__timer = get_time()
         lowerbound = max(self.lowerbound, score_to_beat+1)
         if lowerbound > self.upperbound:
             if SHOW_STORY:
@@ -101,6 +103,11 @@ class MotifSearcher:
             Motif(self.name, model, maximal=True, step=step, searcher=self)
             for model in models
         )
+        self.__timer = get_time() - self.__timer
+
+    @property
+    def last_search_time(self) -> float:
+        return self.__timer
 
     def _search(self, graph:Graph, lowerbound:int, upperbound:int) -> Motif:
         raise NotImplementedError()
