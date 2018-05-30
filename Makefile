@@ -58,6 +58,8 @@ disjoint-subpnodes:
 	$(MAKE) compress INFILE=disjoint-subpnodes.lp
 double_biclique_unambiguous:
 	$(MAKE) compress INFILE=double_biclique_unambiguous.lp
+double-p-groups:
+	$(MAKE) compress INFILE=double-p-groups.lp
 hanging-bio-notree-cc0:
 	$(MAKE) compress INFILE=hanging-bio-notree-cc0.lp
 horrible_data:
