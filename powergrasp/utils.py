@@ -24,7 +24,7 @@ def maximal_clique_size(nb_edge:int) -> int:
     Proof: function k may be expressed as:
     n^2 - n - 2k(n) = 0
     The discriminant Δ = (-1)^2 - 4 * 1 * (-2k(n)) = 1 + 8k(n)
-    Roots are (1±√Δ)/2, only the positive one is relevant (unless dark matter is involved),
+    Roots are (1±√Δ)/2, only the positive one is relevant (unless antimatter is involved),
     therefore root of k is (1 + √(1+8*k(n))) / 2               □
 
     For any node n of a graph with v edges between the neighbors of n,
