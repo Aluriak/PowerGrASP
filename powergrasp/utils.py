@@ -27,15 +27,16 @@ def maximal_clique_size(nb_edge:int) -> int:
     Roots are (1±√Δ)/2, only the positive one is relevant (unless antimatter is involved),
     therefore root of k is (1 + √(1+8*k(n))) / 2               □
 
-    For any node n of a graph with v edges between the neighbors of n,
-    the maximal clique MC implying node n is constitued of n
+    For any node n, the maximal clique MC implying node n is constitued of n
     and its neighbors having a link between them.
     An upperbound of that number of node is given by
     considering that neighbors link are optimally placed to create a clique.
 
     There is therefore, in the best case, NMC(n) nodes in the maximal
     clique implying n:
-    NMC(n) = 1 + ⌊ (1 + √(1+8*k(n))) / 2 ⌋
+    NMC(n) = 1 + ⌊ (1 + √(1+8*v(n))) / 2 ⌋
+
+    With v(n) the number of edges between the neighbors of n.
 
     NMC(n) may then be used to compute the upperbound of clique search,
     by taking the maximal NMC(n) for all n of the graph in which a clique
@@ -43,6 +44,8 @@ def maximal_clique_size(nb_edge:int) -> int:
 
     >>> maximal_clique_size(0)  # when no edge between neighbors: the node and one neighbor make the clique
     2
+    >>> maximal_clique_size(1)  # when 1 edge between neighbors of n, the maximal clique imply two neighbors and n
+    3
     >>> maximal_clique_size(2)  # when 2 edges between neighbors of n, the maximal clique imply two neighbors and n
     3
     >>> maximal_clique_size(3)
