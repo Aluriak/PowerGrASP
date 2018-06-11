@@ -50,6 +50,9 @@ See complete list in the [options section](#Options).
 On random error, try adding `--no-cache-dir` at the end of the command,
 and check that you are using python 3.
 
+You must have [`clingo`](https://potassco.org/doc/start/) in your path. Depending on your OS, it might be done with a system installation,
+or through [downloading](https://github.com/potassco/clingo/releases) and (compilation and) manual installation.
+
 
 ## Changelog
 
