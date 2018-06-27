@@ -27,6 +27,16 @@ with open('compressed.bbl', 'w') as fd:
 Sorry, no technical doc for the moment.
 
 
+## Bubble files usage
+The bubble file is the main output of PowerGrASP, and describes a power graph.
+The bubble is a format handled by the [CyOog plugin](http://www.biotec.tu-dresden.de/research/schroeder/powergraphs/download-cytoscape-plugin.html) for [Cytoscape 2](http://cytoscape.org/), allowing one to load a bubble formatted file and to visualize the corresponding graph.
+As a consequence, you have to [install Cytoscape 2](http://chianti.ucsd.edu/Cyto-2%5F8%5F3/), and put the `CyOog.jar` file into `path/to/cytoscape/install/dir/plugins/`.
+
+Another way to go is to convert the bubble to other formats handling hierarchical graphs, like [gexf](https://gephi.org/gexf/format/),
+[dot](https://www.graphviz.org/doc/info/lang.html) or the API of [cytoscape.js](http://js.cytoscape.org/).
+This is a task implemented by [bubbletools](https://github.com/Aluriak/bubble-tools/).
+
+
 ## Configuration
 PowerGrASP has some [configuration values](powergrasp/constants.py),
 that can be overwritten by a `powergrasp.cfg` file placed in the working directory.
