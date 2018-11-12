@@ -32,6 +32,9 @@ _test_cfg_file:
 ## Packaging
 upload:
 	python setup.py sdist upload
+release: fullrelease
+fullrelease:
+	fullrelease
 
 
 .PHONY: test t compress upload
