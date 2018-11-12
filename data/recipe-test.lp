@@ -4,4 +4,4 @@
 
 % One biclique
 edge((a;b;c),(d;e;f)).
-edge(c,(h;i;j)).
+edge(c,(g;h;i;j)).

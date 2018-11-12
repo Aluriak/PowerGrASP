@@ -1,2 +1,4 @@
-star	c	g h i
-biclique,star	a b	d e
+biclique	c	g h i
+biclique	a b	d e
+biclique	a b	f
+biclique	c	d e
