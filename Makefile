@@ -23,7 +23,7 @@ t:
 	rm powergrasp.cfg
 	- mv powergrasp.cfg.bak powergrasp.cfg
 _pure_tests:
-	pytest powergrasp test -vv --doctest-module $(SHOW_DURATIONS)
+	pytest powergrasp test -x -vv --doctest-module $(SHOW_DURATIONS)
 _test_cfg_file:
 	cp test/powergrasp.$(TEST_CFG_FILE).cfg powergrasp.cfg
 	$(MAKE) _pure_tests  # with many options tweaked (edges from ASP, integrity,…)
