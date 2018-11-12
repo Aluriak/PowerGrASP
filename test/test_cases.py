@@ -377,6 +377,9 @@ cases['single-node.lp'] = """
 NODE\ta
 """ if constants.KEEP_SINGLE_NODES else ""
 
+cases['empty.lp'] = """
+"""
+
 cases['star.lp'] = """
 NODE\ta
 NODE\tb
