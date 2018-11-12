@@ -10,7 +10,7 @@ from .motif import Motif
 from .graph import Graph
 from .constants import (TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, KEEP_SINGLE_NODES,
                         MULTISHOT_MOTIF_SEARCH, BICLIQUE_LOWERBOUND_MAXNEI,
-                        OPTIMIZE_FOR_MEMORY, CLINGO_OPTIONS)
+                        RECIPE_FILE, OPTIMIZE_FOR_MEMORY, CLINGO_OPTIONS)
 from . import ASP_FILES
 
 MOTIF_ASP_FILES = ASP_FILES['process-motif'], ASP_FILES['scoring_powergraph'], (ASP_FILES['block-constraint-memory'] if OPTIMIZE_FOR_MEMORY else ASP_FILES['block-constraint-cpu'])

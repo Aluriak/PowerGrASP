@@ -7,7 +7,7 @@ from .searchers import CliqueSearcher, BicliqueSearcher, StarSearcher, NonStarBi
 from .utils import get_time
 from .graph import Graph
 from . import constants as const
-from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE, USE_STAR_MOTIF
+from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE, USE_STAR_MOTIF, RECIPE_FILE
 from .motif_batch import MotifBatch
 from multiprocessing.dummy import Pool as ThreadPool  # dummy here to use the threading backend, not process
 from multiprocessing import Pool as ProcessPool
