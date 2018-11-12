@@ -78,6 +78,8 @@ one_edge:
 	$(MAKE) compress INFILE=one_edge.lp
 order:
 	$(MAKE) compress INFILE=order.lp
+overlapping-bicliques:
+	$(MAKE) compress INFILE=overlapping-bicliques.lp
 partition:
 	$(MAKE) compress INFILE=partition.lp
 perfectfit:
