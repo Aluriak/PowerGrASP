@@ -128,7 +128,7 @@ def make_value_from_ini(found_key:str, real_key:str, section,
     found for given section and key.
 
     """
-    assert real_key in constants, real_key
+    assert real_key in constants, f"{real_key} key found in config file is unexpected"
     assert section in config
     assert found_key in config[section], (config[section], found_key)
     default = constants[real_key]
