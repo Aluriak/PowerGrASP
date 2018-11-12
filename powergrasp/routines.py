@@ -62,7 +62,7 @@ def compress(graph:Graph, *, cc_idx=None, recipe:['recipe']=None) -> [str]:
     if SHOW_STORY:
         print('INFO searchers: ' + ', '.join(s.name for s in searchers))
     step = 0
-    complete_compression = True
+    complete_compression = False
     while True:
         recipe_asp_repr = recipe[step] if recipe and step < len(recipe) else None
         if SHOW_STORY and recipe_asp_repr:
@@ -72,7 +72,7 @@ def compress(graph:Graph, *, cc_idx=None, recipe:['recipe']=None) -> [str]:
             best_motifs = search_best_motifs(searchers, step, supp_asp_atoms=recipe_asp_repr)
         except KeyboardInterrupt:
             print('WARNING interrupted search. Graph compression aborted. Output will be written.')
-            complete_compression, best_motifs = False, None
+            best_motifs = None
             break
         if best_motifs:  # let's compress it
             step += graph.compress_all(best_motifs.non_overlapping_subset())
@@ -100,6 +100,7 @@ def compress(graph:Graph, *, cc_idx=None, recipe:['recipe']=None) -> [str]:
                     timers = 'none', 'none'
                 save_stats(cc_idx, *timers, best_motifs.name, best_motifs.score, *bounds)
         else:
+            complete_compression = True
             break  # nothing to compress
     if TIMERS:
         timer_output = get_time()
