@@ -16,8 +16,9 @@ def unified_bubble(bubble_lines):
     filtered = tuple(filtered)
 
     # filter out comments and blank lines
-    return set(line.strip() for line in bubble_lines
-               if not line.startswith(filtered) and len(line.strip()) > 0)
+    bubble_lines = (line.strip() for line in bubble_lines)
+    return set(line for line in bubble_lines
+               if not line.startswith(filtered) and len(line) > 0)
 
 
 def gen_test_functions(cases:dict, template_test_function:callable):
