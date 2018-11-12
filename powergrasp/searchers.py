@@ -90,16 +90,22 @@ class MotifSearcher:
         self._lowerbound = self.compute_new_lowerbound(self.graph, motif)
 
 
-    def search(self, step:int, score_to_beat:int=0, supplementary_asp_atoms:str=None) -> [Motif]:
+    def search(self, step:int, score_to_beat:int=0, recipe:({str}, {str}, {str})=None) -> [Motif]:
         """Search for motifs, better than the one to beat."""
         self.__timer = get_time()
-        lowerbound = max(self.lowerbound, score_to_beat+1)
-        if lowerbound > self.upperbound:
+        if recipe:
+            supplementary_asp_atoms = utils.asp_from_recipe_line(recipe, is_star=self.name == 'star')
+            lowerbound = upperbound = len(recipe[1]) * len(recipe[2])
+        else:
+            supplementary_asp_atoms = ''
+            lowerbound = max(self.lowerbound, score_to_beat+1)
+            upperbound = self.upperbound
+        if lowerbound > upperbound:
             if SHOW_STORY:
                 print("INFO No {} search because of bounds ({};{})."
                       "".format(self.name, *self.bounds))
             return  # impossible to find a motif in such conditions
-        models = self._search(step, self.graph, lowerbound, self.upperbound, supplementary_asp_atoms or '')
+        models = self._search(step, self.graph, lowerbound, upperbound, supplementary_asp_atoms)
         yield from (
             Motif(self.name, model, maximal=True, step=step, searcher=self)
             for model in models
@@ -162,7 +168,7 @@ class BicliqueSearcher(MotifSearcher):
 
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
-        graph = ''.join(graph.as_asp(step, filter_for_bicliques=True, lowerbound=lowerbound, upperbound=upperbound))
+        graph = ''.join(graph.as_asp(step, filter_for_bicliques=not other_atoms, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
             print('MXDKJX: GRAPH:', graph)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
@@ -218,7 +224,7 @@ class NonStarBicliqueSearcher(MotifSearcher):
         return 4  # At least 2 elements in each set
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
-        graph = ''.join(graph.as_asp(step, filter_for_bicliques=True, lowerbound=lowerbound, upperbound=upperbound))
+        graph = ''.join(graph.as_asp(step, filter_for_bicliques=not other_atoms, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
             print('UHJGMR: GRAPH:', graph)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
@@ -248,7 +254,7 @@ class StarSearcher(MotifSearcher):
         return self.__star_size
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
-        graph = ''.join(graph.as_asp(step, filter_for_stars=True, lowerbound=lowerbound, upperbound=upperbound))
+        graph = ''.join(graph.as_asp(step, filter_for_stars=not other_atoms, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
             print('ABQSSN: GRAPH:', graph)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
@@ -294,7 +300,7 @@ class CliqueSearcher(MotifSearcher):
 
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
-        graph = ''.join(graph.as_asp(step, filter_for_cliques=True, lowerbound=lowerbound, upperbound=upperbound))
+        graph = ''.join(graph.as_asp(step, filter_for_cliques=not other_atoms, lowerbound=lowerbound, upperbound=upperbound))
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
                                           options=self._clingo_options(),
                                           files=CLIQUE_ASP_FILES,

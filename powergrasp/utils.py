@@ -25,18 +25,18 @@ def recipe_from_file(fname:str) -> [{str}, {str}, {str}]:
             (typemotifs, seta, setb) for typemotifs, seta, setb in motifs
         )
 
-def recipe_to_asp(recipe:[{str}, {str}, {str}]) -> [str]:
-    """Yield ASP atoms translating the given recipe."""
-    for typenames, seta, setb in recipe:
-        if min(setb) < min(seta):  # minimal element must be in seta
-            setb, seta = seta, setb
-        if 'star' in typenames and len(seta) == 1:  # if it's a star, then single element must be in setb
-            setb, seta = seta, setb
-        yield '\n'.join((
-            ' '.join(f'newconcept(1,"{element}").' for element in seta),
-            ' '.join(f'newconcept(2,"{element}").' for element in setb),
-            '|'.join(typenames) + '.'
-        ))
+def asp_from_recipe_line(recipe:({str}, {str}, {str}), is_star:bool) -> [str]:
+    """Return ASP atoms translating the given recipe line"""
+    typenames, seta, setb = recipe
+    if min(setb) < min(seta):  # minimal element must be in seta
+        setb, seta = seta, setb
+    if is_star and len(seta) == 1:  # if it's a star, then single element must be in setb
+        setb, seta = seta, setb
+    return '\n'.join((
+        ' '.join(f'newconcept(1,"{element}").' for element in seta),
+        ' '.join(f'newconcept(2,"{element}").' for element in setb),
+        # '|'.join(typenames) + '.'
+    ))
 
 
 

@@ -22,14 +22,14 @@ if TIMERS and STATISTIC_FILE:
             fd.write(','.join(map(str, args)) + '\n')
 
 
-def search_best_motifs_sequentially(searchers, step, supp_asp_atoms) -> MotifBatch:
+def search_best_motifs_sequentially(searchers, step, recipe) -> MotifBatch:
     """Return a MotifBatch instance containing the best motifs
     found by given searchers."""
     score_to_beat = 0
     best_motifs, best_motifs_score = None, 0
     ordered_searchers = const.MOTIF_TYPE_ORDER(searchers)
     for searcher in ordered_searchers:
-        motifs = MotifBatch(searcher.search(step, score_to_beat, supp_asp_atoms))
+        motifs = MotifBatch(searcher.search(step, score_to_beat, recipe=recipe))
         if motifs:
             searcher.on_new_found_motif(motifs)
             if motifs.score > best_motifs_score:
@@ -37,11 +37,11 @@ def search_best_motifs_sequentially(searchers, step, supp_asp_atoms) -> MotifBat
                 score_to_beat = best_motifs_score
     return best_motifs
 
-def search_best_motifs_in_parallel(searchers, step, supp_asp_atoms) -> MotifBatch:
+def search_best_motifs_in_parallel(searchers, step, recipe) -> MotifBatch:
     """Return a MotifBatch instance containing the best motifs
     found by given searchers."""
     with ThreadPool(len(searchers)) as pool:
-        founds = pool.starmap(search_best_motifs_sequentially, (([s], step, supp_asp_atoms) for s in searchers))
+        founds = pool.starmap(search_best_motifs_sequentially, (([s], step, recipe) for s in searchers))
     return max(founds, key=lambda f: 0 if f is None else f.score)
 
 if const.PARALLEL_MOTIF_SEARCH:
@@ -64,12 +64,12 @@ def compress(graph:Graph, *, cc_idx=None, recipe:['recipe']=None) -> [str]:
     step = 0
     complete_compression = False
     while True:
-        recipe_asp_repr = recipe[step] if recipe and step < len(recipe) else None
-        if SHOW_STORY and recipe_asp_repr:
-            print('INFO recipe:', recipe_asp_repr)
+        recipe_line = recipe[step] if recipe and step < len(recipe) else None
+        if SHOW_STORY and recipe_line:
+            print('INFO recipe:', recipe_line)
         step += 1
         try:
-            best_motifs = search_best_motifs(searchers, step, supp_asp_atoms=recipe_asp_repr)
+            best_motifs = search_best_motifs(searchers, step, recipe=recipe_line)
         except KeyboardInterrupt:
             print('WARNING interrupted search. Graph compression aborted. Output will be written.')
             best_motifs = None
@@ -138,6 +138,8 @@ def compress_by_cc(fname:str, recipe_file:str=None) -> [str]:
     if TIMERS and const.BUBBLE_WITH_STATISTICS:
         timer = get_time()
     if recipe_file:
+        if SHOW_STORY:
+            print('INFO recipe file:', recipe_file)
         if isinstance(recipe_file, str):
             recipe_files = [recipe_file]
         else:  # list or tuple
@@ -149,10 +151,12 @@ def compress_by_cc(fname:str, recipe_file:str=None) -> [str]:
         del recipe_file
         del recipe_files
         def recipe_for(graph:Graph, recipes=recipes) -> 'recipe':
+            "Return the first recipe using a node found in given graph"
             for recipe in recipes:
-                one_node = next(iter(recipe[1]), None) or next(iter(recipe[2]))
-                if one_node in graph.nodes:
-                    return recipe
+                for line in recipe:
+                    one_node = next(iter(line[1]), None) or next(iter(line[2]))
+                    if f'"{one_node}"' in graph.nodes:
+                        return recipe
     else:
         def recipe_for(*_, **__) -> None: return None
 
@@ -168,6 +172,7 @@ def compress_by_cc(fname:str, recipe_file:str=None) -> [str]:
     else:  # many processes imply a more complex system
         nb_process = const.PARALLEL_CC_COMPRESSION
         if nb_process == 0:
+            graphs = ((idx, gr, recipe_for(gr)) for idx, gr in graphs)
             graphs = tuple(graphs)  # RIP memory
             nb_process = len(graphs) or 1
         with ProcessPool(nb_process) as pool:
@@ -184,12 +189,12 @@ def compress_by_cc(fname:str, recipe_file:str=None) -> [str]:
         yield '# total compression time: {}'.format(round(get_time() - timer, 2))
 
 
-def _func_on_graph(idx, graph):
+def _func_on_graph(idx, graph, recipe):
     """Function used by multiprocessing compression of cc. Needs to be global
     to be pickled."""
     lines = (
         '# CONNECTED COMPONENT {}'.format(idx),
-        *compress(graph, cc_idx=idx)
+        *compress(graph, cc_idx=idx, recipe=recipe)
     )
     return lines, graph.compression_metrics_data()
 
