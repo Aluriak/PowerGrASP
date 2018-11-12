@@ -22,20 +22,19 @@
 inter(X,Y):- edge(X,Y).
 inter(X,Y):- inter(Y,X).
 
-% Choice of the hub
-1{hub(X): inter(X,_)}1.
-newconcept(2,X):- hub(X).
+% Choice of the hub.
+1{newconcept(2,Hub): inter(Hub,_)}1.
 
-% Choice of at least 2 elements in set 2
+% Choice of at least 2 elements in set 1.
 min_size(2):- lowerbound<2.
 min_size(lowerbound):- lowerbound>=2.
-MS { newconcept(1,Y): inter(Hub,Y) } upperbound :- hub(Hub) ; min_size(MS).
+MS { newconcept(1,Y): inter(Hub,Y) } upperbound :- newconcept(2,Hub) ; min_size(MS).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% CONCEPT PROPERTIES %%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% A star is a biclique with one powernode composed of only one node
+% A star is a biclique with one powernode composed of only one node.
 star(2).
 
 biclique.
