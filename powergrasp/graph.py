@@ -103,6 +103,10 @@ class Graph:
         """Yield the metrics of compression from self data"""
         yield from Graph.compression_metrics_from_data(self.compression_metrics_data())
 
+    @property
+    def nodes(self) -> frozenset:
+        return frozenset(self.__nodes)
+
     @staticmethod
     def compression_metrics_from_data(data:(int, int, int, int)) -> [(str, float)]:
         """Yield the metrics of compression from the input data"""

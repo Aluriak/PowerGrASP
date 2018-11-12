@@ -41,6 +41,8 @@ def cli_parser(description:str) -> argparse.ArgumentParser:
                         type=writable_file, default='out.bbl',
                         help="Name of the bubble file to produce")
     parser.add_argument('--config', '-c', action='store_true', dest='show_config',
-                        help="Print detected configuration, then quit.")
+                        help="Print detected configuration, then quit")
+    parser.add_argument('--recipe', '-r', default=None, type=str,
+                        help="Use content of given filename as a recipe")
 
     return parser

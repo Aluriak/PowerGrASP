@@ -10,7 +10,7 @@ from .motif import Motif
 from .graph import Graph
 from .constants import (TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, KEEP_SINGLE_NODES,
                         MULTISHOT_MOTIF_SEARCH, BICLIQUE_LOWERBOUND_MAXNEI,
-                        RECIPE_FILE, OPTIMIZE_FOR_MEMORY, CLINGO_OPTIONS)
+                        OPTIMIZE_FOR_MEMORY, CLINGO_OPTIONS)
 from . import ASP_FILES
 
 MOTIF_ASP_FILES = ASP_FILES['process-motif'], ASP_FILES['scoring_powergraph'], (ASP_FILES['block-constraint-memory'] if OPTIMIZE_FOR_MEMORY else ASP_FILES['block-constraint-cpu'])
@@ -90,7 +90,7 @@ class MotifSearcher:
         self._lowerbound = self.compute_new_lowerbound(self.graph, motif)
 
 
-    def search(self, step:int, score_to_beat:int=0) -> [Motif]:
+    def search(self, step:int, score_to_beat:int=0, supplementary_asp_atoms:str=None) -> [Motif]:
         """Search for motifs, better than the one to beat."""
         self.__timer = get_time()
         lowerbound = max(self.lowerbound, score_to_beat+1)
@@ -99,7 +99,7 @@ class MotifSearcher:
                 print("INFO No {} search because of bounds ({};{})."
                       "".format(self.name, *self.bounds))
             return  # impossible to find a motif in such conditions
-        models = self._search(step, self.graph, lowerbound, self.upperbound)
+        models = self._search(step, self.graph, lowerbound, self.upperbound, supplementary_asp_atoms or '')
         yield from (
             Motif(self.name, model, maximal=True, step=step, searcher=self)
             for model in models
@@ -161,13 +161,14 @@ class BicliqueSearcher(MotifSearcher):
         return lowerbound, upperbound
 
 
-    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
+    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
         graph = ''.join(graph.as_asp(step, filter_for_bicliques=True, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
             print('MXDKJX: GRAPH:', graph)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
                                           options=self._clingo_options(),
-                                          files=FULLBICLIQUE_ASP_FILES, graph=graph)
+                                          files=FULLBICLIQUE_ASP_FILES,
+                                          graph=graph + other_atoms)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
         """Return the edges that are covered by given sets"""
@@ -216,13 +217,14 @@ class NonStarBicliqueSearcher(MotifSearcher):
     def compute_new_lowerbound(self, graph:Graph, motif:Motif) -> int:
         return 4  # At least 2 elements in each set
 
-    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
+    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
         graph = ''.join(graph.as_asp(step, filter_for_bicliques=True, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
             print('UHJGMR: GRAPH:', graph)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
                                           options=self._clingo_options(),
-                                          files=BICLIQUE_ASP_FILES, graph=graph)
+                                          files=BICLIQUE_ASP_FILES,
+                                          graph=graph + other_atoms)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
         """Return the edges that are covered by given sets"""
@@ -245,13 +247,14 @@ class StarSearcher(MotifSearcher):
     def compute_initial_upperbound(self, graph:Graph) -> int:
         return self.__star_size
 
-    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
+    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
         graph = ''.join(graph.as_asp(step, filter_for_stars=True, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
             print('ABQSSN: GRAPH:', graph)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
                                           options=self._clingo_options(),
-                                          files=STAR_ASP_FILES, graph=graph)
+                                          files=STAR_ASP_FILES,
+                                          graph=graph + other_atoms)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
         """Return the edges that are covered by given sets"""
@@ -290,11 +293,12 @@ class CliqueSearcher(MotifSearcher):
         return 3  # At least 3 elements in a clique
 
 
-    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int) -> iter:
+    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
         graph = ''.join(graph.as_asp(step, filter_for_cliques=True, lowerbound=lowerbound, upperbound=upperbound))
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
                                           options=self._clingo_options(),
-                                          files=CLIQUE_ASP_FILES, graph=graph)
+                                          files=CLIQUE_ASP_FILES,
+                                          graph=graph + other_atoms)
 
     def covered_edges(self, sets:[frozenset]) -> iter:
         """Return the edges that are covered by given sets"""

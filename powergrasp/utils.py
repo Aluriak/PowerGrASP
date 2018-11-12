@@ -8,6 +8,38 @@ import phasme
 def get_time() -> float: return time.time()
 
 
+def recipe_from_file(fname:str) -> [{str}, {str}, {str}]:
+    """Get recipe, transform it into a useful repr"""
+    if fname is None: return ()
+
+    def motif_from_line(line:str) -> (str, [str], [str]) or None:
+        if not line or line.count('\t') != 2:
+            return None  # not a Motif ; it needs to be looked by itself
+        typemotif, seta, setb = line.split('\t')
+        return set(typemotif.split(',')), set(seta.split(' ')), set(setb.split(' '))
+
+    with open(fname) as fd:
+        motifs = tuple(motif for motif in
+                       map(motif_from_line, map(str.strip, fd)) if motif)
+        return tuple(
+            (typemotifs, seta, setb) for typemotifs, seta, setb in motifs
+        )
+
+def recipe_to_asp(recipe:[{str}, {str}, {str}]) -> [str]:
+    """Yield ASP atoms translating the given recipe."""
+    for typenames, seta, setb in recipe:
+        if min(setb) < min(seta):  # minimal element must be in seta
+            setb, seta = seta, setb
+        if 'star' in typenames and len(seta) == 1:  # if it's a star, then single element must be in setb
+            setb, seta = seta, setb
+        yield '\n'.join((
+            ' '.join(f'newconcept(1,"{element}").' for element in seta),
+            ' '.join(f'newconcept(2,"{element}").' for element in setb),
+            '|'.join(typenames) + '.'
+        ))
+
+
+
 def maximal_clique_size(nb_edge:int) -> int:
     """Maximal number of nodes implied in a clique when there is given
     number of edges between neighbors of a node.

@@ -6,8 +6,9 @@ import csv
 from .searchers import CliqueSearcher, BicliqueSearcher, StarSearcher, NonStarBicliqueSearcher
 from .utils import get_time
 from .graph import Graph
+from . import utils
 from . import constants as const
-from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE, USE_STAR_MOTIF, RECIPE_FILE
+from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE, USE_STAR_MOTIF
 from .motif_batch import MotifBatch
 from multiprocessing.dummy import Pool as ThreadPool  # dummy here to use the threading backend, not process
 from multiprocessing import Pool as ProcessPool
@@ -21,14 +22,14 @@ if TIMERS and STATISTIC_FILE:
             fd.write(','.join(map(str, args)) + '\n')
 
 
-def search_best_motifs_sequentially(searchers, step) -> MotifBatch:
+def search_best_motifs_sequentially(searchers, step, supp_asp_atoms) -> MotifBatch:
     """Return a MotifBatch instance containing the best motifs
     found by given searchers."""
     score_to_beat = 0
     best_motifs, best_motifs_score = None, 0
     ordered_searchers = const.MOTIF_TYPE_ORDER(searchers)
     for searcher in ordered_searchers:
-        motifs = MotifBatch(searcher.search(step, score_to_beat))
+        motifs = MotifBatch(searcher.search(step, score_to_beat, supp_asp_atoms))
         if motifs:
             searcher.on_new_found_motif(motifs)
             if motifs.score > best_motifs_score:
@@ -36,11 +37,11 @@ def search_best_motifs_sequentially(searchers, step) -> MotifBatch:
                 score_to_beat = best_motifs_score
     return best_motifs
 
-def search_best_motifs_in_parallel(searchers, step) -> MotifBatch:
+def search_best_motifs_in_parallel(searchers, step, supp_asp_atoms) -> MotifBatch:
     """Return a MotifBatch instance containing the best motifs
     found by given searchers."""
     with ThreadPool(len(searchers)) as pool:
-        founds = pool.starmap(search_best_motifs_sequentially, (([s], step) for s in searchers))
+        founds = pool.starmap(search_best_motifs_sequentially, (([s], step, supp_asp_atoms) for s in searchers))
     return max(founds, key=lambda f: 0 if f is None else f.score)
 
 if const.PARALLEL_MOTIF_SEARCH:
@@ -49,7 +50,7 @@ else:
     search_best_motifs = search_best_motifs_sequentially
 
 
-def compress(graph:Graph, *, cc_idx=None) -> [str]:
+def compress(graph:Graph, *, cc_idx=None, recipe:['recipe']=None) -> [str]:
     """Yield bubble lines found in graph"""
     if TIMERS:
         timer_start = get_time()
@@ -63,9 +64,12 @@ def compress(graph:Graph, *, cc_idx=None) -> [str]:
     step = 0
     complete_compression = True
     while True:
+        recipe_asp_repr = recipe[step] if recipe and step < len(recipe) else None
+        if SHOW_STORY and recipe_asp_repr:
+            print('INFO recipe:', recipe_asp_repr)
         step += 1
         try:
-            best_motifs = search_best_motifs(searchers, step)
+            best_motifs = search_best_motifs(searchers, step, supp_asp_atoms=recipe_asp_repr)
         except KeyboardInterrupt:
             print('WARNING interrupted search. Graph compression aborted. Output will be written.')
             complete_compression, best_motifs = False, None
@@ -128,17 +132,36 @@ def compress(graph:Graph, *, cc_idx=None) -> [str]:
         yield from _gen_metrics(compression_statistics)
 
 
-def compress_by_cc(fname:str) -> [str]:
+def compress_by_cc(fname:str, recipe_file:str=None) -> [str]:
     """Yield bubble lines from compression of each cc found in given filename"""
     if TIMERS and const.BUBBLE_WITH_STATISTICS:
         timer = get_time()
+    if recipe_file:
+        if isinstance(recipe_file, str):
+            recipe_files = [recipe_file]
+        else:  # list or tuple
+            recipe_files = tuple(recipe_file)
+        recipes = tuple(
+            utils.recipe_from_file(recipe_file)
+            for recipe_file in recipe_files
+        )
+        del recipe_file
+        del recipe_files
+        def recipe_for(graph:Graph, recipes=recipes) -> 'recipe':
+            for recipe in recipes:
+                one_node = next(iter(recipe[1]), None) or next(iter(recipe[2]))
+                if one_node in graph.nodes:
+                    return recipe
+    else:
+        def recipe_for(*_, **__) -> None: return None
+
     graphs = enumerate(Graph.ccs_from_file(fname), start=1)
     stats = None
     if const.PARALLEL_CC_COMPRESSION == 1:  # simple case, allowing for global stats
         for idx, graph in graphs:
             if idx > 1:  yield ''
             yield '# CONNECTED COMPONENT {}'.format(idx)
-            yield from compress(graph, cc_idx=idx)
+            yield from compress(graph, cc_idx=idx, recipe=recipe_for(graph))
             if const.GLOBAL_STATISTICS:
                 stats = _build_global_stats(stats, graph.compression_metrics_data())
     else:  # many processes imply a more complex system

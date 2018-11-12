@@ -15,7 +15,7 @@ def run_cli():
         exit()
     elif args.infile:
         with open(args.outfile, 'w') as fd:
-            for line in compress_by_cc(args.infile):
+            for line in compress_by_cc(args.infile, args.recipe):
                 fd.write(line + '\n')
     else:
         print('Nothing to do.')

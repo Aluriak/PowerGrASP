@@ -48,9 +48,6 @@ constants = {
     # Prefix to add to all (power)nodes names in output.
     'OUTPUT_NODE_PREFIX': '',
 
-    # File containing the motifs to compress.
-    'RECIPE_FILE': None,
-
     # Show full trace of the compression. Useful for debugging.
     'SHOW_DEBUG': False,
 
@@ -296,27 +293,6 @@ def _convert_erased_file(fname:str) -> str:
             pass  # just erase it
     return fname  # conserve it untouched
 
-def _convert_recipe_file(fname:str) -> [({str}, {str}, {str})]:
-    """Get recipe, transform it into a useful repr"""
-    if fname is None: return ()
-    def motif_from_line(line:str) -> (str, [str], [str]) or None:
-        if not line or line.count('\t') != 2:
-            return None  # not a Motif ; it needs to be looked by itself
-        typemotif, seta, setb = line.split('\t')
-        return set(typemotif.split(',')), set(seta.split(' ')), set(setb.split(' '))
-    def graph_from_motif(seta:set, setb:set) -> (dict, int):
-        graph = defaultdict(set)  # predecessor: {successors}
-        for graph_size, (pred, succ) in enumerate(itertools.product(seta, setb), start=1):
-            graph[pred].add(succ)
-
-    with open(fname) as fd:
-        motifs = tuple(motif for motif in
-                       map(motif_from_line, map(str.strip, fd)) if motif)
-        return tuple(
-            (typemotifs, *graph_from_motif(seta, setb))
-            for typemotifs, seta, setb in motifs
-        )
-
 
 # Apply the value convertion, if any.
 _CONVERTIONS = {
@@ -327,8 +303,6 @@ _CONVERTIONS = {
     'CC_STATISTIC_FILE': _convert_erased_file,
     'COMPRESSION_STATISTIC_FILE': _convert_erased_file,
     'STATISTIC_FILE': _convert_erased_file,
-    'RECIPE_FILE': _convert_recipe_file,
-
 }
 constants = {f: _CONVERTIONS.get(f, lambda x:x)(v) for f, v in constants.items()}
 # add the derived ones
@@ -378,7 +352,6 @@ OPTIONS_CATEGORIES = utils.reverse_dict({
     'BUBBLE_FOR_EACH_STEP': 'debug',
     'BUBBLE_WITH_SIMPLE_EDGES': 'output',
     'OUTPUT_NODE_PREFIX': 'output',
-    'RECIPE_FILE': 'output',
     'SHOW_DEBUG': 'debug',
     'COVERED_EDGES_FROM_ASP': 'optimization',
     'BUBBLE_WITH_NODES': 'output',
