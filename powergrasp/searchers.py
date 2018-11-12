@@ -308,7 +308,7 @@ class CliqueSearcher(MotifSearcher):
 
 
 # verify clingo options
-SEARCHERS = {searcher.name for searcher in globals().values()
+SEARCHERS = {searcher.name: searcher for searcher in globals().values()
              if type(searcher) is type and issubclass(searcher, MotifSearcher) and searcher is not MotifSearcher}
 for searcher in CLINGO_OPTIONS:
     if searcher not in SEARCHERS and searcher is not None:
