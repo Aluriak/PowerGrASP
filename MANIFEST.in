@@ -1,4 +1,6 @@
-exclude *
+include LICENCE MANIFEST.in README.mkd
 recursive-include powergrasp *.py *.lp
+exclude Makefile
 prune data
 prune test
+prune out
