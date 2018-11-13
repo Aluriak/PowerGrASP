@@ -30,8 +30,10 @@ _test_cfg_file:
 
 
 ## Packaging
+make_dist:
+	python setup.py sdist
 upload:
-	python setup.py sdist upload
+	twine upload --repository pypi dist/PowerGrASP-*.tar.gz
 release: fullrelease
 fullrelease:
 	fullrelease
