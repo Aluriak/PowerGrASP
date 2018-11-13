@@ -7,4 +7,5 @@ __pycache__/
 debug/
 dist/
 powergrasp.egg-info/
+PowerGrASP.egg-info/
 venv/
