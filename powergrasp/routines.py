@@ -155,7 +155,7 @@ def compress_by_cc(fname:str, recipe_file:str=None) -> [str]:
         else:  # list or tuple
             recipe_files = tuple(recipe_file)
         recipes = tuple(
-            Recipe.from_file(recipe_file)
+            Recipe.from_(recipe_file)
             for recipe_file in recipe_files
         )
         del recipe_file

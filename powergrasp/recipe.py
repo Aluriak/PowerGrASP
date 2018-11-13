@@ -34,6 +34,20 @@ class Recipe:
 
 
     @staticmethod
+    def from_(obj:object) -> object:
+        "Build a Recipe instance from a filename, its raw data, or an iterable of lines"
+        if isinstance(obj, str):
+            if '\t' in obj:
+                return Recipe.from_string(obj)
+            # must be a file
+            return Recipe.from_file(obj)
+        return Recipe.from_lines(obj)
+
+    @staticmethod
+    def from_string(string:str) -> object:
+        return Recipe.from_lines(string.splitlines(False))
+
+    @staticmethod
     def from_lines(lines:[str]) -> object:
         """Build a Recipe instance from given file"""
         def motif_from_line(line:str) -> (str, [str], [str]) or None:
