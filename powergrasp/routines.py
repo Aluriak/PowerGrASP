@@ -6,7 +6,7 @@ import csv
 from .searchers import CliqueSearcher, BicliqueSearcher, StarSearcher, NonStarBicliqueSearcher
 from .utils import get_time
 from .graph import Graph
-from . import utils
+from .recipe import Recipe
 from . import constants as const
 from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE, USE_STAR_MOTIF
 from .motif_batch import MotifBatch
@@ -100,8 +100,18 @@ def compress(graph:Graph, *, cc_idx=None, recipe:['recipe']=None) -> [str]:
                     timers = 'none', 'none'
                 save_stats(cc_idx, *timers, best_motifs.name, best_motifs.score, *bounds)
         else:
-            complete_compression = True
-            break  # nothing to compress
+            if recipe_line:  # the recipe failed, or is optional
+                if recipe_line.isrequired:
+                    raise recipe_line.RecipeError(f"Recipe {recipe_line} failed, but was necessary.")
+                else:  # it is optional
+                    if SHOW_STORY:
+                        print(f"INFO Recipe {recipe_line} failed.")
+            else:  # no recipe, so it's a normal ending of compression
+                complete_compression = True
+                break  # nothing to compress
+        # finish compression if the recipe asks so.
+        if recipe_line and recipe_line.islast:
+            break
     if TIMERS:
         timer_output = get_time()
 
@@ -145,7 +155,7 @@ def compress_by_cc(fname:str, recipe_file:str=None) -> [str]:
         else:  # list or tuple
             recipe_files = tuple(recipe_file)
         recipes = tuple(
-            utils.recipe_from_file(recipe_file)
+            Recipe.from_file(recipe_file)
             for recipe_file in recipe_files
         )
         del recipe_file
@@ -153,12 +163,10 @@ def compress_by_cc(fname:str, recipe_file:str=None) -> [str]:
         def recipe_for(graph:Graph, recipes=recipes) -> 'recipe':
             "Return the first recipe using a node found in given graph"
             for recipe in recipes:
-                for line in recipe:
-                    one_node = next(iter(line[1]), None) or next(iter(line[2]))
-                    if f'"{one_node}"' in graph.nodes:
-                        return recipe
+                if recipe.works_on(graph):
+                    return recipe
     else:
-        def recipe_for(*_, **__) -> None: return None
+        def recipe_for(*_, **__): return None  # no recipe available
 
     graphs = enumerate(Graph.ccs_from_file(fname), start=1)
     stats = None

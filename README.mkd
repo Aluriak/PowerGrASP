@@ -69,6 +69,7 @@ or through [downloading](https://github.com/potassco/clingo/releases) and (compi
 - 8.11
     - slight bounds improvements for non-star-biclique motif
     - statistics/timers now provides time needed to search for each motif
+    - support for [recipes](#recipes), that small file that allows to define the compressions to do
 - 8.10
     - option [parallel cc compression](#parallel-cc-compression) to enable parallel compression of connected components
     - option [bubble embeds cc](#bubble-embeds-cc), to put each cc in a dedicated powernode
@@ -120,6 +121,35 @@ or through [downloading](https://github.com/potassco/clingo/releases) and (compi
     - implement timers and statistics recording
     - enable multishot motif search by default
     - various bugfixes
+
+
+## Recipes
+A recipe is a description of the motifs to compress.
+For instance, the [data/recipe-test.txt](data/recipe-test.txt):
+
+    biclique	c	g h i
+    biclique	a b	d e
+    biclique	a b	f
+    biclique	c	d e
+
+Using the `--recipe` option in CLI, user can provide a recipe for its own graph,
+allowing to specify prior motifs to search.
+The order of second and third columns does not have any influence.
+
+The first column usually contains the motif types separated by comma
+(altough it is not necessary), and allows to provide some options (separated by comma):
+
+- `primer`: allows the program to extend the given motif if possible
+- `optional`: if not found, ignore instead of stopping
+- `last`: stop compression here (useful to avoid the compression process to take over)
+
+
+The recipe file will be read line by line.
+Once all lines have been applied, the normal compression compression takes over
+(unless `last` option is used).
+
+For a living example, see [data/recipe-option-test.txt](data/recipe-option-test.txt).
+
 
 ## Options
 Description of all powergrasp options.

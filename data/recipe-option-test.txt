@@ -1,0 +1,4 @@
+biclique	c	g h i
+biclique,open	a b	d e
+biclique,optional	unexisting nodes	are not compressible
+biclique,last	c	j k

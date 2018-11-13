@@ -8,6 +8,7 @@ from . import utils
 from .utils import get_time
 from .motif import Motif
 from .graph import Graph
+from .recipe import RecipeEntry
 from .constants import (TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, KEEP_SINGLE_NODES,
                         MULTISHOT_MOTIF_SEARCH, BICLIQUE_LOWERBOUND_MAXNEI,
                         OPTIMIZE_FOR_MEMORY, CLINGO_OPTIONS)
@@ -90,12 +91,13 @@ class MotifSearcher:
         self._lowerbound = self.compute_new_lowerbound(self.graph, motif)
 
 
-    def search(self, step:int, score_to_beat:int=0, recipe:({str}, {str}, {str})=None) -> [Motif]:
+    def search(self, step:int, score_to_beat:int=0, recipe:RecipeEntry=None) -> [Motif]:
         """Search for motifs, better than the one to beat."""
         self.__timer = get_time()
         if recipe:
-            supplementary_asp_atoms = utils.asp_from_recipe_line(recipe, is_star=self.name == 'star')
-            lowerbound = upperbound = len(recipe[1]) * len(recipe[2])
+            supplementary_asp_atoms = recipe.as_asp(is_star=self.name == 'star')
+            lowerbound = len(recipe.seta) * len(recipe.setb)
+            upperbound = self.upperbound if recipe.isextendable else lowerbound
         else:
             supplementary_asp_atoms = ''
             lowerbound = max(self.lowerbound, score_to_beat+1)
@@ -107,7 +109,8 @@ class MotifSearcher:
             return  # impossible to find a motif in such conditions
         models = self._search(step, self.graph, lowerbound, upperbound, supplementary_asp_atoms)
         yield from (
-            Motif(self.name, model, maximal=True, step=step, searcher=self)
+            # the Motif is maximal, unless a recipe was biasing the search
+            Motif(self.name, model, maximal=not recipe, step=step, searcher=self)
             for model in models
         )
         self.__timer = get_time() - self.__timer
