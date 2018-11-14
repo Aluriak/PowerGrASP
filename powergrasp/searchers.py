@@ -94,20 +94,30 @@ class MotifSearcher:
     def search(self, step:int, score_to_beat:int=0, recipe:RecipeEntry=None) -> [Motif]:
         """Search for motifs, better than the one to beat."""
         self.__timer = get_time()
-        if recipe:
+        if recipe and not recipe.isbreakable:
             supplementary_asp_atoms = recipe.as_asp(is_star=self.name == 'star')
             lowerbound = len(recipe.seta) * len(recipe.setb)
             upperbound = self.upperbound if recipe.isextendable else lowerbound
+            if SHOW_DEBUG:
+                print(f'DEBUG recipe {recipe} used.')
+        elif recipe and recipe.isbreakable:
+            supplementary_asp_atoms = ''
+            lowerbound = 2
+            upperbound = self.upperbound
+            if SHOW_DEBUG:
+                print(f'DEBUG breakable recipe {recipe} used.')
         else:
             supplementary_asp_atoms = ''
             lowerbound = max(self.lowerbound, score_to_beat+1)
             upperbound = self.upperbound
+            if SHOW_DEBUG:
+                print('DEBUG no recipe available.')
         if lowerbound > upperbound:
             if SHOW_STORY:
                 print("INFO No {} search because of bounds ({};{})."
                       "".format(self.name, *self.bounds))
             return  # impossible to find a motif in such conditions
-        models = self._search(step, self.graph, lowerbound, upperbound, supplementary_asp_atoms)
+        models = self._search(step, self.graph.with_recipe(recipe), lowerbound, upperbound, supplementary_asp_atoms)
         yield from (
             # the Motif is maximal, unless a recipe was biasing the search
             Motif(self.name, model, maximal=not recipe, step=step, searcher=self)
@@ -171,7 +181,7 @@ class BicliqueSearcher(MotifSearcher):
 
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
-        graph = ''.join(graph.as_asp(step, filter_for_bicliques=not other_atoms, lowerbound=lowerbound, upperbound=upperbound))
+        graph = ''.join(graph.as_asp(step, filter_for_bicliques=True, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
             print('MXDKJX: GRAPH:', graph + '\n' + other_atoms)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
@@ -227,7 +237,7 @@ class NonStarBicliqueSearcher(MotifSearcher):
         return 4  # At least 2 elements in each set
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
-        graph = ''.join(graph.as_asp(step, filter_for_bicliques=not other_atoms, lowerbound=lowerbound, upperbound=upperbound))
+        graph = ''.join(graph.as_asp(step, filter_for_bicliques=True, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
             print('UHJGMR: GRAPH:', graph + '\n' + other_atoms)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
@@ -257,7 +267,7 @@ class StarSearcher(MotifSearcher):
         return self.__star_size
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
-        graph = ''.join(graph.as_asp(step, filter_for_stars=not other_atoms, lowerbound=lowerbound, upperbound=upperbound))
+        graph = ''.join(graph.as_asp(step, filter_for_stars=True, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
             print('ABQSSN: GRAPH:', graph + '\n' + other_atoms)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
@@ -303,7 +313,7 @@ class CliqueSearcher(MotifSearcher):
 
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
-        graph = ''.join(graph.as_asp(step, filter_for_cliques=not other_atoms, lowerbound=lowerbound, upperbound=upperbound))
+        graph = ''.join(graph.as_asp(step, filter_for_cliques=True, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
             print('OKAPOD: GRAPH:', graph + '\n' + other_atoms)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
