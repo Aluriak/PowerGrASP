@@ -5,8 +5,10 @@ from the template_test_function function.
 
 """
 
+import pytest
 from powergrasp.constants import USE_STAR_MOTIF
 from powergrasp.routines import compress_by_cc
+from powergrasp.recipe import RecipeError
 from .definitions import unified_bubble, gen_test_functions
 
 
@@ -23,6 +25,29 @@ def test_recipe_options():
     # with open('out/out.bbl', 'w') as fd:
         # fd.write('\n'.join(found))
     assert found == expected
+
+def test_recipe_error_because_of_unknow_nodes():
+    with pytest.raises(RecipeError):
+        unified_bubble(compress_by_cc('data/recipe-option-test.lp', recipe_file="""
+biclique	c	g h i
+biclique,open	a b	d e
+biclique	unexisting nodes	are not compressible
+"""))
+
+def test_recipe_error_because_of_impossible_compression():
+    with pytest.raises(RecipeError):
+        unified_bubble(compress_by_cc('data/recipe-option-test.lp', recipe_file="""
+biclique	c	g h i
+biclique	a b	d e c
+"""))
+
+def test_recipe_error_because_of_overlapping_entries():
+    with pytest.raises(RecipeError):
+        unified_bubble(compress_by_cc('data/recipe-option-test.lp', recipe_file="""
+biclique	c	g h i
+biclique	a b	d e
+biclique	a b c	d e f
+"""))
 
 
 if USE_STAR_MOTIF:
