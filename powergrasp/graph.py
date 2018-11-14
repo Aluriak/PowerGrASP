@@ -170,17 +170,19 @@ class Graph:
         assert step > 0, step
         assert (step-1) >= 0, step
         # define the edges to work on (depending of choosen filter and bounds)
-        filter = None
-        # avoid filtering if a recipe is changing the rules
-        if constants.GRAPH_FILTERING and not self.__active_recipe:
+        filtered_edges = self.__edges
+        # filter according to recipe, or if no active recipe, according to motifs
+        if self.__active_recipe and filter_by_active_recipe:
+            if self.__active_recipe.isextendable:
+                pass  # do not prevent any edge to be covered
+            else:  # not extendable, so only use the available edges
+                filtered_edges = self.__edges & self.__active_recipe.covered_edges
+        elif constants.GRAPH_FILTERING:
             if filter_for_bicliques: filter = edge_filtering.for_biclique
             elif filter_for_cliques: filter = edge_filtering.for_clique
             elif filter_for_stars: filter = edge_filtering.for_star
-        filtered_edges = filter(self._nxgraph, lowerbound, upperbound) if filter else self.__edges
-        filtered_edges = tuple(filtered_edges)
-        if self.__active_recipe and filter_by_active_recipe and not self.__active_recipe.isextendable:
-            filtered_edges = ({a, b} for a, b in filtered_edges if self.__active_recipe.has_edge(a, b))
-        filtered_edges = tuple(filtered_edges)
+            if filter:
+                filtered_edges = filter(self._nxgraph, lowerbound, upperbound)
 
         # yield the wanted atoms.
         for source, target in filtered_edges:
