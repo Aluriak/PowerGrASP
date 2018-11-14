@@ -105,7 +105,7 @@ def compress(graph:Graph, *, cc_idx=None, recipe:['recipe']=None) -> [str]:
                     raise recipe_line.RecipeError(f"Recipe {recipe_line} failed, but was necessary.")
                 else:  # it is optional
                     if SHOW_STORY:
-                        print(f"INFO Recipe {recipe_line} failed.")
+                        print(f"INFO optional recipe {recipe_line} failed.")
             else:  # no recipe, so it's a normal ending of compression
                 complete_compression = True
                 break  # nothing to compress
