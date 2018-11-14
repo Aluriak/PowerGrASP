@@ -66,6 +66,8 @@ or through [downloading](https://github.com/potassco/clingo/releases) and (compi
 
 ## Changelog
 
+- 8.17
+    - support for [recipes options](#recipes), like `breakable` or `last`
 - 8.11
     - slight bounds improvements for non-star-biclique motif
     - statistics/timers now provides time needed to search for each motif
