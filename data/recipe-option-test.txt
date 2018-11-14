@@ -1,4 +1,5 @@
 biclique	c	g h i
 biclique,open	a b	d e
 biclique,optional	unexisting nodes	are not compressible
+star,breakable	a	h g l m n
 biclique,last	c	j k

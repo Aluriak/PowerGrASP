@@ -140,6 +140,7 @@ The first column usually contains the motif types separated by comma
 (altough it is not necessary), and allows to provide some options (separated by comma):
 
 - `primer`: allows the program to extend the given motif if possible
+- `breakable`: allows the program to compress the line with multiple motifs
 - `optional`: if not found, ignore instead of stopping
 - `last`: stop compression here (useful to avoid the compression process to take over)
 
