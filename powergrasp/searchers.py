@@ -173,7 +173,7 @@ class BicliqueSearcher(MotifSearcher):
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
         graph = ''.join(graph.as_asp(step, filter_for_bicliques=not other_atoms, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
-            print('MXDKJX: GRAPH:', graph)
+            print('MXDKJX: GRAPH:', graph + '\n' + other_atoms)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
                                           options=self._clingo_options(),
                                           files=FULLBICLIQUE_ASP_FILES,
@@ -229,7 +229,7 @@ class NonStarBicliqueSearcher(MotifSearcher):
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
         graph = ''.join(graph.as_asp(step, filter_for_bicliques=not other_atoms, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
-            print('UHJGMR: GRAPH:', graph)
+            print('UHJGMR: GRAPH:', graph + '\n' + other_atoms)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
                                           options=self._clingo_options(),
                                           files=BICLIQUE_ASP_FILES,
@@ -259,7 +259,7 @@ class StarSearcher(MotifSearcher):
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
         graph = ''.join(graph.as_asp(step, filter_for_stars=not other_atoms, lowerbound=lowerbound, upperbound=upperbound))
         if SHOW_DEBUG:
-            print('ABQSSN: GRAPH:', graph)
+            print('ABQSSN: GRAPH:', graph + '\n' + other_atoms)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
                                           options=self._clingo_options(),
                                           files=STAR_ASP_FILES,
@@ -304,6 +304,8 @@ class CliqueSearcher(MotifSearcher):
 
     def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
         graph = ''.join(graph.as_asp(step, filter_for_cliques=not other_atoms, lowerbound=lowerbound, upperbound=upperbound))
+        if SHOW_DEBUG:
+            print('OKAPOD: GRAPH:', graph + '\n' + other_atoms)
         yield from asp.solve_motif_search(step, lowerbound, upperbound,
                                           options=self._clingo_options(),
                                           files=CLIQUE_ASP_FILES,
