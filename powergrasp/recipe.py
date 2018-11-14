@@ -2,8 +2,12 @@
 
 """
 
+import itertools
+
+
 class RecipeError(ValueError):
     pass
+
 
 class Recipe:
     RecipeError = RecipeError
@@ -100,15 +104,11 @@ class RecipeEntry:
         """Return one node found in sets"""
         return next(iter(self.seta), None) or next(iter(self.setb))
 
-    def has_edge(self, a, b, order_is_mandatory:bool=False) -> bool:
-        "True if edge {a, b} is expected in this RecipeEntry"
-        assert a[0] == a[-1] == b[0] == b[-1] == '"'
-        a = a[1:-1]  # remove double quotes
-        b = b[1:-1]
-        if order_is_mandatory:
-            return a in self.seta and b in self.setb
-        else:
-            return (a in self.seta and b in self.setb) or (a in self.setb and b in self.seta)
+    @property
+    def covered_edges(self) -> {frozenset((str, str))}:
+        "Return edges covered by the recipe"
+        quoted = lambda a: '"' + a + '"'
+        return frozenset(map(frozenset, itertools.product(map(quoted, self.seta), map(quoted, self.setb))))
 
     def __iter__(self):
         return iter((self.typenames, self.seta, self.setb))
