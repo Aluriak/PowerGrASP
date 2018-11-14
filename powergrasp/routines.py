@@ -8,7 +8,7 @@ from .utils import get_time
 from .graph import Graph
 from .recipe import Recipe
 from . import constants as const
-from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, STATISTIC_FILE, USE_STAR_MOTIF
+from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, SHOW_DEBUG, STATISTIC_FILE, USE_STAR_MOTIF
 from .motif_batch import MotifBatch
 from multiprocessing.dummy import Pool as ThreadPool  # dummy here to use the threading backend, not process
 from multiprocessing import Pool as ProcessPool
@@ -50,7 +50,7 @@ else:
     search_best_motifs = search_best_motifs_sequentially
 
 
-def compress(graph:Graph, *, cc_idx=None, recipe:['recipe']=None) -> [str]:
+def compress(graph:Graph, *, cc_idx=None, recipe:[Recipe]=None) -> [str]:
     """Yield bubble lines found in graph"""
     if TIMERS:
         timer_start = get_time()
@@ -61,12 +61,17 @@ def compress(graph:Graph, *, cc_idx=None, recipe:['recipe']=None) -> [str]:
         searchers = CliqueSearcher(graph), BicliqueSearcher(graph)
     if SHOW_STORY:
         print('INFO searchers: ' + ', '.join(s.name for s in searchers))
+        print(f"INFO recipe: {recipe}")
+    recipe_lines, recipe_line, recipe_completed = iter(recipe or ()), None, False
     step = 0
     complete_compression = False
     while True:
-        recipe_line = recipe[step] if recipe and step < len(recipe) else None
-        if SHOW_STORY and recipe_line:
-            print('INFO recipe:', recipe_line)
+        if recipe_line and recipe_line.isbreakable and not recipe_completed:
+            pass  # reuse the same recipe line
+        else:  # everything normal
+            recipe_line = next(recipe_lines, None)
+            recipe_completed = False
+        if (SHOW_STORY and recipe_line) or SHOW_DEBUG: print('INFO recipe:', recipe_line)
         step += 1
         try:
             best_motifs = search_best_motifs(searchers, step, recipe=recipe_line)
@@ -101,7 +106,11 @@ def compress(graph:Graph, *, cc_idx=None, recipe:['recipe']=None) -> [str]:
                 save_stats(cc_idx, *timers, best_motifs.name, best_motifs.score, *bounds)
         else:
             if recipe_line:  # the recipe failed, or is optional
-                if recipe_line.isrequired:
+                recipe_completed = True
+                if recipe_line.isbreakable:
+                    if SHOW_DEBUG:
+                        print(f"DEBUG breakable recipe {recipe_line} exhausted.")
+                elif recipe_line.isrequired:
                     raise recipe_line.RecipeError(f"Recipe {recipe_line} failed, but was necessary.")
                 else:  # it is optional
                     if SHOW_STORY:
@@ -109,8 +118,8 @@ def compress(graph:Graph, *, cc_idx=None, recipe:['recipe']=None) -> [str]:
             else:  # no recipe, so it's a normal ending of compression
                 complete_compression = True
                 break  # nothing to compress
-        # finish compression if the recipe asks so.
-        if recipe_line and recipe_line.islast:
+        # finish compression if the recipe asks so (and is not an uncompleted breakable).
+        if recipe_line and recipe_line.islast and not (recipe_line.isbreakable and not recipe_completed):
             break
     if TIMERS:
         timer_output = get_time()
@@ -143,24 +152,20 @@ def compress(graph:Graph, *, cc_idx=None, recipe:['recipe']=None) -> [str]:
         yield from _gen_metrics(compression_statistics)
 
 
-def compress_by_cc(fname:str, recipe_file:str=None) -> [str]:
-    """Yield bubble lines from compression of each cc found in given filename"""
+def compress_by_cc(fname:str, recipe_files:[str]=None) -> [str]:
+    """Yield bubble lines from compression of each cc found in given filename
+
+    recipe_files -- iterable of filenames or raw recipe, or Recipe objects
+
+    """
     if TIMERS and const.BUBBLE_WITH_STATISTICS:
         timer = get_time()
-    if recipe_file:
+    if recipe_files:
         if SHOW_STORY:
-            print('INFO recipe file:', recipe_file)
-        if isinstance(recipe_file, str):
-            recipe_files = [recipe_file]
-        else:  # list or tuple
-            recipe_files = tuple(recipe_file)
-        recipes = tuple(
-            Recipe.from_(recipe_file)
-            for recipe_file in recipe_files
-        )
-        del recipe_file
-        del recipe_files
-        def recipe_for(graph:Graph, recipes=recipes) -> 'recipe':
+            print('INFO recipe files:', recipe_files)
+        recipe_files = tuple([recipe_files] if isinstance(recipe_files, str) else recipe_files)
+        recipes = tuple(map(Recipe.from_, recipe_files))
+        def recipe_for(graph:Graph, recipes=recipes) -> Recipe:
             "Return the first recipe using a node found in given graph"
             for recipe in recipes:
                 if recipe.works_on(graph):
