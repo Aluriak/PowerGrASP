@@ -23,7 +23,8 @@ class Recipe:
         return self._lines[idx]
 
     def __str__(self):
-        return f'<Recipe of {len(self._lines)} motifs>'
+        nb_entry = len(self._lines)
+        return f"<Recipe of {nb_entry} motif{'' if nb_entry > 1 else ''}>"
 
     def works_on(self, graph) -> bool:
         "True if the graph has a node referenced in self."
@@ -36,6 +37,8 @@ class Recipe:
     @staticmethod
     def from_(obj:object) -> object:
         "Build a Recipe instance from a filename, its raw data, or an iterable of lines"
+        if isinstance(obj, Recipe):
+            return obj
         if isinstance(obj, str):
             if '\t' in obj:
                 return Recipe.from_string(obj)

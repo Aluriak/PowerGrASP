@@ -87,7 +87,12 @@ class Graph:
                     for cc in networkx.connected_components(nxgraph))
 
     def with_recipe(self, recipe:Recipe or None) -> object:
-        """Change the active recipe, return self"""
+        """Change the active recipe, return self.
+
+        The recipe will alter the ASP representation of the Graph by operating
+        filtering over available edges.
+
+        """
         self.__active_recipe = recipe
         return self
 
