@@ -6,8 +6,9 @@ from pprint import pprint
 from powergrasp import utils
 from powergrasp import constants
 from powergrasp import edge_filtering
-from powergrasp.motif import Motif
 from powergrasp import constants as const
+from powergrasp.motif import Motif
+from powergrasp.recipe import Recipe
 
 
 def proper_nx_graph(graph:networkx.Graph) -> networkx.Graph:
@@ -72,6 +73,7 @@ class Graph:
         self.__nb_cc = networkx.number_connected_components(nxgraph)
         self._nxgraph = nxgraph if constants.KEEP_NX_GRAPH else networkx.freeze(nxgraph)
         self.__initial_number_of_edge = len(self.__edges)
+        self.__active_recipe = None
 
         self.__hierarchy = set()  # inclusions between powernodes
         self.__powernodes = defaultdict(set)  # (step, set) -> {node in powernode}
@@ -84,6 +86,10 @@ class Graph:
         yield from (Graph(nxgraph.subgraph(cc))
                     for cc in networkx.connected_components(nxgraph))
 
+    def with_recipe(self, recipe:Recipe or None) -> object:
+        """Change the active recipe, return self"""
+        self.__active_recipe = recipe
+        return self
 
     # metrics related access
     @property
@@ -140,7 +146,8 @@ class Graph:
                filter_for_bicliques:bool=False,
                filter_for_cliques:bool=False,
                filter_for_stars:bool=False,
-               lowerbound:int=2, upperbound:int=None) -> [str]:
+               lowerbound:int=2, upperbound:int=None,
+               filter_by_active_recipe:bool=True) -> [str]:
         """Yield atoms of graph's ASP string representation, in edges and hierarchy.
 
         powerobjects -- also include powernodes and poweredges
@@ -149,6 +156,7 @@ class Graph:
         filter_for_stars -- don't yield edges that can't be compressed as stars
         lowerbound -- the lowerbound for the motif to search (used by filtering)
         upperbound -- idem. Will be ignored unless filtering is enabled.
+        filter_by_active_recipe -- only yield edges found in active recipe.
 
         """
         if upperbound is None: upperbound = len(self.__edges)
@@ -158,11 +166,17 @@ class Graph:
         assert (step-1) >= 0, step
         # define the edges to work on (depending of choosen filter and bounds)
         filter = None
-        if constants.GRAPH_FILTERING:
+        # avoid filtering if a recipe is changing the rules
+        if constants.GRAPH_FILTERING and not self.__active_recipe:
             if filter_for_bicliques: filter = edge_filtering.for_biclique
             elif filter_for_cliques: filter = edge_filtering.for_clique
             elif filter_for_stars: filter = edge_filtering.for_star
         filtered_edges = filter(self._nxgraph, lowerbound, upperbound) if filter else self.__edges
+        filtered_edges = tuple(filtered_edges)
+        if self.__active_recipe and filter_by_active_recipe and not self.__active_recipe.isextendable:
+            filtered_edges = ({a, b} for a, b in filtered_edges if self.__active_recipe.has_edge(a, b))
+        filtered_edges = tuple(filtered_edges)
+
         # yield the wanted atoms.
         for source, target in filtered_edges:
             yield 'edge({},{}).'.format(source, target)
