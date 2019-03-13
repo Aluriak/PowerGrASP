@@ -56,6 +56,8 @@ cliques:
 	$(MAKE) compress INFILE=cliques.lp
 concomp:
 	$(MAKE) compress INFILE=concomp.lp
+concept-loop:
+	$(MAKE) compress INFILE=concept-loop.lp
 ddiam:
 	$(MAKE) compress INFILE=ddiam.lp
 diacli:
@@ -116,9 +118,15 @@ test-gml:
 	$(MAKE) compress INFILE=test.gml
 test-graphml:
 	$(MAKE) compress INFILE=test.graphml
+todel:
+	$(MAKE) compress INFILE=todel.lp
+typical:
+	$(MAKE) compress INFILE=typical-use-case.lp
 unclique:
 	$(MAKE) compress INFILE=unclique.lp
 variable-name:
 	$(MAKE) compress INFILE=variable-name.gml
 wiki-tree-decomposition:
 	$(MAKE) compress INFILE=wiki-tree-decomposition.lp
+zorro:
+	$(MAKE) compress INFILE=zorro.lp
