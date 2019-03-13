@@ -63,6 +63,97 @@ biclique	a b	d e
 biclique	a b c	d e f
 """))
 
+def _test_recipe_use_of_already_defined_powernodes():
+    found = unified_bubble(compress_by_cc('data/suboptimal.lp', recipe_files="""
+biclique,star	a b	i e f
+biclique,star	c d	a b l
+biclique,star	e f	g h j
+biclique,star,last	g h	k c d
+"""))
+    expected = unified_bubble(BUBBLELINES_POWERNODE.splitlines(keepends=False))
+    # with open('out/out.bbl', 'w') as fd:
+        # fd.write('\n'.join(found))
+    assert found == expected
+
+@pytest.mark.skip(reason="this is a core bug that should be fixed ASAP")
+def test_after_recipe_use_of_already_defined_powernode():
+    found = unified_bubble(compress_by_cc('data/recipe-test-inclusion.lp', recipe_files="""
+biclique,star	e f	g h
+"""))
+    expected = unified_bubble(BUBBLELINES_POWERNODE_REUSE.splitlines(keepends=False))
+    with open('out/out.bbl', 'w') as fd:
+        fd.write('\n'.join(found))
+    assert found == expected
+
+
+BUBBLELINES_POWERNODE_REUSE = """
+NODE\ta
+NODE\tb
+NODE\tc
+NODE\td
+NODE\te
+NODE\tf
+NODE\tg
+NODE\th
+SET\tPWRN-a-1-1\t1.0
+SET\tPWRN-a-1-2\t1.0
+SET\tPWRN-a-2-1\t1.0
+SET\tPWRN-a-2-2\t1.0
+IN\ta\tPWRN-a-2-1
+IN\tb\tPWRN-a-2-1
+IN\tc\tPWRN-a-2-2
+IN\td\tPWRN-a-2-2
+IN\te\tPWRN-a-1-1
+IN\tf\tPWRN-a-1-1
+IN\tg\tPWRN-a-1-2
+IN\th\tPWRN-a-1-2
+IN\tPWRN-a-1-1\tPWRN-a-2-2
+EDGE\tPWRN-a-1-1\tPWRN-a-1-2\t1.0
+EDGE\tPWRN-a-2-1\tPWRN-a-2-2\t1.0
+"""
+
+BUBBLELINES_POWERNODE = """
+NODE\ta
+NODE\tb
+NODE\tc
+NODE\td
+NODE\te
+NODE\tf
+NODE\tg
+NODE\th
+NODE\ti
+NODE\tj
+NODE\tk
+NODE\tl
+SET\tPWRN-a-1-1\t1.0
+SET\tPWRN-a-1-2\t1.0
+SET\tPWRN-a-2-1\t1.0
+SET\tPWRN-a-2-2\t1.0
+SET\tPWRN-a-3-1\t1.0
+SET\tPWRN-a-3-2\t1.0
+SET\tPWRN-a-4-1\t1.0
+SET\tPWRN-a-4-2\t1.0
+IN\ta\tPWRN-a-1-1
+IN\tb\tPWRN-a-1-1
+IN\ti\tPWRN-a-1-2
+IN\tc\tPWRN-a-2-1
+IN\td\tPWRN-a-2-1
+IN\tl\tPWRN-a-2-2
+IN\te\tPWRN-a-3-1
+IN\tf\tPWRN-a-3-1
+IN\tj\tPWRN-a-3-2
+IN\tg\tPWRN-a-4-1
+IN\th\tPWRN-a-4-1
+IN\tk\tPWRN-a-4-2
+IN\tPWRN-a-1-1\tPWRN-a-2-2
+IN\tPWRN-a-3-1\tPWRN-a-1-2
+IN\tPWRN-a-4-1\tPWRN-a-3-2
+IN\tPWRN-a-2-1\tPWRN-a-4-2
+EDGE\tPWRN-a-1-1\tPWRN-a-1-2\t1.0
+EDGE\tPWRN-a-2-1\tPWRN-a-2-2\t1.0
+EDGE\tPWRN-a-3-1\tPWRN-a-3-2\t1.0
+EDGE\tPWRN-a-4-1\tPWRN-a-4-2\t1.0
+"""
 
 if USE_STAR_MOTIF:
     BUBBLELINES_SIMPLE = """
