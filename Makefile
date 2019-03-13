@@ -38,6 +38,8 @@ upload:
 release: fullrelease
 fullrelease:
 	fullrelease
+install_deps:
+	python -c "import configparser; c = configparser.ConfigParser(); c.read('setup.cfg'); print(c['options']['install_requires'])" | xargs pip install -U
 
 
 .PHONY: test t compress upload
