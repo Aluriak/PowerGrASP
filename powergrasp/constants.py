@@ -258,7 +258,8 @@ def _convert_motif_type_order(value:str) -> callable:
     error = lambda m: ValueError("Invalid value for option MOTIF TYPE ORDER: {} ({})".format(value, m))
     value = value.lower().replace(' ', '-').replace('_', '-')
     if ',' in value:
-        order = {name: idx for idx, name in enumerate(map(str.strip, value.split(',')))}
+        values = (val for val in map(str.strip, value.split(',')) if val)
+        order = {name: idx for idx, name in enumerate(values)}
         def ordered(searchers, *, order=order) -> iter:
             """Yield given searchers according to their priority"""
             return sorted(searchers, key=lambda s: order[s.name])
