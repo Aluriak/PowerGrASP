@@ -83,6 +83,9 @@ constants = {
     # Number of CPU available to clingo (or a string like '2,join' or '48,compete'), or 0 for autodetect number of CPU.
     'CLINGO_MULTITHREADING': 1,
 
+    # Do not search for cliques
+    'ONLY_BICLIQUES': False,
+
     # Two different motifs for stars and bicliques, so the work of biclique is lighter.
     'USE_STAR_MOTIF': True,
 
@@ -366,6 +369,7 @@ OPTIONS_CATEGORIES = utils.reverse_dict({
     'CLINGO_OPTIONS': 'clingo',
     'CLINGO_MULTITHREADING': 'clingo',
     'USE_STAR_MOTIF': 'optimization',
+    'ONLY_BICLIQUES': 'output',
     'OPTIMIZE_FOR_MEMORY': 'optimization',
     'KEEP_SINGLE_NODES': 'output',
     'KEEP_NX_GRAPH': 'optimization',

@@ -8,7 +8,7 @@ from .utils import get_time
 from .graph import Graph
 from .recipe import Recipe
 from . import constants as const
-from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, SHOW_DEBUG, STATISTIC_FILE, USE_STAR_MOTIF
+from .constants import MULTISHOT_MOTIF_SEARCH, BUBBLE_FOR_EACH_STEP, TIMERS, SHOW_STORY, SHOW_DEBUG, STATISTIC_FILE, USE_STAR_MOTIF, ONLY_BICLIQUES
 from .motif_batch import MotifBatch
 from multiprocessing.dummy import Pool as ThreadPool  # dummy here to use the threading backend, not process
 from multiprocessing import Pool as ProcessPool
@@ -55,10 +55,11 @@ def compress(graph:Graph, *, cc_idx=None, recipe:[Recipe]=None) -> [str]:
     if TIMERS:
         timer_start = get_time()
         timer_last = timer_start
+    searchers = [] if ONLY_BICLIQUES else [CliqueSearcher(graph)]
     if USE_STAR_MOTIF:
-        searchers = CliqueSearcher(graph), NonStarBicliqueSearcher(graph), StarSearcher(graph)
+        searchers.extend([NonStarBicliqueSearcher(graph), StarSearcher(graph)])
     else:
-        searchers = CliqueSearcher(graph), BicliqueSearcher(graph)
+        searchers.append(BicliqueSearcher(graph))
     if SHOW_STORY:
         print('INFO searchers: ' + ', '.join(s.name for s in searchers))
         print(f"INFO recipe: {recipe}")
