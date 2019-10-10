@@ -100,6 +100,8 @@ pnode-to-clique:
 	$(MAKE) compress INFILE=pnode-to-clique.lp
 prio_deg:
 	$(MAKE) compress INFILE=prio_deg.lp
+quasibiclique:
+	$(MAKE) compress INFILE=quasibiclique.lp
 quoting:
 	$(MAKE) compress INFILE=quoting.lp
 single-node:
@@ -120,6 +122,8 @@ test-graphml:
 	$(MAKE) compress INFILE=test.graphml
 todel:
 	$(MAKE) compress INFILE=todel.lp
+triplets:
+	$(MAKE) compress INFILE=triplets.lp
 typical:
 	$(MAKE) compress INFILE=typical-use-case.lp
 unclique:

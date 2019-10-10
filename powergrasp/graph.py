@@ -272,6 +272,8 @@ class Graph:
         if const.SHOW_DEBUG:
             print('PNODES:')
             pprint(dict(self.__powernodes))
+            print('PEDGES:')
+            pprint(dict(self.__poweredges))
 
         if const.TEST_INTEGRITY:
             inclusions = defaultdict(set)

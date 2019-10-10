@@ -89,6 +89,15 @@ constants = {
     # Two different motifs for stars and bicliques, so the work of biclique is lighter.
     'USE_STAR_MOTIF': True,
 
+    # Use quasibicliques instead of cliques
+    'QUASIBICLIQUES': False,
+
+    # Search for triplets
+    'TRIPLETS': True,
+
+    # Mu is the value for constraints for quasibicliques.
+    'QUASIBICLIQUE_MU': 2,
+
     # When a choice is given, prefer memory over CPU.
     'OPTIMIZE_FOR_MEMORY': False,
 
@@ -105,7 +114,7 @@ constants = {
     'PARALLEL_CC_COMPRESSION': 1,
 
     # Define in which order the motifs are tested.
-    'MOTIF_TYPE_ORDER': 'star,clique,non-star-biclique,biclique',
+    'MOTIF_TYPE_ORDER': 'star,clique,non-star-biclique,quasi-biclique,biclique,triplet',
 
     # TODO  Detect and postpone compression of terminal tree subgraphs
     # 'TERMINAL_TREES_POSTPONING': True,
@@ -371,6 +380,9 @@ OPTIONS_CATEGORIES = utils.reverse_dict({
     'CLINGO_MULTITHREADING': 'clingo',
     'USE_STAR_MOTIF': 'optimization',
     'ONLY_BICLIQUES': 'output',
+    'QUASIBICLIQUES': 'output',
+    'QUASIBICLIQUE_MU': 'output',
+    'TRIPLETS': 'output', 
     'OPTIMIZE_FOR_MEMORY': 'optimization',
     'KEEP_SINGLE_NODES': 'output',
     'KEEP_NX_GRAPH': 'optimization',

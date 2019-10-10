@@ -11,14 +11,16 @@ from .graph import Graph
 from .recipe import RecipeEntry
 from .constants import (TEST_INTEGRITY, SHOW_STORY, SHOW_DEBUG, KEEP_SINGLE_NODES,
                         MULTISHOT_MOTIF_SEARCH, BICLIQUE_LOWERBOUND_MAXNEI,
-                        OPTIMIZE_FOR_MEMORY, CLINGO_OPTIONS)
+                        OPTIMIZE_FOR_MEMORY, CLINGO_OPTIONS, QUASIBICLIQUE_MU)
 from . import ASP_FILES
 
 MOTIF_ASP_FILES = ASP_FILES['process-motif'], ASP_FILES['scoring_powergraph'], (ASP_FILES['block-constraint-memory'] if OPTIMIZE_FOR_MEMORY else ASP_FILES['block-constraint-cpu'])
 CLIQUE_ASP_FILES = (ASP_FILES['search-clique'], *MOTIF_ASP_FILES)
 FULLBICLIQUE_ASP_FILES = (ASP_FILES['search-fullbiclique'], *MOTIF_ASP_FILES)
 BICLIQUE_ASP_FILES = (ASP_FILES['search-biclique'], *MOTIF_ASP_FILES)
+QUASIBICLIQUE_ASP_FILES = (ASP_FILES['search-quasibiclique'], *MOTIF_ASP_FILES)
 STAR_ASP_FILES = (ASP_FILES['search-star'], *MOTIF_ASP_FILES)
+TRIPLET_ASP_FILES = (ASP_FILES['search-triplet'], *MOTIF_ASP_FILES)
 
 
 class MotifSearcher:
@@ -115,7 +117,7 @@ class MotifSearcher:
         if lowerbound > upperbound:
             if SHOW_STORY:
                 print("INFO No {} search because of bounds ({};{})."
-                      "".format(self.name, *self.bounds))
+                      "".format(self.name, lowerbound, upperbound))
             return  # impossible to find a motif in such conditions
         models = self._search(step, self.graph.with_recipe(recipe), lowerbound, upperbound, supplementary_asp_atoms)
         yield from (
@@ -326,6 +328,119 @@ class CliqueSearcher(MotifSearcher):
         assert len(sets) == 1
         nodes = frozenset(next(iter(sets)))
         yield from map(frozenset, itertools.combinations(nodes, r=2))
+
+
+class QuasiBicliqueSearcher(MotifSearcher):
+    """Searcher for Balanced QuasiBicliques.
+
+    See mu attribute for the minimal value.
+
+    """
+
+    name = 'quasi-biclique'
+
+    def compute_initial_bounds(self, graph:Graph) -> int:
+        """
+        Maximal lowerbound is the score of the biggest intersection.
+        Minimal upperbound is the maximal possible association of the most connected nodes
+        """
+        neis = {node: frozenset(neighbors) for node, neighbors in graph.neighbors()}
+        sorted_degrees = sorted(tuple(map(len, neis.values())), reverse=True)
+        try:
+            upperbound = max(idx * deg for idx, deg in enumerate(sorted_degrees, start=1) if deg > 1)
+        except ValueError:
+            upperbound = math.inf
+        upperbound = min(upperbound, graph.nb_edge)
+        if BICLIQUE_LOWERBOUND_MAXNEI >= 3:
+            maxnei = 0
+            for level in range(2, BICLIQUE_LOWERBOUND_MAXNEI + 1):
+                try:
+                    max_for_level = max(len(frozenset.intersection(*(neis[s] for s in sets))) * level for sets in itertools.combinations(neis.keys(), r=level))
+                except ValueError:
+                    max_for_level = 0
+                if max_for_level < maxnei: break
+                maxnei = max_for_level
+        else:
+            try:
+                maxnei = max(len(neis[a] & neis[b]) * 2 for a, b in itertools.combinations(neis.keys(), r=2))
+            except ValueError:
+                maxnei = 0
+        return maxnei, upperbound
+
+
+    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
+        graph = ''.join(graph.as_asp(step, lowerbound=lowerbound, upperbound=upperbound))
+        if SHOW_DEBUG:
+            print('LYOTVG: GRAPH:', graph + '\n' + other_atoms)
+        yield from asp.solve_motif_search(step, lowerbound, upperbound,
+                                          options=self._clingo_options() + f' -c mu={QUASIBICLIQUE_MU} -t 4',
+                                          files=QUASIBICLIQUE_ASP_FILES,
+                                          graph=graph + other_atoms)
+
+    def covered_edges(self, sets:[frozenset]) -> iter:
+        """Return the edges that are covered by given sets"""
+        assert len(sets) == 2
+        yield from map(frozenset, itertools.product(*sets))
+
+
+class TripletSearcher(MotifSearcher):
+    """Searcher for triplet concepts.
+
+    """
+
+    name = 'triplet'
+
+    def compute_initial_bounds(self, graph:Graph) -> int:
+        """
+        Maximal lowerbound is the score of the biggest intersection.
+        Minimal upperbound is the maximal possible association of the most connected nodes
+        """
+        neis = {node: frozenset(neighbors) for node, neighbors in graph.neighbors()}
+        sorted_degrees = sorted(tuple(map(len, neis.values())), reverse=True)
+        try:
+            upperbound = max(idx * deg for idx, deg in enumerate(sorted_degrees, start=1) if deg > 1)
+        except ValueError:
+            upperbound = math.inf
+        upperbound = min(upperbound, graph.nb_edge)
+        if BICLIQUE_LOWERBOUND_MAXNEI >= 3:
+            maxnei = 0
+            for level in range(2, BICLIQUE_LOWERBOUND_MAXNEI + 1):
+                try:
+                    max_for_level = max(len(frozenset.intersection(*(neis[s] for s in sets))) * level for sets in itertools.combinations(neis.keys(), r=level))
+                except ValueError:
+                    max_for_level = 0
+                if max_for_level < maxnei: break
+                maxnei = max_for_level
+        else:
+            try:
+                maxnei = max(len(neis[a] & neis[b]) * 2 for a, b in itertools.combinations(neis.keys(), r=2))
+            except ValueError:
+                maxnei = 0
+        return maxnei, upperbound
+
+
+    def _search(self, step:int, graph:Graph, lowerbound:int, upperbound:int, other_atoms:str='') -> iter:
+        graph = ''.join(graph.as_asp(step, filter_for_bicliques=True, lowerbound=lowerbound, upperbound=upperbound))
+        if SHOW_DEBUG:
+            print('BLELÉP: GRAPH:', graph + '\n' + other_atoms)
+        yield from asp.solve_motif_search(step, lowerbound, upperbound,
+                                          options=self._clingo_options() + f' -c mu={QUASIBICLIQUE_MU} -t 4',
+                                          files=TRIPLET_ASP_FILES,
+                                          graph=graph + other_atoms)
+
+    def covered_edges(self, sets:[frozenset]) -> iter:
+        """Return the edges that are covered by given sets"""
+        print(sets)
+        assert len(sets) == 3
+        a, b, c = sets
+        print('SETS:', a, b, c)
+        yield from map(frozenset, itertools.product(a, b))
+        yield from map(frozenset, itertools.product(a, c))
+        yield from map(frozenset, itertools.product(b, c))
+        yield from map(frozenset, itertools.combinations(c, r=2))
+
+
+
 
 
 # verify clingo options

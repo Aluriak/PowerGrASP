@@ -52,8 +52,10 @@ powernode_integrated(k,T,X):- newconcept(T,X) ; not perfectfit(_,_,T) ; not star
 % powernodes: those re-used, and those that didn't exist before.
 #show powernode(K,T): biclique ; powernode_integrated(K,T,X) ; not star(U) ; newconcept(U,X).
 #show powernode(K,T): clique   ; powernode_integrated(K,T,X).
+#show powernode(K,T): triplet  ; powernode_integrated(K,T,X) ; not star(U) ; newconcept(U,X).
 #show new_powernode(T,X): biclique ; powernode_integrated(k,T,X) ; not star(U) ; newconcept(U,X).
 #show new_powernode(1,X): clique   ; powernode_integrated(k,1,X).
+#show new_powernode(T,X): triplet  ; powernode_integrated(k,T,X) ; not star(U) ; newconcept(U,X).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -110,17 +112,29 @@ hierarchy_remove(K1,T1,K2,T2):- change_hierarchy(K1,T1,_,_,K2,T2).
 poweredge(1,1):- clique.
 % star: link directly the singleton set to the second powernode
 poweredge(3-T,X):- star(T) ; newconcept(T,X).
-% in all other cases: create a poweredge between the two newconcepts
+% biclique: create a poweredge between the two newconcepts
 poweredge(1,2):- biclique ; not star(T): T=1..2.
+% triplet: create four poweredges between the sets
+poweredge(X,Y):- triplet ; X<Y ; not star(X) ; not star(Y) ; newconcept(X,_) ; newconcept(Y,_).
+poweredge(Y,N):- triplet ; X!=Y ; star(X) ; newconcept(X,N) ; not star(Y) ; newconcept(X,_) ; newconcept(Y,_).
+poweredge(3,3):- triplet ; triplet_has_clique.
+% #show poweredge/2.
 
 % The poweredge will be drawn between integrated powernodes.
+poweredge(K1,T1,K2,T2):- triplet  ; not star(T1); not star(T2) ; powernode_integrated(K1,T1,_) ; powernode_integrated(K2,T2,_) ; (K1,T1) < (K2,T2).
+poweredge(K1,3,K1,3)  :- triplet  ; not star(3) ; powernode_integrated(K1, 3,_).
+poweredge(K1,T1,S)    :- triplet ; star(T) ; newconcept(T,S) ; powernode_integrated(K1,T1,_).
 poweredge(K1,T1,K2,T2):- biclique ; not star(_) ; powernode_integrated(K1,T1,_) ; powernode_integrated(K2,T2,_) ; (K1,T1) < (K2,T2).
 poweredge(K1,T1,S)    :- biclique ; star(T) ; newconcept(T,S) ; powernode_integrated(K1,T1,_).
 poweredge(K1,T1,K1,T1):-   clique ; powernode_integrated(K1,T1,_).
 
 #show poweredge/3.
 #show poweredge/4.
-#show poweredge_count(1).
+#show poweredge_count(1): clique.
+#show poweredge_count(1): biclique.
+#show poweredge_count(3): triplet, not triplet_has_clique.
+#show poweredge_count(4): triplet, triplet_has_clique.
+% NB: poweredge count is not computed correctly when searching triplets
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -134,12 +148,17 @@ special_node(T):- perfectfit(_,_,T).
 powernode_count(0):- special_node(1); special_node(2).
 powernode_count(1):- special_node(T); not special_node(3-T); T=1..2.
 powernode_count(2):- not special_node(1); not special_node(2).
+% NB: powernode count is not computed correctly when searching triplets
 #show powernode_count/1.
 
 % Are covered all edges of concept that link two nodes of different sets.
-covered_edge(X,Y):- newconcept(T,X) ; newconcept(3-T,Y) ; X<Y ; T=1..2 ; biclique ; covered_edges_from_asp=1.
+covered_edge(X,Y):- newconcept(T,X) ; newconcept(3-T,Y) ; X<Y ; inter(X,Y) ; quasibiclique.  % needed, even if covered_edges_from_asp=0
+covered_edge(X,Y):- newconcept(T,X) ; newconcept(3-T,Y) ; X<Y ; T=1..2 ; biclique ; not quasibiclique ; covered_edges_from_asp=1.
 covered_edge(X,Y):- newconcept(1,X) ; newconcept(1,Y) ; X<Y ; clique ; covered_edges_from_asp=1.
-#show covered_edge/2.
+covered_edge(X,Y):- newconcept(T,X) ; newconcept(U,Y) ; T<U ; triplet ; covered_edges_from_asp=1.
+covered_edge(X,Y):- newconcept(3,X) ; newconcept(3,Y) ; X<Y ; triplet ; covered_edges_from_asp=1.
+#show covered_edge(X,Y): covered_edge(X,Y), covered_edges_from_asp=1.
+#show covered_edge(X,Y): covered_edge(X,Y), quasibiclique.
 
 % A star is defined by the hub, not the set.
 #show star(X): star(T) ; newconcept(T,X).

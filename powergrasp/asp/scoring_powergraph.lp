@@ -33,6 +33,8 @@
 % Edge cover is the number of node covered by the set.
 edgecover(T,N):- biclique ; T=1..2 ; N={newconcept(T,X)}.
 edgecover(1,N):- clique   ; N={newconcept(1,X)}.
+score(N)      :- triplet ; N=(Na*Nb)+(Na*Nc)+(Nb*Nc)+(Nc*(Nc-1))/2 ; Na = {a(_)} ;  Nb = {b(_)} ;  Nc = {c(_)}.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,9 +42,10 @@ edgecover(1,N):- clique   ; N={newconcept(1,X)}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Concept score, equal to maximal score - edge cover.
 score(N):- N=((N1*(N1-1))/2) ; N<=upperbound ; N>=lowerbound ; clique ; edgecover(1,N1).
-score(N):- N<=upperbound; N>=lowerbound; star(T) ; edgecover(3-T,N).
+score(N):- N<=upperbound; N>=lowerbound; star(T) ; edgecover(3-T,N) ; biclique ; not quasibiclique.
 score(N):- N=N1*N2; N<=upperbound; N>=lowerbound; biclique ; not star(1); not star(2);
            edgecover(1,N1) ; edgecover(2,N2).
+% score(N):- N={covered_edge(_,_)} ; quasibiclique; N<=upperbound; N>=lowerbound.
 
 % Minimize score
 #minimize{(upperbound-S)@1,S:score(S)}.
