@@ -398,7 +398,8 @@ class TripletSearcher(MotifSearcher):
         neis = {node: frozenset(neighbors) for node, neighbors in graph.neighbors()}
         sorted_degrees = sorted(tuple(map(len, neis.values())), reverse=True)
         try:
-            upperbound = max(idx * deg for idx, deg in enumerate(sorted_degrees, start=1) if deg > 1)
+            # upperbound = max(idx * deg for idx, deg in enumerate(sorted_degrees, start=1) if deg > 1)
+            upperbound = math.inf
         except ValueError:
             upperbound = math.inf
         upperbound = min(upperbound, graph.nb_edge)
