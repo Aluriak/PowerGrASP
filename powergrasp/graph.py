@@ -112,17 +112,21 @@ class Graph:
 
     def compression_metrics(self) -> [(str, float)]:
         """Yield the metrics of compression from self data"""
-        yield from Graph.compression_metrics_from_data(self.compression_metrics_data())
+        yield from Graph.compression_metrics_from_data(self.compression_metrics_data(), self.nb_node)
 
     @property
     def nodes(self) -> frozenset:
         return frozenset(self.__nodes)
 
     @staticmethod
-    def compression_metrics_from_data(data:(int, int, int, int)) -> [(str, float)]:
+    def compression_metrics_from_data(data:(int, int, int, int), nb_node:int=-1) -> [(str, float)]:
         """Yield the metrics of compression from the input data"""
         from .metrics import compression_metrics
         yield from compression_metrics(*data)
+        yield from zip(
+            ('#edge in input graph', '#edge', '#non singleton poweredge', '#non-singleton powernode', '#(power)edge', '#node'),
+            list(data) + [data[1] + data[2], nb_node]
+        )
 
     def compression_metrics_data(self) -> (int, int, int, int):
         """Return the 4 values used to compute the metrics"""
