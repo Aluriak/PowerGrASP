@@ -89,11 +89,14 @@ constants = {
     # Two different motifs for stars and bicliques, so the work of biclique is lighter.
     'USE_STAR_MOTIF': True,
 
-    # Use quasibicliques instead of cliques
+    # Use quasibicliques instead of cliques.
     'QUASIBICLIQUES': False,
 
-    # Search for triplets
-    'TRIPLETS': True,
+    # Search for triplets.
+    'TRIPLETS': False,
+
+    # Use only triplet motifs.
+    'ONLY_TRIPLETS': False,
 
     # Mu is the value for constraints for quasibicliques.
     'QUASIBICLIQUE_MU': 2,
@@ -383,6 +386,7 @@ OPTIONS_CATEGORIES = utils.reverse_dict({
     'QUASIBICLIQUES': 'output',
     'QUASIBICLIQUE_MU': 'output',
     'TRIPLETS': 'output', 
+    'ONLY_TRIPLETS': 'output',
     'OPTIMIZE_FOR_MEMORY': 'optimization',
     'KEEP_SINGLE_NODES': 'output',
     'KEEP_NX_GRAPH': 'optimization',
@@ -390,7 +394,6 @@ OPTIONS_CATEGORIES = utils.reverse_dict({
     'PARALLEL_MOTIF_SEARCH': 'optimization',
     'PARALLEL_CC_COMPRESSION': 'optimization',
     'MOTIF_TYPE_ORDER': 'optimization',
-    'CC_STATISTIC_FILE': 'statistics',
 
     # 'TERMINAL_TREES_POSTPONING': 'optimization',
     # 'BRIDGES_CUT': 'optimization',
