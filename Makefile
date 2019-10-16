@@ -120,6 +120,8 @@ test-gml:
 	$(MAKE) compress INFILE=test.gml
 test-graphml:
 	$(MAKE) compress INFILE=test.graphml
+thesis:
+	$(MAKE) compress INFILE=thesis.lp
 todel:
 	$(MAKE) compress INFILE=todel.lp
 triplets:
