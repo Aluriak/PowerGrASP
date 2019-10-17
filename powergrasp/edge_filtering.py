@@ -12,15 +12,12 @@ import networkx as nx
 
 def for_biclique(graph:nx.Graph, lowerbound:int, upperbound:int) -> [(str, str)]:
     """
-    Remove any edge implying a node of degree 1, and a node of degree < lowerbound.
+    Remove any edge that the product of its nodes degrees is inferior to lowerbound.
     """
     def ok_to_go(edge:tuple) -> bool:
         one, two = edge
         degone, degtwo = map(graph.degree, edge)
-        return not any((
-            degone == 1 and degtwo < lowerbound,
-            degtwo == 1 and degone < lowerbound,
-        ))
+        return degone * degtwo >= lowerbound
     for edge in graph.edges:
         if ok_to_go(edge):
             yield edge
@@ -52,5 +49,5 @@ def for_clique(graph:nx.Graph, lowerbound:int, upperbound:int) -> [(str, str)]:
         else:
             return clusterings.setdefault(node, nx.clustering(graph, node))
     for edge in graph.edges:
-        if all(clustering_of(node) > 0. for node in edge):
+        if any(clustering_of(node) > 0. for node in edge):
             yield edge
