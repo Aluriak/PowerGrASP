@@ -29,6 +29,9 @@ def search_best_motifs_sequentially(searchers, step, recipe) -> MotifBatch:
     best_motifs, best_motifs_score = None, 0
     ordered_searchers = const.MOTIF_TYPE_ORDER(searchers)
     for searcher in ordered_searchers:
+        if recipe and not recipe.accept(searcher):
+            print(f'Recipe {recipe} cannot be fulfilled with searcher {searcher.name}')
+            continue
         motifs = MotifBatch(searcher.search(step, score_to_beat, recipe=recipe))
         if motifs:
             searcher.on_new_found_motif(motifs)
@@ -111,7 +114,7 @@ def compress(graph:Graph, *, cc_idx=None, recipe:[Recipe]=None) -> [str]:
                           "".format(*timers))
                 timer_last = now
                 for searcher in searchers:  # timer per motif search
-                    timers = timers + ('{}:{}'.format(searcher.name, round(searcher.last_search_time, 2)),)
+                    timers = timers + ('{}:{}'.format(searcher.name, round(searcher.last_search_time, 2)) if searcher.last_search_time is not None else 'none',)
             if STATISTIC_FILE:
                 bounds = [
                     '{}:[{};{}]'.format(searcher.name, searcher.lowerbound, searcher.upperbound)

@@ -98,7 +98,7 @@ class MotifSearcher:
         self.__timer = get_time()
         if recipe and not recipe.isbreakable:
             supplementary_asp_atoms = recipe.as_asp(is_star=self.name == 'star')
-            lowerbound = len(recipe.seta) * len(recipe.setb)
+            lowerbound = sum(1 for _ in self.covered_edges(recipe.sets))
             upperbound = self.upperbound if recipe.isextendable else lowerbound
             if SHOW_DEBUG:
                 print(f'DEBUG recipe {recipe} used.')
@@ -147,6 +147,7 @@ class BicliqueSearcher(MotifSearcher):
     """Searcher for Bicliques, including stars."""
 
     name = 'biclique'
+    motif_name = 'biclique'
 
     def compute_initial_bounds(self, graph:Graph) -> int:
         """
@@ -206,6 +207,7 @@ class NonStarBicliqueSearcher(MotifSearcher):
     """
 
     name = 'non-star-biclique'
+    motif_name = 'biclique'
 
     def compute_initial_bounds(self, graph:Graph) -> int:
         """
@@ -257,6 +259,7 @@ class StarSearcher(MotifSearcher):
     """Searcher for Stars."""
 
     name = 'star'
+    motif_name = 'biclique'
 
     def __init__(self, graph:Graph):
         self.__star_size = max(len(neighbors) for _, neighbors in graph.neighbors())
@@ -288,6 +291,7 @@ class CliqueSearcher(MotifSearcher):
     """Searcher for Cliques."""
 
     name = 'clique'
+    motif_name = 'clique'
 
     def compute_initial_bounds(self, graph:Graph) -> ():
         """Return lowerbound and upperbound for initial problems.
@@ -338,6 +342,7 @@ class QuasiBicliqueSearcher(MotifSearcher):
     """
 
     name = 'quasi-biclique'
+    motif_name = 'biclique'
 
     def compute_initial_bounds(self, graph:Graph) -> int:
         """
@@ -389,6 +394,7 @@ class TripletSearcher(MotifSearcher):
     """
 
     name = 'triplet'
+    motif_name = 'triplet'
 
     def compute_initial_bounds(self, graph:Graph) -> int:
         """

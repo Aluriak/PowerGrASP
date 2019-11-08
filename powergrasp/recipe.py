@@ -103,6 +103,14 @@ class RecipeEntry:
     def one_node(self) -> str:
         """Return one node found in sets"""
         return next(iter(self.seta), None) or next(iter(self.setb))
+    @property
+    def is_clique(self) -> str:
+        """True if describes a clique"""
+        return 'clique' in self.typenames
+    @property
+    def is_star(self) -> bool:
+        """True if describes a star"""
+        return 'star' in self.typenames or ('biclique' in self.typenames and any(len(s) == 1 for s in self.sets))
 
     @property
     def covered_edges(self) -> {frozenset((str, str))}:
@@ -125,6 +133,16 @@ class RecipeEntry:
             setb, seta = seta, setb
         return '\n'.join((
             ' '.join(f'newconcept(1,"{element}").' for element in seta),
-            ' '.join(f'newconcept(2,"{element}").' for element in setb),
+            '' if self.is_clique else ' '.join(f'newconcept(2,"{element}").' for element in setb),
             # '|'.join(typenames) + '.'
         ))
+
+    @property
+    def sets(self) -> [set]:
+        """Return the sets composing the motif described by the entry"""
+        return frozenset([self.seta]) if self.is_clique else frozenset([self.seta, self.setb])
+
+    def accept(self, searcher):
+        if searcher.name == 'star':
+            return self.is_star
+        return searcher.motif_name in self.typenames
