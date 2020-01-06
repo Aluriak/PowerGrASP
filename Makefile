@@ -1,4 +1,5 @@
 
+INFILE_DIR=data
 INFILE=double_biclique_unambiguous.lp
 TEST_CFG_FILE=
 
@@ -7,7 +8,7 @@ FAILED_FIRST=--ff
 
 ## Usage and tests
 compress:
-	python -m powergrasp data/$(INFILE) out/out.bbl
+	python -m powergrasp $(INFILE_DIR)/$(INFILE) out/out.bbl
 	python -m bubbletools validate out/out.bbl
 
 config:
@@ -43,6 +44,24 @@ install_deps:
 
 
 .PHONY: test t compress upload
+
+## All real test cases
+real-puceron-mi-m-diff:
+	$(MAKE) compress INFILE_DIR=~/data/puceron/data-playing/output INFILE=miRNA_mRNA_diff.lp
+real-puceron-mi-m-diff-no3019:
+	$(MAKE) compress INFILE_DIR=~/data/puceron/data-playing/output INFILE=miRNA_mRNA_diff-no3019.lp
+real-puceron-mi-lnc:
+	$(MAKE) compress INFILE_DIR=~/data/puceron/data-playing/output INFILE=miRNA_lncRNA.lp
+real-puceron-lnc-m:
+	$(MAKE) compress INFILE_DIR=~/data/puceron/data-playing/output INFILE=lncRNA_mRNA.lp
+real-puceron-mi-m-lnc:
+	$(MAKE) compress INFILE_DIR=~/data/puceron/data-playing/output INFILE=ternary_concepts_mi_m_lnc-edge.lp
+real-matrixdb-core27:
+	$(MAKE) compress INFILE_DIR=~/data/MatrixDb/compmatrixdb/matrixdb_CORE27_example INFILE=matrixdb_CORE27_example.lp
+real-matrixdb-90:
+	$(MAKE) compress INFILE_DIR=~/data/MatrixDb/compmatrixdb/matrixdb_Human_Human_171107_extended INFILE=matrixdb_CORE27_example.lp
+real-matrixdb-all:
+	$(MAKE) compress INFILE_DIR=~/data/MatrixDb/compmatrixdb/matrixdb_Human_Human_171107_extended INFILE=matrixdb_Human_Human_171107_extended_0.0.lp
 
 
 ## All test cases
