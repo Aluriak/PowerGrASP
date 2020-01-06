@@ -1,0 +1,66 @@
+a1	DirectedEdge	b1
+a1	DirectedEdge	b2
+a1	DirectedEdge	b3
+a1	DirectedEdge	b4
+a1	DirectedEdge	b5
+a1	DirectedEdge	b6
+a2	DirectedEdge	b1
+a2	DirectedEdge	b2
+a2	DirectedEdge	b3
+a2	DirectedEdge	b4
+a2	DirectedEdge	b5
+a2	DirectedEdge	b6
+a3	DirectedEdge	b1
+a3	DirectedEdge	b2
+a3	DirectedEdge	b3
+a3	DirectedEdge	b4
+a3	DirectedEdge	b5
+a3	DirectedEdge	b6
+a4	DirectedEdge	b1
+a4	DirectedEdge	b2
+a4	DirectedEdge	b3
+a4	DirectedEdge	b4
+a4	DirectedEdge	b5
+a4	DirectedEdge	b6
+
+
+c1	DirectedEdge	b5
+c1	DirectedEdge	b6
+c1	DirectedEdge	d1
+c1	DirectedEdge	d2
+c1	DirectedEdge	d3
+c2	DirectedEdge	b5
+c2	DirectedEdge	b6
+c2	DirectedEdge	d1
+c2	DirectedEdge	d2
+c2	DirectedEdge	d3
+
+e1	DirectedEdge	b5
+e1	DirectedEdge	b6
+e2	DirectedEdge	b5
+e2	DirectedEdge	b6
+
+e1	DirectedEdge	d1
+e1	DirectedEdge	d2
+e1	DirectedEdge	d3
+e2	DirectedEdge	d1
+e2	DirectedEdge	d2
+e2	DirectedEdge	d3
+
+
+e1	DirectedEdge	f1
+e1	DirectedEdge	f2
+e1	DirectedEdge	f3
+e1	DirectedEdge	f4
+e2	DirectedEdge	f1
+e2	DirectedEdge	f2
+e2	DirectedEdge	f3
+e2	DirectedEdge	f4
+e3	DirectedEdge	f1
+e3	DirectedEdge	f2
+e3	DirectedEdge	f3
+e3	DirectedEdge	f4
+e4	DirectedEdge	f1
+e4	DirectedEdge	f2
+e4	DirectedEdge	f3
+e4	DirectedEdge	f4

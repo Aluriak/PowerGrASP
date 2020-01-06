@@ -1,0 +1,27 @@
+a	Edge	j
+b	Edge	j
+a	Edge	c
+a	Edge	d
+a	Edge	g
+a	Edge	h
+b	Edge	c
+b	Edge	d
+b	Edge	g
+b	Edge	h
+
+e	Edge	l
+f	Edge	l
+e	Edge	c
+e	Edge	d
+e	Edge	g
+e	Edge	h
+f	Edge	c
+f	Edge	d
+f	Edge	g
+f	Edge	h
+
+g	Edge	i
+h	Edge	i
+
+c	Edge	k
+d	Edge	k

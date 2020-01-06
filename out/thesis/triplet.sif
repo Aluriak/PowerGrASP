@@ -1,0 +1,13 @@
+node12	DirectedEdge	node10
+node12	DirectedEdge	node9
+node12	DirectedEdge	node8
+node12	DirectedEdge	node7
+node11	DirectedEdge	node10
+node11	DirectedEdge	node9
+node11	DirectedEdge	node8
+node11	DirectedEdge	node7
+node11	DirectedEdge	node12
+node8	DirectedEdge	node10
+node8	DirectedEdge	node9
+node7	DirectedEdge	node10
+node7	DirectedEdge	node9
