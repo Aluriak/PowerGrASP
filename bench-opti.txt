@@ -1,0 +1,58 @@
+
+
+Benchs done with:
+
+    m real-matrixdb-core27 ; tail out/out.bbl
+
+get mean and diff to vanilla:
+p -c "l=tuple(map(float,input().split(', ')));m=sum(l)/len(l);print(round(m,2), str(round(100*(m/51.62),2))+'%')"
+
+Run results:
+
+vanilla: 53.6, 50.62, 50.63
+GF: 35.39, 36.73, 34.02
+SM: 65.44, 64.82, 66.74
+PM: 45.79, 46.52, 46.13
+MM: 19.7, 19.68, 20.04
+all but SM: 17.27, 16.04, 16.64
+all: 14.85, 14.03, 14.79
+
+NB: MM is named parallel in the thesis… and PM is not used.
+
+
+vanilla config:
+
+    [options]
+    MULTISHOT_MOTIF_SEARCH=false
+    PARALLEL_MOTIF_SEARCH=false
+    USE_STAR_MOTIF=false
+    GRAPH_FILTERING=false
+
+GF config:
+
+    MULTISHOT_MOTIF_SEARCH=false
+    PARALLEL_MOTIF_SEARCH=false
+    USE_STAR_MOTIF=false
+    GRAPH_FILTERING=true
+
+
+SM config:
+
+    MULTISHOT_MOTIF_SEARCH=false
+    PARALLEL_MOTIF_SEARCH=false
+    USE_STAR_MOTIF=true
+    GRAPH_FILTERING=false
+
+PM config:
+
+    MULTISHOT_MOTIF_SEARCH=false
+    PARALLEL_MOTIF_SEARCH=true
+    USE_STAR_MOTIF=false
+    GRAPH_FILTERING=false
+
+MM config:
+
+    MULTISHOT_MOTIF_SEARCH=true
+    PARALLEL_MOTIF_SEARCH=false
+    USE_STAR_MOTIF=false
+    GRAPH_FILTERING=false
