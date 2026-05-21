@@ -1,6 +1,7 @@
-import pkg_resources
+import importlib.resources
+
 ASP_FILES = {
-    fname: pkg_resources.resource_filename(__name__, 'asp/' + fname + '.lp')
+    fname: importlib.resources.files(__name__).joinpath('asp/' + fname + '.lp')
     for fname in ('search-triplet', 'search-fullbiclique', 'search-biclique', 'search-quasibiclique', 'search-star', 'search-clique', 'process-motif', 'block-constraint-cpu', 'block-constraint-memory', 'scoring_powergraph')
 }
 
